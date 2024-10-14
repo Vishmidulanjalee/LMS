@@ -88,10 +88,10 @@ function Dashboard() {
 
   const footerStyle = {
     textAlign: 'center',
-    backgroundColor: '#F3C623',
+    backgroundColor: '#edc842',
     borderTop: '1px solid #ddd',
     marginTop: '10px',
-    padding: '5px 0',
+    padding: '4px 0',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
@@ -189,13 +189,13 @@ function Dashboard() {
       <div style={footerStyle}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
           <a href="https://www.youtube.com/@Gishandhananjaya-1998" target="_blank" rel="noopener noreferrer">
-            <img src={youtubeIcon} alt="YouTube" style={{ width: '30px', height: '30px' }} />
+            <img src={youtubeIcon} alt="YouTube" style={{ width: '26px', height: '26px' }} />
           </a>
           <a href="https://www.tiktok.com/@gishan_dhananjaya?_t=8qL7YuZroyl&_r=1" target="_blank" rel="noopener noreferrer">
-            <img src={tiktokIcon} alt="TikTok" style={{ width: '30px', height: '30px' }} />
+            <img src={tiktokIcon} alt="TikTok" style={{ width: '26px', height: '26px' }} />
           </a>
           <a href="https://www.facebook.com/share/iBFQfxsLKHUiHFhc/" target="_blank" rel="noopener noreferrer">
-            <img src={facebookIcon} alt="Facebook" style={{ width: '30px', height: '30px' }} />
+            <img src={facebookIcon} alt="Facebook" style={{ width: '26px', height: '26px' }} />
           </a>
         </div>
         <p style={{ margin: '0', textAlign: 'center', fontSize: '15px' }}>© The Bee Academy. All rights reserved.</p>
