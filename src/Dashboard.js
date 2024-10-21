@@ -8,7 +8,8 @@ import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
 import youtubeIcon from './assets/youtube.png'; 
 import tiktokIcon from './assets/tiktok.png'; 
-import facebookIcon from './assets/facebook.png'; 
+import facebookIcon from './assets/facebook.png';
+ 
 
 function Dashboard() {
   const userName = "John Doe";
@@ -129,7 +130,7 @@ function Dashboard() {
             style={{ ...yellowCardStyle, backgroundColor: notesCardColor }}
             onMouseEnter={() => setNotesCardColor('#F3C623')}
             onMouseLeave={() => setNotesCardColor('#fff')}
-            onClick={() => window.location.href = '/notes'} // Navigate to notes page
+            onClick={() => window.location.href = './NotesPage/Notes'} // Navigate to notes page
           >
             <img src={notesIcon} alt="Notes Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Notes</h3>
@@ -153,7 +154,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: marksCardColor }}
             onMouseEnter={() => setMarksCardColor('#F3C623')}
             onMouseLeave={() => setMarksCardColor('#fff')}
-            onClick={() => window.location.href = '/marks'} // Navigate to marks page
+            onClick={() => window.location.href = '/MarksPages/MarksPages'} // Navigate to marks page
           >
             <img src={marksIcon} alt="Marks Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Marks</h3>
