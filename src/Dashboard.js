@@ -16,11 +16,11 @@ function Dashboard() {
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const year = today.getFullYear();
-  const currentDate = `${day}/${month}/${year}`; // Fixed string interpolation
-  
+  const currentDate = `${day}/${month}/${year}`; 
+
   const images = [image1, image2, image3];
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
@@ -39,19 +39,28 @@ function Dashboard() {
     alignItems: 'center',
     padding: '10px',
     backgroundColor: '#ffffff',
+    flexWrap: 'wrap', // Adjust for smaller screens
   };
 
   const contentStyle = {
     display: 'grid',
-    gridTemplateColumns: '2fr 1fr',
+    gridTemplateColumns: '2fr 1fr', // Two columns for larger screens
     marginTop: '20px',
     gap: '20px',
   };
 
   const cardContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(2, 1fr)', // Two cards per row
     gap: '20px',
+  };
+
+  // Media query for responsiveness
+  const responsiveContainerStyle = {
+    ...cardContainerStyle,
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr', // Stack cards for smaller screens
+    },
   };
 
   const cardStyle = {
@@ -64,8 +73,7 @@ function Dashboard() {
     flexDirection: 'column',
     justifyContent: 'center',
     height: '140px',
-    width: '80%',
-    margin: '0',
+    width: '90%', // Ensure the card takes full width in a row
     transition: 'background-color 0.3s ease',
     cursor: 'pointer',
   };
@@ -113,7 +121,7 @@ function Dashboard() {
         </div>
         <div>
           <img
-            src="https://via.placeholder.com/40"
+            src="logo"
             alt="User Profile"
             style={{ width: '40px', height: '40px', borderRadius: '50%' }}
           />
@@ -123,13 +131,13 @@ function Dashboard() {
       {/* Content Section */}
       <div style={contentStyle}>
         {/* Left Panel (Cards) */}
-        <div style={cardContainerStyle}>
+        <div style={responsiveContainerStyle}>
           {/* Notes Card */}
           <div
             style={{ ...yellowCardStyle, backgroundColor: notesCardColor }}
             onMouseEnter={() => setNotesCardColor('#F3C623')}
             onMouseLeave={() => setNotesCardColor('#fff')}
-            onClick={() => window.location.href = '/notes'} // Navigate to notes page
+            onClick={() => window.location.href = '/notes'} 
           >
             <img src={notesIcon} alt="Notes Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Notes</h3>
@@ -141,7 +149,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: homeworkCardColor }}
             onMouseEnter={() => setHomeworkCardColor('#F3C623')}
             onMouseLeave={() => setHomeworkCardColor('#fff')}
-            onClick={() => window.location.href = '/homework'} // Navigate to homework page
+            onClick={() => window.location.href = '/homework'}
           >
             <img src={homeworkIcon} alt="Homework Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Homework</h3>
@@ -153,7 +161,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: marksCardColor }}
             onMouseEnter={() => setMarksCardColor('#F3C623')}
             onMouseLeave={() => setMarksCardColor('#fff')}
-            onClick={() => window.location.href = '/marks'} // Navigate to marks page
+            onClick={() => window.location.href = '/marks'}
           >
             <img src={marksIcon} alt="Marks Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Marks</h3>
@@ -165,7 +173,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: otherCardColor }}
             onMouseEnter={() => setOtherCardColor('#F3C623')}
             onMouseLeave={() => setOtherCardColor('#fff')}
-            onClick={() => window.location.href = '/other'} // Navigate to other page
+            onClick={() => window.location.href = '/other'}
           >
             <img src={otherIcon} alt="Other Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Other</h3>
@@ -198,11 +206,15 @@ function Dashboard() {
             <img src={facebookIcon} alt="Facebook" style={{ width: '26px', height: '26px' }} />
           </a>
         </div>
-        <p style={{ margin: '0', textAlign: 'center', fontSize: '15px' }}>© The Bee Academy. All rights reserved.</p>
+        <p style={{ margin: '0', textAlign: 'center', fontSize: '15px' }}>
+          &copy; {new Date().getFullYear()} Gishan Dhananjaya - All rights reserved.
+        </p>
       </div>
     </div>
   );
 }
 
 export default Dashboard;
+
+
 
