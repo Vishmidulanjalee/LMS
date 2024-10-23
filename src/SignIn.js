@@ -6,7 +6,7 @@ import { setDoc, doc } from "firebase/firestore";
 import { auth, db } from './firebase'; // Import auth and db directly
 import LogoBig from './assets/LogoBig.png';
 
-const Signup = () => {
+const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -56,7 +56,7 @@ const Signup = () => {
         transition={{ duration: 0.5 }}
       >
         <h1 className="text-6xl font-bold mb-4">Welcome</h1>
-        <p className="text-xl mb-20">Sign up to start your learning</p>
+        <p className="text-xl mb-20">Sign in to start your learning</p>
         <img 
           src={LogoBig}
           alt="The Bee Academy Logo" 
@@ -73,7 +73,7 @@ const Signup = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <h2 className="text-5xl font-bold  ml-10">Sign Up</h2>
+        <h2 className="text-5xl font-bold  ml-10">Sign In</h2>
         <form className="space-y-8 ml-10 " onSubmit={handleSignUp}>
           <div className='mt-20 mb-10'>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -114,17 +114,17 @@ const Signup = () => {
           </div>
           <div>
             <button type="submit" className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white  bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-              Sign Up
+              Sign In
             </button>
           </div>
         </form>
         <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600 ">
-          Already have an account? {' '}
-          <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
+          Don't have an account'? {' '}
+          <Link to="/" className="font-medium text-primary hover:text-secondary">Sign Up</Link>
         </p>
       </motion.div>
     </div>
   )
 };
 
-export default Signup;
+export default Signin;
