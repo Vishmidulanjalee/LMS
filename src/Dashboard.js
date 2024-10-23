@@ -138,11 +138,7 @@ function Dashboard() {
             style={{ ...yellowCardStyle, backgroundColor: notesCardColor }}
             onMouseEnter={() => setNotesCardColor('#F3C623')}
             onMouseLeave={() => setNotesCardColor('#fff')}
-<<<<<<< HEAD
-            onClick={() => window.location.href = './NotesPage/Notes'} // Navigate to notes page
-=======
             onClick={() => window.location.href = '/notes'} 
->>>>>>> 93bcce296cb0200ff97083aac46668367d0c15f3
           >
             <img src={notesIcon} alt="Notes Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Notes</h3>
@@ -166,11 +162,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: marksCardColor }}
             onMouseEnter={() => setMarksCardColor('#F3C623')}
             onMouseLeave={() => setMarksCardColor('#fff')}
-<<<<<<< HEAD
             onClick={() => window.location.href = '/MarksPages/MarksPages'} // Navigate to marks page
-=======
-            onClick={() => window.location.href = '/marks'}
->>>>>>> 93bcce296cb0200ff97083aac46668367d0c15f3
           >
             <img src={marksIcon} alt="Marks Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Marks</h3>
