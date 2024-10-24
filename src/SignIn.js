@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
-import { auth, db } from './firebase'; // Import auth and db directly
+import { signInWithEmailAndPassword } from "firebase/auth";  // Updated import
+import { auth } from './firebase'; // Import only auth
 import LogoBig from './assets/LogoBig.png';
 
 const Signin = () => {
@@ -13,34 +12,31 @@ const Signin = () => {
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
 
-  const handleSignUp = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setEmailError('');
     setPasswordError('');
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Use signInWithEmailAndPassword to authenticate users
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // Store user data in Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-      });
-
-      navigate('/signin');
+      
+      // If sign-in is successful, navigate to the dashboard
+      navigate('/dashboard');
     } catch (error) {
       switch (error.code) {
-        case 'auth/email-already-in-use':
-          setEmailError('This email is already in use.');
+        case 'auth/user-not-found':
+          setEmailError('No account found with this email.');
+          break;
+        case 'auth/wrong-password':
+          setPasswordError('Incorrect password. Please try again.');
           break;
         case 'auth/invalid-email':
           setEmailError('Please enter a valid email address.');
           break;
-        case 'auth/weak-password':
-          setPasswordError('Password should be at least 6 characters.');
-          break;
         default:
-          setEmailError('Failed to sign up. Please try again.');
+          setEmailError('Failed to sign in. Please try again.');
           setPasswordError('');
       }
     }
@@ -73,8 +69,9 @@ const Signin = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <h2 className="text-5xl font-bold  ml-10">Sign In</h2>
-        <form className="space-y-8 ml-10 " onSubmit={handleSignUp}>
+        <h2 className="text-5xl font-bold ml-10">Sign In</h2>
+        <form className="space-y-8 ml-10" onSubmit={handleSignIn}>
+          {/* Email Field */}
           <div className='mt-20 mb-10'>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input 
@@ -89,6 +86,8 @@ const Signin = () => {
             />
             {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
           </div>
+
+          {/* Password Field */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <input 
@@ -103,6 +102,8 @@ const Signin = () => {
             />
             {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
           </div>
+
+          {/* Remember me & Forgot password */}
           <div className="flex items-center justify-between w-4/5">
             <div className="flex items-center -mt-5">
               <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
@@ -112,19 +113,23 @@ const Signin = () => {
               <Link href="/forgot-password" className="font-medium text-primary hover:text-secondary">Forgot password?</Link>
             </div>
           </div>
+
+          {/* Sign In Button */}
           <div>
-            <button type="submit" className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white  bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+            <button type="submit" className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
               Sign In
             </button>
           </div>
         </form>
-        <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600 ">
-          Don't have an account'? {' '}
-          <Link to="/" className="font-medium text-primary hover:text-secondary">Sign Up</Link>
+
+        {/* Sign Up Link */}
+        <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600">
+          Don't have an account? {' '}
+          <Link to="/signup" className="font-medium text-primary hover:text-secondary">Sign Up</Link>
         </p>
       </motion.div>
     </div>
-  )
+  );
 };
 
 export default Signin;

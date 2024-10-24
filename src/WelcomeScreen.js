@@ -75,7 +75,7 @@ const WelcomeScreen = () => {
           whileTap={{ scale: 0.95 }}
           className=" bg-primary hover:bg-secondary text-white font-bold py-3 px-10 rounded-full shadow-lg transition-all duration-300 ease-in-out mb-24"
         >
-        <Link to={"/"}>
+         <Link to={"/signin"}> {/* Updated the Link to "/signin" */}
             Get Started
         </Link>
                   

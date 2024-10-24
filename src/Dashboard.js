@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { doc, getDoc } from "firebase/firestore"; // Import Firestore methods
+import { auth, db } from './firebase'; // Import your Firestore db and auth
 import notesIcon from './assets/notes.png';
 import homeworkIcon from './assets/homework.png';
 import otherIcon from './assets/other.png';
@@ -9,10 +11,30 @@ import image3 from './assets/img3.jpg';
 import youtubeIcon from './assets/youtube.png'; 
 import tiktokIcon from './assets/tiktok.png'; 
 import facebookIcon from './assets/facebook.png';
- 
 
 function Dashboard() {
-  const userName = "John Doe";
+  const [userName, setUserName] = useState(''); // State to hold username
+  const [loading, setLoading] = useState(true); // State to handle loading state
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser; // Get the current user
+      if (user) {
+        const docRef = doc(db, "users", user.uid); // Reference to the user's document
+        const docSnap = await getDoc(docRef); // Fetch the document
+        
+        if (docSnap.exists()) {
+          setUserName(docSnap.data().username); // Set username state
+        } else {
+          console.log("No such document!");
+        }
+      }
+      setLoading(false); // Set loading to false after fetching
+    };
+
+    fetchUserData();
+  }, []);
+
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -40,28 +62,20 @@ function Dashboard() {
     alignItems: 'center',
     padding: '10px',
     backgroundColor: '#ffffff',
-    flexWrap: 'wrap', // Adjust for smaller screens
+    flexWrap: 'wrap',
   };
 
   const contentStyle = {
     display: 'grid',
-    gridTemplateColumns: '2fr 1fr', // Two columns for larger screens
+    gridTemplateColumns: '2fr 1fr',
     marginTop: '20px',
     gap: '20px',
   };
 
   const cardContainerStyle = {
     display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)', // Two cards per row
+    gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '20px',
-  };
-
-  // Media query for responsiveness
-  const responsiveContainerStyle = {
-    ...cardContainerStyle,
-    '@media (max-width: 768px)': {
-      gridTemplateColumns: '1fr', // Stack cards for smaller screens
-    },
   };
 
   const cardStyle = {
@@ -74,7 +88,7 @@ function Dashboard() {
     flexDirection: 'column',
     justifyContent: 'center',
     height: '140px',
-    width: '90%', // Ensure the card takes full width in a row
+    width: '90%',
     transition: 'background-color 0.3s ease',
     cursor: 'pointer',
   };
@@ -117,12 +131,18 @@ function Dashboard() {
       {/* Header Section */}
       <div style={headerStyle}>
         <div>
-          <h1 style={{ fontSize: '40px', margin: '0' }}>Welcome Back, {userName}</h1>
-          <p style={{ margin: '0' }}>{currentDate}</p>
+          {loading ? (
+            <h1 style={{ fontSize: '40px', margin: '0' }}>Loading...</h1>
+          ) : (
+            <>
+              <h1 style={{ fontSize: '40px', margin: '0' }}>Welcome Back, {userName}</h1>
+              <p style={{ margin: '0' }}>{currentDate}</p>
+            </>
+          )}
         </div>
         <div>
           <img
-            src="logo"
+            src="logo" // Replace with your logo
             alt="User Profile"
             style={{ width: '40px', height: '40px', borderRadius: '50%' }}
           />
@@ -132,7 +152,7 @@ function Dashboard() {
       {/* Content Section */}
       <div style={contentStyle}>
         {/* Left Panel (Cards) */}
-        <div style={responsiveContainerStyle}>
+        <div style={cardContainerStyle}>
           {/* Notes Card */}
           <div
             style={{ ...yellowCardStyle, backgroundColor: notesCardColor }}
@@ -162,7 +182,7 @@ function Dashboard() {
             style={{ ...cardStyle, backgroundColor: marksCardColor }}
             onMouseEnter={() => setMarksCardColor('#F3C623')}
             onMouseLeave={() => setMarksCardColor('#fff')}
-            onClick={() => window.location.href = '/MarksPages/MarksPages'} // Navigate to marks page
+            onClick={() => window.location.href = '/MarksPages/MarksPages'}
           >
             <img src={marksIcon} alt="Marks Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
             <h3 style={{ fontSize: '25px', margin: '0' }}>Marks</h3>
@@ -197,25 +217,24 @@ function Dashboard() {
       {/* Footer Section */}
       <div style={footerStyle}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
-          <a href="https://www.youtube.com/@Gishandhananjaya-1998" target="_blank" rel="noopener noreferrer">
-            <img src={youtubeIcon} alt="YouTube" style={{ width: '26px', height: '26px' }} />
+          <a href="https://www.youtube.com/@GishanVlogs" target="_blank" rel="noopener noreferrer">
+            <img src={youtubeIcon} alt="YouTube" style={{ width: '30px', height: '30px' }} />
           </a>
-          <a href="https://www.tiktok.com/@gishan_dhananjaya?_t=8qL7YuZroyl&_r=1" target="_blank" rel="noopener noreferrer">
-            <img src={tiktokIcon} alt="TikTok" style={{ width: '26px', height: '26px' }} />
+          <a href="https://www.tiktok.com/@gishan.vlogs" target="_blank" rel="noopener noreferrer">
+            <img src={tiktokIcon} alt="TikTok" style={{ width: '30px', height: '30px' }} />
           </a>
-          <a href="https://www.facebook.com/share/iBFQfxsLKHUiHFhc/" target="_blank" rel="noopener noreferrer">
-            <img src={facebookIcon} alt="Facebook" style={{ width: '26px', height: '26px' }} />
+          <a href="https://www.facebook.com/GishanVlogs/" target="_blank" rel="noopener noreferrer">
+            <img src={facebookIcon} alt="Facebook" style={{ width: '30px', height: '30px' }} />
           </a>
         </div>
-        <p style={{ margin: '0', textAlign: 'center', fontSize: '15px' }}>
-          &copy; {new Date().getFullYear()} Gishan Dhananjaya - All rights reserved.
-        </p>
+        <p style={{ margin: '0', padding: '4px' }}>© 2024 Your School Name. All Rights Reserved.</p>
       </div>
     </div>
   );
 }
 
 export default Dashboard;
+
 
 
 

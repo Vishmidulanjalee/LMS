@@ -12,9 +12,9 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<SignUp />} /> {/* SignIn is the first page */}
+        <Route path="/" element={<WelcomeScreen />} /> {/* Notes route */}
+        <Route path="/Signup" element={<SignUp />} /> {/* SignIn is the first page */}
         <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
-        <Route path="/WelcomeScreen" element={<WelcomeScreen />} /> {/* Notes route */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* Main dashboard route */}
         <Route path="/NotesPage/Notes" element={<NotesPage />} /> {/* Notes route */}
         <Route path="/MarksPages/MarksPages" element={<MarksPages />} /> {/* Marks route */}
