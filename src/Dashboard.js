@@ -1,45 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc } from "firebase/firestore"; // Import Firestore methods
-import { auth, db } from './firebase'; // Import your Firestore db and auth
-import notesIcon from './assets/notes.png';
-import homeworkIcon from './assets/homework.png';
-import otherIcon from './assets/other.png';
-import marksIcon from './assets/marks.png';
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from './firebase';
+import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react"
 import image1 from './assets/img1.jpg'; 
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
-import youtubeIcon from './assets/youtube.png'; 
-import tiktokIcon from './assets/tiktok.png'; 
-import facebookIcon from './assets/facebook.png';
+import Footer from './Footer';
 
-function Dashboard() {
-  const [userName, setUserName] = useState(''); // State to hold username
-  const [loading, setLoading] = useState(true); // State to handle loading state
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const user = auth.currentUser; // Get the current user
-      if (user) {
-        const docRef = doc(db, "users", user.uid); // Reference to the user's document
-        const docSnap = await getDoc(docRef); // Fetch the document
-        
-        if (docSnap.exists()) {
-          setUserName(docSnap.data().username); // Set username state
-        } else {
-          console.log("No such document!");
-        }
-      }
-      setLoading(false); // Set loading to false after fetching
-    };
-
-    fetchUserData();
-  }, []);
-
-  const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const currentDate = `${day}/${month}/${year}`; 
+const Dashboard = () => {
+  const [userName, setUserName] = useState('');
+  const [loading, setLoading] = useState(true);
 
   const images = [image1, image2, image3];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -51,190 +21,87 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const containerStyle = {
-    padding: '20px',
-    fontFamily: 'Arial, sans-serif',
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          setUserName(docSnap.data().username);
+        } else {
+          console.log("No such document!");
+        }
+      }
+      setLoading(false);
+    };
 
-  const headerStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px',
-    backgroundColor: '#ffffff',
-    flexWrap: 'wrap',
-  };
+    fetchUserData();
+  }, []);
 
-  const contentStyle = {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr',
-    marginTop: '20px',
-    gap: '20px',
-  };
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const year = today.getFullYear();
+  const currentDate = `${day}/${month}/${year}`; 
 
-  const cardContainerStyle = {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '20px',
-  };
-
-  const cardStyle = {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    height: '140px',
-    width: '90%',
-    transition: 'background-color 0.3s ease',
-    cursor: 'pointer',
-  };
-
-  const yellowCardStyle = {
-    ...cardStyle,
-    backgroundColor: '#F3C623',
-  };
-
-  const boxStyle = {
-    backgroundColor: '#e0e0e0',
-    padding: '0px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    height: 'auto',
-  };
-
-  const footerStyle = {
-    textAlign: 'center',
-    backgroundColor: '#edc842',
-    borderTop: '1px solid #ddd',
-    marginTop: '10px',
-    padding: '4px 0',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  };
-
-  const [notesCardColor, setNotesCardColor] = useState('#fff');
-  const [homeworkCardColor, setHomeworkCardColor] = useState('#fff');
-  const [marksCardColor, setMarksCardColor] = useState('#fff');
-  const [otherCardColor, setOtherCardColor] = useState('#fff');
+  const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
   return (
-    <div style={containerStyle}>
-      {/* Header Section */}
-      <div style={headerStyle}>
-        <div>
-          {loading ? (
-            <h1 style={{ fontSize: '40px', margin: '0' }}>Loading...</h1>
-          ) : (
-            <>
-              <h1 style={{ fontSize: '40px', margin: '0' }}>Welcome Back, {userName}</h1>
-              <p style={{ margin: '0' }}>{currentDate}</p>
-            </>
-          )}
-        </div>
-        <div>
-          <img
-            src="logo" // Replace with your logo
-            alt="User Profile"
-            style={{ width: '40px', height: '40px', borderRadius: '50%' }}
-          />
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div style={contentStyle}>
-        {/* Left Panel (Cards) */}
-        <div style={cardContainerStyle}>
-          {/* Notes Card */}
-          <div
-            style={{ ...yellowCardStyle, backgroundColor: notesCardColor }}
-            onMouseEnter={() => setNotesCardColor('#F3C623')}
-            onMouseLeave={() => setNotesCardColor('#fff')}
-            onClick={() => window.location.href = '/notes'} 
-          >
-            <img src={notesIcon} alt="Notes Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
-            <h3 style={{ fontSize: '25px', margin: '0' }}>Notes</h3>
-            <p style={{ fontSize: '17px', margin: '0' }}>Access important notes to help with your lessons</p>
+    <div className="flex flex-col h-screen bg-gray-200 ">
+      <header className="bg-white shadow ">
+        <div className="max-w-8xl mx-0 px-4  sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
+            <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
           </div>
-
-          {/* Homework Card */}
-          <div
-            style={{ ...cardStyle, backgroundColor: homeworkCardColor }}
-            onMouseEnter={() => setHomeworkCardColor('#F3C623')}
-            onMouseLeave={() => setHomeworkCardColor('#fff')}
-            onClick={() => window.location.href = '/homework'}
-          >
-            <img src={homeworkIcon} alt="Homework Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
-            <h3 style={{ fontSize: '25px', margin: '0' }}>Homework</h3>
-            <p style={{ fontSize: '17px', margin: '0' }}>Review and submit your homework here</p>
-          </div>
-
-          {/* Marks Card */}
-          <div
-            style={{ ...cardStyle, backgroundColor: marksCardColor }}
-            onMouseEnter={() => setMarksCardColor('#F3C623')}
-            onMouseLeave={() => setMarksCardColor('#fff')}
-            onClick={() => window.location.href = '/MarksPages/MarksPages'}
-          >
-            <img src={marksIcon} alt="Marks Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
-            <h3 style={{ fontSize: '25px', margin: '0' }}>Marks</h3>
-            <p style={{ fontSize: '17px', margin: '0' }}>View your latest marks and track progress</p>
-          </div>
-
-          {/* Other Card */}
-          <div
-            style={{ ...cardStyle, backgroundColor: otherCardColor }}
-            onMouseEnter={() => setOtherCardColor('#F3C623')}
-            onMouseLeave={() => setOtherCardColor('#fff')}
-            onClick={() => window.location.href = '/other'}
-          >
-            <img src={otherIcon} alt="Other Icon" style={{ width: '50px', height: '50px', marginBottom: '10px' }} />
-            <h3 style={{ fontSize: '25px', margin: '0' }}>Other</h3>
-            <p style={{ fontSize: '17px', margin: '0' }}>Explore additional resources and options</p>
+          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
+            {userInitials}
           </div>
         </div>
-
-        {/* Right Panel (Dynamic Image Slider) */}
-        <div style={boxStyle}>
-          <div style={{ height: '400px', overflow: 'hidden' }}>
-            <img 
-              src={images[currentIndex]} 
-              alt={`Slider Image ${currentIndex + 1}`} 
-              style={{ width: '100%', height: '100%', borderRadius: '8px', objectFit: 'cover' }} 
-            />
+      </header>
+      <main className="flex-grow">
+        <div className="h-full max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col lg:flex-row gap-10 h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
+              {[
+                { title: "Notes", icon: Book, description: "Access important notes for your lessons" },
+                { title: "Homework", icon: FileText, description: "Review and submit your homework" },
+                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress" },
+                { title: "Other", icon: LibraryBig, description: "Explore additional resources and options" }
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-white shadow-lg rounded-lg overflow-hidden"
+                >
+                  <div className="p-5">
+                    <div className="flex items-center space-x-2">
+                      <item.icon className="h-7 w-7" />
+                      <h1 className="text-2xl font-semibold">{item.title}</h1>
+                    </div>
+                    <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
+                    <button className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200">
+                      View {item.title}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="lg:w-1/3 flex items-center">
+              <img 
+                src={images[currentIndex]} 
+                alt={`Slider ${currentIndex + 1}`} 
+                className="w-full h-auto rounded-lg shadow-lg object-cover"
+                style={{ maxHeight: 'calc(100vh - 250px)' }}
+              />
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer Section */}
-      <div style={footerStyle}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', alignItems: 'center' }}>
-          <a href="https://www.youtube.com/@GishanVlogs" target="_blank" rel="noopener noreferrer">
-            <img src={youtubeIcon} alt="YouTube" style={{ width: '30px', height: '30px' }} />
-          </a>
-          <a href="https://www.tiktok.com/@gishan.vlogs" target="_blank" rel="noopener noreferrer">
-            <img src={tiktokIcon} alt="TikTok" style={{ width: '30px', height: '30px' }} />
-          </a>
-          <a href="https://www.facebook.com/GishanVlogs/" target="_blank" rel="noopener noreferrer">
-            <img src={facebookIcon} alt="Facebook" style={{ width: '30px', height: '30px' }} />
-          </a>
-        </div>
-        <p style={{ margin: '0', padding: '4px' }}>© 2024 Your School Name. All Rights Reserved.</p>
-      </div>
+      </main>
+      <Footer />
     </div>
-  );
+  )
 }
 
-export default Dashboard;
-
-
-
-
+export default Dashboard
