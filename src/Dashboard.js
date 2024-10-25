@@ -7,6 +7,7 @@ import image1 from './assets/img1.jpg';
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
 import Footer from './Footer';
+import { title } from 'framer-motion/client';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
@@ -69,9 +70,10 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
-                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework" },
+                {title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework"},
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/MarksPages/MarksPages" },
-                { title: "Other", icon: LibraryBig, description: "Explore additional resources and options", route: "/other" }
+                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/teacher/homework" },
+                //{ title: "Other", icon: LibraryBig, description: "Explore additional resources and options", route: "/other" }
               ].map((item, index) => (
                 <div
                   key={index}
@@ -85,7 +87,10 @@ const Dashboard = () => {
                     <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
                     <button 
                       className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200"
-                      onClick={() => window.location.href = item.route}
+                      onClick={() => {
+                        console.log(`Navigating to ${item.route}`);
+                        window.location.href = item.route;
+                      }}
                     >
                       View {item.title}
                     </button>

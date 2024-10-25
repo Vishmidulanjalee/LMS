@@ -1,30 +1,58 @@
 import React, { useEffect, useState } from 'react';
+import { collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
-import { storage } from "./firebase"; // Firebase config import
+import { db, storage } from "./firebase";
 
 const Homework = () => {
   const [homeworkData, setHomeworkData] = useState([]);
-  const [loading, setLoading] = useState(true); // To handle loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchHomeworkData = async () => {
       try {
-        const pdfRef = ref(storage, "Homework/engen897.pdf");
-        const url = await getDownloadURL(pdfRef);
+        const homeworkList = [];
+        const querySnapshot = await getDocs(collection(db, "homework"));
 
-        const currentDate = new Date();
-        const dueDate = new Date(currentDate);
-        dueDate.setDate(currentDate.getDate() + 3);
+        console.log("Query Snapshot: ", querySnapshot);
+        console.log("Number of documents fetched:", querySnapshot.size);
 
-        const homework = [
-          { id: 1, title: 'Creative Writing: A day in a magical forest', submissionLink: 'https://submission-link1.com', pdfLink: url, dueDate: dueDate.toDateString() },
-        ];
+        if (querySnapshot.empty) {
+          console.log("No documents found in the homework collection.");
+          setHomeworkData([]);
+          return;
+        }
 
-        setHomeworkData(homework);
+        for (const doc of querySnapshot.docs) {
+          const { title, fileURL } = doc.data();
+          console.log("Document Data: ", { title, fileURL });
+
+          let pdfLink = '';
+
+          if (fileURL) {
+            const pdfRef = ref(storage, fileURL);
+            pdfLink = await getDownloadURL(pdfRef);
+            console.log("Fetched PDF Link: ", pdfLink);
+          }
+
+          const currentDate = new Date();
+          const dueDate = new Date(currentDate);
+          dueDate.setDate(currentDate.getDate() + 3);
+
+          homeworkList.push({
+            id: doc.id,
+            title,
+            submissionLink: 'https://submission-link.com',
+            pdfLink,
+            dueDate: dueDate.toDateString(),
+          });
+        }
+
+        console.log("Fetched Homework Data: ", homeworkList);
+        setHomeworkData(homeworkList);
       } catch (error) {
         console.error("Error fetching homework:", error);
       } finally {
-        setLoading(false); // Stop loading once data is fetched
+        setLoading(false);
       }
     };
 
@@ -48,21 +76,31 @@ const Homework = () => {
           </tr>
         </thead>
         <tbody>
-          {homeworkData.map(hw => (
-            <tr key={hw.id} className="hover:bg-gray-100 transition duration-200">
-              <td className="py-4 px-4 border-b border-gray-300">{hw.title}</td>
-              <td className="py-4 px-4 border-b border-gray-300">
-                <a href={hw.pdfLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View PDF</a>
-                <div className="mt-2">
-                  <iframe src={`${hw.pdfLink}#page=1`} width="100" height="100" className="border border-gray-300 rounded"></iframe>
-                </div>
-              </td>
-              <td className="py-4 px-4 border-b border-gray-300">{hw.dueDate}</td>
-              <td className="py-4 px-4 border-b border-gray-300">
-                <a href={hw.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Submit here</a>
-              </td>
+          {homeworkData.length > 0 ? (
+            homeworkData.map(hw => (
+              <tr key={hw.id} className="hover:bg-gray-100 transition duration-200">
+                <td className="py-4 px-4 border-b border-gray-300">{hw.title}</td>
+                <td className="py-4 px-4 border-b border-gray-300">
+                  {hw.pdfLink ? (
+                    <>
+                      <a href={hw.pdfLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View PDF</a>
+                      
+                    </>
+                  ) : (
+                    'No file uploaded'
+                  )}
+                </td>
+                <td className="py-4 px-4 border-b border-gray-300">{hw.dueDate}</td>
+                <td className="py-4 px-4 border-b border-gray-300">
+                  <a href={hw.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Submit here</a>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="py-4 px-4 text-center">No homework available.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
@@ -70,3 +108,5 @@ const Homework = () => {
 };
 
 export default Homework;
+
+
