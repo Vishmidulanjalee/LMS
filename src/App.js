@@ -8,6 +8,7 @@ import SignUp from './SignUp';
 import Signin from './SignIn';
 import WelcomeScreen from './WelcomeScreen';
 import TeacherHomework from './TeacherPages/TeacherHomework';
+import GradeSelect from './GradeSelect';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/MarksPages/MarksPages" element={<MarksPages />} /> {/* Marks route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
         <Route path="/teacher/homework" element={<TeacherHomework />} /> {/* Teacher homework route */}
+        <Route path="/gradeselect" element={<GradeSelect/>} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
