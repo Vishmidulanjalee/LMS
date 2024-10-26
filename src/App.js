@@ -22,7 +22,7 @@ function App() {
         <Route path="/MarksPages/MarksPages" element={<MarksPages />} /> {/* Marks route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
         <Route path="/teacher/homework" element={<TeacherHomework />} /> {/* Teacher homework route */}
-        <Route path="/gradeselect" element={<GradeSelect/>} />
+        <Route path="/gradeselect" element={<GradeSelect />} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
