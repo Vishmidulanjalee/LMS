@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./firebase";
+import Sidebar from './Sidebar';
 
 const Homework = () => {
   const [homeworkData, setHomeworkData] = useState([]);
@@ -64,49 +65,47 @@ const Homework = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6">Homework</h2>
-      <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Homework</th>
-            <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">PDF</th>
-            <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Due Date</th>
-            <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Submission Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {homeworkData.length > 0 ? (
-            homeworkData.map(hw => (
-              <tr key={hw.id} className="hover:bg-gray-100 transition duration-200">
-                <td className="py-4 px-4 border-b border-gray-300">{hw.title}</td>
-                <td className="py-4 px-4 border-b border-gray-300">
-                  {hw.pdfLink ? (
-                    <>
-                      <a href={hw.pdfLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View PDF</a>
-                      
-                    </>
-                  ) : (
-                    'No file uploaded'
-                  )}
-                </td>
-                <td className="py-4 px-4 border-b border-gray-300">{hw.dueDate}</td>
-                <td className="py-4 px-4 border-b border-gray-300">
-                  <a href={hw.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Submit here</a>
-                </td>
-              </tr>
-            ))
-          ) : (
+    <div className="flex">
+      <Sidebar activeItem="Homework" />
+      <div className="flex-1 container mx-auto px-20 py-8 pt-4 bg-slate-50">
+        <h2 className="text-3xl font-bold mb-12">Homework</h2>
+        <table className="min-w-full bg-white border border-gray-300 shadow-lg">
+          <thead className="bg-gray-200">
             <tr>
-              <td colSpan="4" className="py-4 px-4 text-center">No homework available.</td>
+              <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Homework</th>
+              <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">PDF</th>
+              <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Due Date</th>
+              <th className="py-3 px-4 border-b border-gray-300 text-left text-sm font-semibold text-gray-700">Submission Link</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {homeworkData.length > 0 ? (
+              homeworkData.map(hw => (
+                <tr key={hw.id} className="hover:bg-gray-100 transition duration-200">
+                  <td className="py-4 px-4 border-b border-gray-300">{hw.title}</td>
+                  <td className="py-4 px-4 border-b border-gray-300">
+                    {hw.pdfLink ? (
+                      <a href={hw.pdfLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">View PDF</a>
+                    ) : (
+                      'No file uploaded'
+                    )}
+                  </td>
+                  <td className="py-4 px-4 border-b border-gray-300">{hw.dueDate}</td>
+                  <td className="py-4 px-4 border-b border-gray-300">
+                    <a href={hw.submissionLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Submit here</a>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="py-4 px-4 text-center">No homework available.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
 export default Homework;
-
-

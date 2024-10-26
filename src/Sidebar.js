@@ -5,16 +5,15 @@ import Logo from './assets/Logo.png';
 
 
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard' },
-    { icon: Book, label: 'Notes' },
-    { icon: FileText, label: 'Homework' },
-    { icon: GraduationCap, label: 'Marks' },
-    { icon: LibraryBig, label: 'Other' },
+    { icon: LayoutDashboard, label: 'Dashboard', route:"/dashboard" },
+    { icon: Book, label: 'Notes', route: "/NotesPage/Notes" },
+    { icon: FileText, label: 'Homework', route: "/homework" },
+    { icon: GraduationCap, label: 'Marks',route: "/MarksPages/MarksPages" },
+    { icon: LibraryBig, label: 'Other', route: "/other" },
 
 ];
 
-const Sidebar = () => {
-  const [activeItem, setActiveItem] = useState('Notes');
+const Sidebar = ({ activeItem, setActiveItem }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
