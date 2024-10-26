@@ -71,8 +71,8 @@ const Dashboard = () => {
               {[
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
                 {title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework"},
-                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/MarksPages/MarksPages" },
-                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/teacher/homework" },
+                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
+                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
                 //{ title: "Other", icon: LibraryBig, description: "Explore additional resources and options", route: "/other" }
               ].map((item, index) => (
                 <div
