@@ -3,9 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebookF, faTiktok, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import Logo from './assets/Logo.png';
 
+
 const Footer = () => {
   return (
-    <footer className="bg-white py-3 px-6">
+    <footer className="bg-white py-1 px-6 fixed bottom-0 left-0 w-full border-t border-gray-400 z-20">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
         <div className="flex flex-col sm:flex-row justify-between items-center space-x-3">    
             <div>
