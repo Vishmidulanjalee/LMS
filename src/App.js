@@ -10,6 +10,8 @@ import TeacherHomework from './TeacherPages/TeacherHomework';
 import GradeSelect from './GradeSelect';
 import TeacherMarks from './TeacherPages/TeacherMarks';
 import Marks from './Marks';
+import HomeworkSubmission from './HomeworkSubmission';
+
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
         <Route path="/NotesPage/Notes" element={<NotesPage />} /> {/* Notes route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
         <Route path="/TeacherPages/TeacherMarks" element={<TeacherMarks />} /> {/* TeacherMark route */}
+        <Route path="/HomeworkSubmission" element={<HomeworkSubmission />} /> {/* HomeworkSubmission route */}
         
         <Route path="/gradeselect" element={<GradeSelect />} />
         {/* Add more routes as needed */}

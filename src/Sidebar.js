@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
 import { LayoutDashboard, Book, FileText, GraduationCap, LibraryBig, LogOut, Menu } from "lucide-react";
 import Logo from './assets/Logo.png';
 
-
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', route:"/dashboard" },
+    { icon: LayoutDashboard, label: 'Dashboard', route: "/dashboard" },
     { icon: Book, label: 'Notes', route: "/NotesPage/Notes" },
     { icon: FileText, label: 'Homework', route: "/homework" },
-    { icon: GraduationCap, label: 'Marks',route: "/MarksPages/MarksPages" },
+    { icon: GraduationCap, label: 'Marks', route: "/Marks" },
     { icon: LibraryBig, label: 'Other', route: "/other" },
-
 ];
 
-const Sidebar = ({ activeItem, setActiveItem }) => {
+const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+  const handleNavigation = (route) => {
+    navigate(route);
+  };
 
   const sidebarContent = (
     <motion.div
@@ -32,12 +37,13 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="pt-2 flex items-center justify-center"
-        > 
-            < img src={Logo}
-                alt="Bee Academy Logo"
-                width={100} 
-                height={100}
-            />
+        >
+          <img
+            src={Logo}
+            alt="Bee Academy Logo"
+            width={100}
+            height={100}
+          />
         </motion.div>
 
         <nav className="mt-14 space-y-8 px-4">
@@ -50,11 +56,11 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
             >
               <button
                 className={`w-full flex items-center justify-start px-4 py-2 text-left text-lg font-semibold rounded-lg transition-colors duration-200 ${
-                  activeItem === item.label
+                  location.pathname === item.route
                     ? 'bg-black text-white'
                     : 'text-gray-600 hover:bg-black hover:text-white'
                 }`}
-                onClick={() => setActiveItem(item.label)}
+                onClick={() => handleNavigation(item.route)}
               >
                 <item.icon className="mr-3 h-5 w-5" />
                 {item.label}
@@ -88,8 +94,7 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
         className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-md bg-white shadow-md"
         onClick={toggleSidebar}
       >
-        <Menu className="w-6 h-6"/>
-
+        <Menu className="w-6 h-6" />
         <span className="sr-only">Toggle sidebar</span>
       </button>
 
