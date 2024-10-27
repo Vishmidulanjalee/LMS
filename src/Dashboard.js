@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react";
+import { Book, FileText, GraduationCap } from "lucide-react";
 import image1 from './assets/img1.jpg'; 
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
@@ -12,9 +12,32 @@ import { title } from 'framer-motion/client';
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
-
-  const images = [image1, image2, image3];
+  const [notices, setNotices] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const images = [image1, image2, image3];
+  
+
+  
+  // Fetch notices from Firebase
+   useEffect(() => {
+    const fetchNotices = async () => {
+      const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+      const fetchedNotices = querySnapshot.docs.map(doc => doc.data());
+      setNotices(fetchedNotices);
+    };
+    fetchNotices();
+  }, []);
+
+  // Set up the automatic slide rotation for notices
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % notices.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [notices.length]);
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -98,14 +121,20 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-            <div className="lg:w-1/3 flex items-center">
-              <img 
-                src={images[currentIndex]} 
-                alt={`Slider ${currentIndex + 1}`} 
-                className="w-full h-auto rounded-lg shadow-lg object-cover"
-                style={{ maxHeight: 'calc(100vh - 250px)' }}
-              />
-            </div>
+           <div className="lg:w-1/3 flex items-center">
+               {notices.length > 0 ? (
+              <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+               {notices[currentIndex].image ? (
+                <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
+               ) : (
+              <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
+            )}
+           </div>
+          ) : (
+          <p className="text-lg text-gray-500">No notices to display.</p>
+        )}
+       </div>
+
           </div>
         </div>
       </main>

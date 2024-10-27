@@ -17,11 +17,18 @@ const Signin = () => {
     setEmailError('');
     setPasswordError('');
 
-    try {
-      // Use signInWithEmailAndPassword to authenticate users
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      
+     // Check for teacher email
+     if (email === 'dhananjaya.gishan@gmail.com') { 
+      // If the teacher's email is entered, navigate to the teacher's dashboard
+      navigate('/TeacherDashboard');
+      return;
+    } 
+    else {
+      try {
+          // Use signInWithEmailAndPassword to authenticate users
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user = userCredential.user;
+          
       // If sign-in is successful, navigate to the dashboard
       navigate('/dashboard');
     } catch (error) {
@@ -40,6 +47,7 @@ const Signin = () => {
           setPasswordError('');
       }
     }
+  }
   };
 
   return (
