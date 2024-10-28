@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword } from "firebase/auth";  // Updated import
-import { auth } from './firebase'; // Import only auth
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from './firebase';
 import LogoBig from './assets/LogoBig.png';
 
 const Signin = () => {
@@ -10,44 +10,53 @@ const Signin = () => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setEmailError('');
     setPasswordError('');
+    setResetMessage('');
 
-     // Check for teacher email
-     if (email === 'dhananjaya.gishan@gmail.com') { 
-      // If the teacher's email is entered, navigate to the teacher's dashboard
-      navigate('/TeacherDashboard');
+    if (email === 'dhananjaya.gishan@gmail.com') {
+      navigate('/teacher/dashboard');
       return;
-    } 
-    else {
+    } else {
       try {
-          // Use signInWithEmailAndPassword to authenticate users
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
-          const user = userCredential.user;
-          
-      // If sign-in is successful, navigate to the dashboard
-      navigate('/dashboard');
-    } catch (error) {
-      switch (error.code) {
-        case 'auth/user-not-found':
-          setEmailError('No account found with this email.');
-          break;
-        case 'auth/wrong-password':
-          setPasswordError('Incorrect password. Please try again.');
-          break;
-        case 'auth/invalid-email':
-          setEmailError('Please enter a valid email address.');
-          break;
-        default:
-          setEmailError('Failed to sign in. Please try again.');
-          setPasswordError('');
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        navigate('/dashboard');
+      } catch (error) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+            setEmailError('No account found with this email.');
+            break;
+          case 'auth/wrong-password':
+            setPasswordError('Incorrect password. Please try again.');
+            break;
+          case 'auth/invalid-email':
+            setEmailError('Please enter a valid email address.');
+            break;
+          default:
+            setEmailError('Failed to sign in. Please try again.');
+            setPasswordError('');
+        }
       }
     }
-  }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      setEmailError('Please enter your email to reset password.');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setResetMessage('Password reset email sent. Please check your inbox.');
+    } catch (error) {
+      setEmailError('Failed to send password reset email.');
+    }
   };
 
   return (
@@ -118,7 +127,13 @@ const Signin = () => {
               <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">Remember me</label>
             </div>
             <div className="text-sm -mt-5">
-              <Link href="/forgot-password" className="font-medium text-primary hover:text-secondary">Forgot password?</Link>
+              <button 
+                type="button"
+                onClick={handleForgotPassword} 
+                className="font-medium text-primary hover:text-secondary"
+              >
+                Forgot password?
+              </button>
             </div>
           </div>
 
@@ -129,6 +144,8 @@ const Signin = () => {
             </button>
           </div>
         </form>
+
+        {resetMessage && <p className="mt-4 w-4/5 pl-16 text-center text-sm text-green-500">{resetMessage}</p>}
 
         {/* Sign Up Link */}
         <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600">

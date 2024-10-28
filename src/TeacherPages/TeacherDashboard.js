@@ -89,8 +89,8 @@ const TeacherDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
                 { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/add-notes" },
-                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/add-homework" },
-                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/add-marks" },
+                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/teacher/homework" },
+                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/teacher/marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div
