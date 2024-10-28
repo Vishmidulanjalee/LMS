@@ -14,12 +14,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const images = [image1, image2, image3];
-  
+  const images = [image1, image2, image3]; // Default images
 
-  
   // Fetch notices from Firebase
-   useEffect(() => {
+  useEffect(() => {
     const fetchNotices = async () => {
       const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
       const querySnapshot = await getDocs(q);
@@ -29,22 +27,13 @@ const Dashboard = () => {
     fetchNotices();
   }, []);
 
-  // Set up the automatic slide rotation for notices
+  // Set up the automatic slide rotation for notices or default images
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % notices.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [notices.length]);
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length > 0 ? notices.length : images.length));
     }, 5000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [notices.length, images.length]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -93,10 +82,9 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
-                {title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework"},
+                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework" },
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
                 { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
-                //{ title: "Other", icon: LibraryBig, description: "Explore additional resources and options", route: "/other" }
               ].map((item, index) => (
                 <div
                   key={index}
@@ -121,20 +109,19 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-           <div className="lg:w-1/3 flex items-center">
-               {notices.length > 0 ? (
-              <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-               {notices[currentIndex].image ? (
-                <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
-               ) : (
-              <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
-            )}
-           </div>
-          ) : (
-          <p className="text-lg text-gray-500">No notices to display.</p>
-        )}
-       </div>
-
+            <div className="lg:w-1/3 flex items-center">
+              {notices.length > 0 ? (
+                <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+                  {notices[currentIndex].image ? (
+                    <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
+                  ) : (
+                    <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
+                  )}
+                </div>
+              ) : (
+                <img src={images[currentIndex]} alt={`Default Image ${currentIndex + 1}`} className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }} />
+              )}
+            </div>
           </div>
         </div>
       </main>
@@ -143,4 +130,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default Dashboard;
