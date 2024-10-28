@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection,doc, getDoc,addDoc } from "firebase/firestore";
+import { collection,doc, getDoc,addDoc,deleteDoc,getDocs } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import { Book, FileText, GraduationCap, PlusCircle } from "lucide-react";
@@ -11,6 +11,7 @@ const TeacherDashboard = () => {
   const [customContent, setCustomContent] = useState('');
   const [currentContent, setCurrentContent] = useState('');
   const [currentImage, setCurrentImage] = useState(null);
+  const [notices, setNotices] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -29,8 +30,20 @@ const TeacherDashboard = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
-  }, []);
+
+  // Fetch notices from Firestore and set notices state
+  const fetchNotices = async () => {
+      const querySnapshot = await getDocs(collection(db, "notices"));
+      const noticesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setNotices(noticesData);
+    };
+
+fetchNotices();
+return () => unsubscribe();
+}, []);
 
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
@@ -48,6 +61,8 @@ const TeacherDashboard = () => {
         image: currentImage,  // Use URL if uploading to storage
         timestamp: new Date(),
       };
+
+      
       
       try {
         await addDoc(collection(db, "notices"), notice);
@@ -59,6 +74,18 @@ const TeacherDashboard = () => {
       }
     }
   };
+  
+  const handleDeleteNotice = async (noticeId) => {
+    try {
+      const noticeRef = doc(db, "notices", noticeId);
+      await deleteDoc(doc(db, "notices", noticeId));
+      setNotices((prevNotices) => prevNotices.filter((notice) => notice.id !== noticeId));
+      alert("Notice deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting notice:", error);
+    }
+  };
+  
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -144,12 +171,26 @@ const TeacherDashboard = () => {
                 </button>
               </div>
             </div>
+         {/* Display notices and delete button */}
+         <div className="notices-list mt-8">
+            <h2 className="text-2xl font-semibold mb-4">Notices</h2>
+            {notices.map((notice) => (
+              <div key={notice.id} className="bg-white shadow-lg rounded-lg p-4 mb-4">
+                {notice.image && <img src={notice.image} alt="Notice" className="w-full h-auto rounded-lg mb-2" />}
+                <p>{notice.content}</p>
+                <button onClick={() => handleDeleteNotice(notice.id)}
+                  className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-200">
+                  Delete Notice
+                </button>
+              </div>
+            ))}
+          </div>
           </div>
         </div>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default TeacherDashboard;

@@ -113,13 +113,18 @@ const Dashboard = () => {
               {notices.length > 0 ? (
                 <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
                   {notices[currentIndex].image ? (
-                    <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
+                    <img src={notices[currentIndex].image}
+                        alt="Notice Image"
+                        className="w-full h-auto rounded-lg" />
                   ) : (
                     <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
                   )}
                 </div>
               ) : (
-                <img src={images[currentIndex]} alt={`Default Image ${currentIndex + 1}`} className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }} />
+                <img src={images[currentIndex]}
+                    alt={`Default Image ${currentIndex + 1}`}
+                    className="w-full h-auto rounded-lg shadow-lg object-cover"
+                    style={{ maxHeight: 'calc(100vh - 250px)' }} />
               )}
             </div>
           </div>
@@ -131,3 +136,4 @@ const Dashboard = () => {
 }
 
 export default Dashboard;
+ 
