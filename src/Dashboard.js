@@ -7,7 +7,6 @@ import image1 from './assets/img1.jpg';
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
 import Footer from './Footer';
-import { title } from 'framer-motion/client';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
@@ -27,10 +26,11 @@ const Dashboard = () => {
     fetchNotices();
   }, []);
 
-  // Set up the automatic slide rotation for notices or default images
+  // Set up the automatic slide rotation for notices and default images
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length > 0 ? notices.length : images.length));
+      // Update currentIndex for cycling through notices and default images
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length + images.length));
     }, 5000);
     return () => clearInterval(interval);
   }, [notices.length, images.length]);
@@ -63,10 +63,25 @@ const Dashboard = () => {
 
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
+  // Determine current image to display
+  let currentImageSrc;
+  let currentNoticeContent;
+
+  if (currentIndex < notices.length) {
+    const currentNotice = notices[currentIndex];
+    currentImageSrc = currentNotice.image; // Assuming the image is in the notice
+    currentNoticeContent = currentNotice.content; // Content of the notice
+  } else {
+    // If currentIndex exceeds the number of notices, cycle through default images
+    const defaultImageIndex = currentIndex - notices.length;
+    currentImageSrc = images[defaultImageIndex]; // Use default images
+    currentNoticeContent = null; // No notice content for default images
+  }
+
   return (
-    <div className="flex flex-col h-screen ">
-      <header className="bg-white shadow ">
-        <div className="max-w-8xl mx-0 px-4  sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+    <div className="flex flex-col h-screen">
+      <header className="bg-white shadow">
+        <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
@@ -86,10 +101,7 @@ const Dashboard = () => {
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
                 { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
               ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden border"
-                >
+                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
                       <item.icon className="h-7 w-7" />
@@ -110,24 +122,33 @@ const Dashboard = () => {
               ))}
             </div>
             <div className="lg:w-1/3 flex items-center">
-              {notices.length > 0 ? (
-                <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-                  {notices[currentIndex].image ? (
-                    <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
-                  ) : (
-                    <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
-                  )}
-                </div>
-              ) : (
-                <img src={images[currentIndex]} alt={`Default Image ${currentIndex + 1}`} className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }} />
-              )}
+              {/* Show the currently selected notice image or the rotating default images */}
+              <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+                {currentNoticeContent ? (
+                  <>
+                    {currentImageSrc ? (
+                      <img src={currentImageSrc} alt="Notice Image" className="w-full h-auto rounded-lg" />
+                    ) : (
+                      <p className="text-lg text-gray-800">{currentNoticeContent}</p>
+                    )}
+                  </>
+                ) : (
+                  <img 
+                    src={currentImageSrc} 
+                    alt={`Default Image ${currentIndex + 1}`} 
+                    className="w-full h-auto rounded-lg shadow-lg object-cover" 
+                    style={{ maxHeight: 'calc(100vh - 250px)' }} 
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default Dashboard;
+
