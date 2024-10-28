@@ -75,7 +75,7 @@ const Dashboard = () => {
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
   return (
-    <div className="flex flex-col h-screen ">
+    <div className="flex flex-col h-screen">
       <header className="bg-white shadow ">
         <div className="max-w-8xl mx-0 px-4  sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
@@ -125,7 +125,7 @@ const Dashboard = () => {
                {notices.length > 0 ? (
               <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
                {notices[currentIndex].image ? (
-                <img src={notices[currentIndex].image} alt="Notice Image" className="w-full h-auto rounded-lg" />
+                <img src={notices[currentIndex].image} alt="Notice" className="w-full h-auto rounded-lg" />
                ) : (
               <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
             )}

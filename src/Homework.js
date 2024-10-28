@@ -62,10 +62,10 @@ const Homework = () => {
   return (
     <div className="flex">
       <Sidebar activeItem="Homework" />
-      <div className="container mx-auto px-4 py-8">
-        <h2 className="text-3xl font-bold mb-6">Student Homework</h2>
-        <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
-          <thead className="bg-yellow-400">
+      <div className="container mx-auto px-16 py-6">
+        <h2 className="text-3xl font-bold mb-8">Student Homework</h2>
+        <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg ">
+          <thead className="bg-yellow-400 ">
             <tr>
               <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">Homework</th>
               <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">PDF</th>

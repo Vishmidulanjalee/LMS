@@ -7,6 +7,7 @@ import SignUp from './SignUp';
 import Signin from './SignIn';
 import WelcomeScreen from './WelcomeScreen';
 import TeacherHomework from './TeacherPages/TeacherHomework';
+import Marks from './Marks';
 
 function App() {
   return (
