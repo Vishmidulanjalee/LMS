@@ -20,12 +20,12 @@ const Signin = () => {
     setResetMessage('');
 
     if (email === 'dhananjaya.gishan@gmail.com') {
-      navigate('/teacher/dashboard');
+      navigate('/GradeSelectTeacher');
       return;
     } else {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        navigate('/dashboard');
+        navigate('/GradeSelect');
       } catch (error) {
         switch (error.code) {
           case 'auth/user-not-found':
