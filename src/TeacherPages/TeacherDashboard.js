@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection,doc, getDoc,addDoc } from "firebase/firestore";
+import { collection, doc, getDoc, addDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import { Book, FileText, GraduationCap, PlusCircle } from "lucide-react";
@@ -19,7 +19,7 @@ const TeacherDashboard = () => {
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          setUserName(docSnap.data().username);
+          setUserName(docSnap.data().username || '');  // Ensure username is set
         } else {
           console.log("No such document!");
         }
@@ -33,19 +33,15 @@ const TeacherDashboard = () => {
   }, []);
 
   const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const currentDate = `${day}/${month}/${year}`; 
+  const currentDate = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`; 
 
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'GD';
 
   const handleAddContent = async () => {
     if (customContent.trim() || currentImage) {
-      // Create a new notice object
       const notice = {
-        content: customContent,
-        image: currentImage,  // Use URL if uploading to storage
+        content: customContent || '',
+        image: currentImage || null,  // Ensure image is null if not set
         timestamp: new Date(),
       };
       
@@ -59,12 +55,13 @@ const TeacherDashboard = () => {
       }
     }
   };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setCurrentImage(reader.result); // Set the image as a data URL
+        setCurrentImage(reader.result);
       };
       reader.readAsDataURL(file);
     }
@@ -93,10 +90,7 @@ const TeacherDashboard = () => {
                 { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/teacher/marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden"
-                >
+                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
                       <item.icon className="h-7 w-7" />
@@ -105,10 +99,7 @@ const TeacherDashboard = () => {
                     <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
                     <button 
                       className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200"
-                      onClick={() => {
-                        console.log(`Navigating to ${item.route}`);
-                        window.location.href = item.route;
-                      }}
+                      onClick={() => window.location.href = item.route}
                     >
                       {item.title}
                     </button>
@@ -137,7 +128,7 @@ const TeacherDashboard = () => {
                   className="w-full mb-4"
                 />
                 <button 
-                  onClick={handleAddContent}  // Attach the click event
+                  onClick={handleAddContent}
                   className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200"
                 >
                   Add Notice
@@ -149,7 +140,7 @@ const TeacherDashboard = () => {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default TeacherDashboard;
