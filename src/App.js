@@ -16,6 +16,7 @@ import Dashboard6 from "./Grade6/Dashboard6";
 import TeacherDashboard6 from "./Teacher6/Dashboard";
 import GradeSelectTeacher from "./GradeSelectTeacher";
 import TeacherHomework6 from "./Teacher6/Homework";
+import TeacherNotes from './TeacherPages/TeacherNotes';
 
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path="/Teacher6/Dashboard" element={<TeacherDashboard6 />} /> {/* TeacherDashboard6 route */}
         <Route path="/Teacher6/Homework" element={<TeacherHomework6 />} /> {/* TeacherHomework6 route */}
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */}  
+        <Route path="/add-notes" element={<TeacherNotes />} /> {/* TeacherNotes route */}
         
 
         
