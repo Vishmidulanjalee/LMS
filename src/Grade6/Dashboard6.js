@@ -98,7 +98,7 @@ const Dashboard6 = () => {
               {[
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
                 { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade6/Homework6" },
-                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
+                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade6/Marks6" },
                 { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">

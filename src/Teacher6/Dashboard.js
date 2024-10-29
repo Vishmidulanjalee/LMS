@@ -88,7 +88,7 @@ const TeacherDashboard6 = () => {
               {[
                 { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/add-notes" },
                 { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher6/Homework" },
-                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/teacher/marks" },
+                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher6/Marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">

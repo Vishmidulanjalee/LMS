@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './Dashboard'; // Import your Dashboard component
-import NotesPage from './NotesPage/Notes'; // Import the Notes component
 import Homework from './Homework';
 import SignUp from './SignUp';
 import Signin from './SignIn';
@@ -16,6 +15,11 @@ import Dashboard6 from "./Grade6/Dashboard6";
 import TeacherDashboard6 from "./Teacher6/Dashboard";
 import GradeSelectTeacher from "./GradeSelectTeacher";
 import TeacherHomework6 from "./Teacher6/Homework";
+import HomeworkSubmission from './HomeworkSubmission'; // Import the HomeworkSubmission component
+import TeacherMarks6 from "./Teacher6/Marks";
+import Marks6 from "./Grade6/Marks6";
+import Submission6 from './Grade6/Submission6';
+
 
 
 function App() {
@@ -27,7 +31,6 @@ function App() {
         <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* Main dashboard route */}
         <Route path="/Marks" element={<Marks />} /> {/* Marks route */}
-        <Route path="/NotesPage/Notes" element={<NotesPage />} /> {/* Notes route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
         <Route path="/teacher/homework" element={<TeacherHomework />} /> {/* Teacher homework route */}
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} /> {/* Teacher dashboard route */}
@@ -38,6 +41,12 @@ function App() {
         <Route path="/Teacher6/Dashboard" element={<TeacherDashboard6 />} /> {/* TeacherDashboard6 route */}
         <Route path="/Teacher6/Homework" element={<TeacherHomework6 />} /> {/* TeacherHomework6 route */}
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */}  
+        <Route path="/HomeworkSubmission" element={<HomeworkSubmission />} />
+        <Route path="/Teacher6/Marks" element={<TeacherMarks6 />} />
+        <Route path="/Grade6/Marks6" element={<Marks6 />} />
+        <Route path="/Grade6/Submission6" element={<Submission6 />} />
+        
+
         
 
         

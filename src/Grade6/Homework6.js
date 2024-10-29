@@ -1,62 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
-import { db, storage } from "../firebase";
-import Sidebar from '../Sidebar';
+import { db, storage } from "../firebase"; // Ensure your Firebase config is correctly imported
+import Sidebar from "../Sidebar";
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
-const Homework = () => {
+const Homework6 = () => {
   const [homeworkData, setHomeworkData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // To track errors
 
   useEffect(() => {
     const fetchHomeworkData = async () => {
       try {
-        const homeworkList = [];
         const querySnapshot = await getDocs(collection(db, "homework6"));
-  
+
         if (querySnapshot.empty) {
           console.log("No documents found in the homework collection.");
           setHomeworkData([]);
           return;
         }
-  
+
+        // Process each document and retrieve download URLs
         const downloadUrlPromises = querySnapshot.docs.map(async (doc) => {
           const { title, fileURL } = doc.data();
-  
           let pdfLink = '';
+
+          // Get download URL if fileURL exists
           if (fileURL) {
-            const pdfRef = ref(storage, fileURL);
-            pdfLink = await getDownloadURL(pdfRef);
+            try {
+              const pdfRef = ref(storage, fileURL);
+              pdfLink = await getDownloadURL(pdfRef);
+            } catch (urlError) {
+              console.error("Error getting download URL:", urlError);
+              pdfLink = ''; // Set to empty if there's an error
+            }
           }
-  
+
           const currentDate = new Date();
           const dueDate = new Date(currentDate);
           dueDate.setDate(currentDate.getDate() + 3);
-  
+
           return {
             id: doc.id,
             title,
-            submissionLink: '/HomeworkSubmission', // Updated link to navigate to submission page
+            submissionLink: '/Grade6/Submission6', // Updated link
             pdfLink,
             dueDate: dueDate.toDateString(),
           };
         });
-  
+
         const homeworkData = await Promise.all(downloadUrlPromises);
         setHomeworkData(homeworkData);
       } catch (error) {
         console.error("Error fetching homework:", error);
+        setError("Failed to fetch homework data."); // Set error message
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchHomeworkData();
   }, []);
 
+  // Display loading state
   if (loading) {
     return <div className="flex items-center justify-center h-screen text-xl">Loading...</div>;
+  }
+
+  // Display error message if there is an error
+  if (error) {
+    return <div className="flex items-center justify-center h-screen text-xl text-red-500">{error}</div>;
   }
 
   return (
@@ -65,11 +79,10 @@ const Homework = () => {
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-3xl font-bold mb-6">Homework - Grade 6</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
-          <thead className="bg-red-400">
-            
+          <thead className="bg-yellow-400">
             <tr>
+              <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">Title</th>
               <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">Homework</th>
-              <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">PDF</th>
               <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">Due Date</th>
               <th className="py-3 px-3 border-b border-yellow-300 text-left text-lg font-semibold text-black">Submission Link</th>
             </tr>
@@ -104,4 +117,5 @@ const Homework = () => {
   );
 };
 
-export default Homework;
+export default Homework6;
+
