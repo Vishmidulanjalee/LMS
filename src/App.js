@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './Dashboard'; // Import your Dashboard component
-import NotesPage from './NotesPage/Notes'; // Import the Notes component
 import Homework from './Homework';
 import SignUp from './SignUp';
 import Signin from './SignIn';
@@ -16,7 +15,6 @@ import Dashboard6 from "./Grade6/Dashboard6";
 import TeacherDashboard6 from "./Teacher6/Dashboard";
 import GradeSelectTeacher from "./GradeSelectTeacher";
 import TeacherHomework6 from "./Teacher6/Homework";
-import TeacherNotes from './TeacherPages/TeacherNotes';
 
 
 function App() {
@@ -28,7 +26,6 @@ function App() {
         <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* Main dashboard route */}
         <Route path="/Marks" element={<Marks />} /> {/* Marks route */}
-        <Route path="/NotesPage/Notes" element={<NotesPage />} /> {/* Notes route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
         <Route path="/teacher/homework" element={<TeacherHomework />} /> {/* Teacher homework route */}
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} /> {/* Teacher dashboard route */}
@@ -39,7 +36,6 @@ function App() {
         <Route path="/Teacher6/Dashboard" element={<TeacherDashboard6 />} /> {/* TeacherDashboard6 route */}
         <Route path="/Teacher6/Homework" element={<TeacherHomework6 />} /> {/* TeacherHomework6 route */}
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */}  
-        <Route path="/add-notes" element={<TeacherNotes />} /> {/* TeacherNotes route */}
         
 
         
