@@ -3,7 +3,7 @@ import { db, storage } from '../firebase'; // Adjust the path based on your proj
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const Submission6 = () => {
+const Submission7 = () => {
   const [file, setFile] = useState(null);
   const [name, setName] = useState('');
   const [className, setClassName] = useState('');
@@ -40,13 +40,13 @@ const Submission6 = () => {
 
     try {
       const fileType = file.type.startsWith("image/") ? "images" : "pdfs";
-      const storageRef = ref(storage, `studenthomework6/${fileType}/${file.name}`);
+      const storageRef = ref(storage, `studenthomework7/${fileType}/${file.name}`);
       await uploadBytes(storageRef, file);
 
       const fileURL = await getDownloadURL(storageRef);
 
       // Save to Firestore
-      await addDoc(collection(db, 'studenthomework6'), {
+      await addDoc(collection(db, 'studenthomework7'), {
         name,
         fileURL,
         className,
@@ -70,7 +70,7 @@ const Submission6 = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6">Submit Your Homework - Grade 6</h2>
+      <h2 className="text-3xl font-bold mb-6">Submit Your Homework - Grade 7</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -137,4 +137,4 @@ const Submission6 = () => {
   );
 };
 
-export default Submission6;
+export default Submission7;
