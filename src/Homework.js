@@ -77,16 +77,16 @@ const Homework = () => {
             {homeworkData.length > 0 ? (
               homeworkData.map(hw => (
                 <tr key={hw.id} className="hover:bg-yellow-50 transition duration-200">
-                  <td className="py-4 px-4 border-b border-gray-300 text-lg">{hw.title}</td>
-                  <td className="py-4 px-4 border-b border-gray-300 text-lg">
+                  <td className="py-4 px-4 border-b border-gray-300 text-md">{hw.title}</td>
+                  <td className="py-4 px-4 border-b border-gray-300 text-md">
                     {hw.pdfLink ? (
                       <a href={hw.pdfLink} target="_blank" rel="noopener noreferrer" className="text-black underline hover:text-yellow-500 hover:underline">View Homework</a>
                     ) : (
                       'No file uploaded'
                     )}
                   </td>
-                  <td className="py-4 px-4 border-b border-gray-300 text-lg">{hw.dueDate}</td>
-                  <td className="py-4 px-4 border-b border-gray-300 text-lg">
+                  <td className="py-4 px-4 border-b border-gray-300 text-md">{hw.dueDate}</td>
+                  <td className="py-4 px-4 border-b border-gray-300 text-md">
                     <Link to={hw.submissionLink} className="text-black underline hover:text-yellow-500 hover:underline">Submit here</Link>
                   </td>
                 </tr>

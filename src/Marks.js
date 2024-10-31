@@ -48,7 +48,7 @@ const StudentMarks = () => {
     <div className="flex">
       <Sidebar activeItem="Marks" />
       <div className="container mx-auto px-16 py-6">
-        <h2 className="text-3xl font-bold mb-6">Student Marks</h2>
+        <h2 className="text-3xl font-bold mb-8">Student Marks</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
           <thead className="bg-yellow-400">
             <tr>
@@ -60,8 +60,8 @@ const StudentMarks = () => {
             {marksData.length > 0 ? (
               marksData.map((mark) => (
                 <tr key={mark.id} className="hover:bg-gray-100 transition duration-200">
-                  <td className="py-3 px-3 border-b border-black-300 text-lg">{mark.fileName}</td>
-                  <td className="py-3 px-3 border-b border-black-300 text-lg">
+                  <td className="py-3 px-3 border-b border-black-300 text-md">{mark.fileName}</td>
+                  <td className="py-3 px-3 border-b border-black-300 text-md">
                     {mark.fileURL ? (
                       <a href={mark.fileURL} target="_blank" rel="noopener noreferrer" className="text-black underline hover:text-yellow-500 hover:underline">
                         View your marks

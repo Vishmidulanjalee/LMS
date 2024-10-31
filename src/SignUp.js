@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -13,7 +13,16 @@ const Signup = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+
+   useEffect(() => {
+    const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 768);
+    checkScreenSize(); // Initial check
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+   }, []);
+  
   const handleSignUp = async (e) => {
     e.preventDefault();
     setEmailError('');
@@ -61,109 +70,214 @@ const Signup = () => {
   
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-white to-yellow-200">
-      {/* Left Section */}
-      <motion.div 
-        className="w-1/2 p-12 flex flex-col justify-center items-center"
-        initial={{ opacity: 0, x: -50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-6xl font-bold mb-4">Welcome</h1>
-        <p className="text-xl mb-20">Sign up to start your learning</p>
-        <img 
-          src={LogoBig}
-          alt="The Bee Academy Logo" 
-          width={500} 
-          height={500}
-          className="mb-0"
-        />
-      </motion.div>
-
-      {/* Right Section */}
-      <motion.div 
-        className="w-1/2 bg-white p-12 flex flex-col justify-center"
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <h2 className="text-5xl font-bold  ml-10">Sign Up</h2>
-        <form className="space-y-8 ml-10" onSubmit={handleSignUp}>
-          {/* Username Field */}
-          <div className="mt-20">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-            <input 
-              type="text" 
-              id="username" 
-              name="username" 
-              className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500" 
-              placeholder="Enter your username" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              required 
-            />
-          </div>
-
-          {/* Email Field */}
-          <div className="mb-10">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500" 
-              placeholder="example@gmail.com" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-            />
-            {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500" 
-              placeholder="••••••••" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-            />
-            {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-          </div>
-
-          {/* Remember me & Forgot password */}
-          <div className="flex items-center justify-between w-4/5">
-            <div className="flex items-center -mt-5">
-              <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
-              <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">Remember me</label>
+    <div>
+      {isSmallScreen ? (
+        <div className="flex min-h-screen items-center justify-center bg-yellow-100 px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="text-center">
+              <h2 className="text-3xl font-bold  text-gray-900 sm:text-4xl">Sign Up</h2>
+              <p className="mt-3 text-lg text-gray-600">Please enter your details to start learning</p>
             </div>
-            <div className="text-sm -mt-5">
-              <Link href="/forgot-password" className="font-medium text-primary hover:text-secondary">Forgot password?</Link>
+         
+            <form className="mt-12 space-y-6" onSubmit={handleSignUp}>
+              <div className="space-y-8">
+                  <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                  <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    placeholder="Enter your username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                  />
+                </div>
+
+                {/* Email Field */}
+                <div className="mb-10">
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    placeholder="example@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                  {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+                </div>
+
+                {/* Password Field */}
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+                </div>
+              </div>
+              {/* Username Field */}
+              
+
+              {/* Remember me & Forgot password */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2 mb-6">
+                  <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-seconadry" />
+                  <label htmlFor="remember_me" className="text-sm font-medium text-gray-700">Remember me</label>
+                </div>
+              </div>
+
+              {/* Sign Up Button */}
+              <div>
+                <button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md"
+                >
+                  Sign Up
+                </button>
+              </div>
+
+            </form>
+            
+            <div className=" mt-2">
+              <p className="text-center text-sm text-gray-600 ">
+              Already have an account? {' '}
+              <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
+              </p>
             </div>
-          </div>
 
-          {/* Sign Up Button */}
-          <div>
-        <button 
-           type="submit" 
-            className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-        >
-         Sign Up
-        </button>
-      </div>
+            <div className="mt-12 flex justify-center">
+              <img 
+                src={LogoBig}
+                alt="The Bee Academy Logo" 
+                className="w-full max-w-[300px] sm:max-w-[400px]"
+              />
+            </div>
+            
+          </motion.div>
+        </div>
+      ) : (
+        <div className="flex min-h-screen bg-gradient-to-br from-white to-yellow-200">
+          {/* Left Section */}
+          <motion.div
+            className="w-1/2 p-12 flex flex-col justify-center items-center"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h1 className="text-6xl font-bold mb-4">Welcome</h1>
+            <p className="text-xl mb-20">Sign up to start your learning</p>
+            <img
+              src={LogoBig}
+              alt="The Bee Academy Logo"
+              width={500}
+              height={500}
+              className="mb-0"
+            />
+          </motion.div>
 
-        </form>
+          {/* Right Section */}
+          <motion.div
+            className="w-1/2 bg-white p-12 flex flex-col justify-center"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <h2 className="text-5xl font-bold  ml-10">Sign Up</h2>
+            <form className="space-y-8 ml-10" onSubmit={handleSignUp}>
+              {/* Username Field */}
+              <div className="mt-20">
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
 
-        <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600 ">
-          Already have an account? {' '}
-          <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
-        </p>
-      </motion.div>
+              {/* Email Field */}
+              <div className="mb-10">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+              </div>
+
+              {/* Remember me & Forgot password */}
+              <div className="flex items-center justify-between w-4/5">
+                <div className="flex items-center -mt-5">
+                  <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
+                  <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">Remember me</label>
+                </div>
+                <div className="text-sm -mt-5">
+                  <Link href="/forgot-password" className="font-medium text-primary hover:text-secondary">Forgot password?</Link>
+                </div>
+              </div>
+
+              {/* Sign Up Button */}
+              <div>
+                <button
+                  type="submit"
+                  className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                >
+                  Sign Up
+                </button>
+              </div>
+
+            </form>
+
+            <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600 ">
+              Already have an account? {' '}
+              <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
+            </p>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

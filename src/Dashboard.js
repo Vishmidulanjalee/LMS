@@ -7,19 +7,16 @@ import image1 from './assets/img1.jpg';
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
 import Footer from './Footer';
-import { title } from 'framer-motion/client';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const images = [image1, image2, image3];
-  
+  const images = [image1, image2, image3]; // Default images
 
-  
   // Fetch notices from Firebase
-   useEffect(() => {
+  useEffect(() => {
     const fetchNotices = async () => {
       const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
       const querySnapshot = await getDocs(q);
@@ -29,22 +26,14 @@ const Dashboard = () => {
     fetchNotices();
   }, []);
 
-  // Set up the automatic slide rotation for notices
+  // Set up the automatic slide rotation for notices and default images
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % notices.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [notices.length]);
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      // Update currentIndex for cycling through notices and default images
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length + images.length));
     }, 5000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [notices.length, images.length]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -74,10 +63,25 @@ const Dashboard = () => {
 
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
+  // Determine current image to display
+  let currentImageSrc;
+  let currentNoticeContent;
+
+  if (currentIndex < notices.length) {
+    const currentNotice = notices[currentIndex];
+    currentImageSrc = currentNotice.image; // Assuming the image is in the notice
+    currentNoticeContent = currentNotice.content; // Content of the notice
+  } else {
+    // If currentIndex exceeds the number of notices, cycle through default images
+    const defaultImageIndex = currentIndex - notices.length;
+    currentImageSrc = images[defaultImageIndex]; // Use default images
+    currentNoticeContent = null; // No notice content for default images
+  }
+
   return (
     <div className="flex flex-col h-screen">
-      <header className="bg-white shadow ">
-        <div className="max-w-8xl mx-0 px-4  sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+      <header className="bg-white shadow">
+        <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
@@ -93,15 +97,11 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
-                {title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework"},
+                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework" },
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
                 { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
-                //{ title: "Other", icon: LibraryBig, description: "Explore additional resources and options", route: "/other" }
               ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden border"
-                >
+                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
                       <item.icon className="h-7 w-7" />
@@ -121,26 +121,34 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-           <div className="lg:w-1/3 flex items-center">
-               {notices.length > 0 ? (
+            <div className="lg:w-1/3 flex items-center">
+              {/* Show the currently selected notice image or the rotating default images */}
               <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-               {notices[currentIndex].image ? (
-                <img src={notices[currentIndex].image} alt="Notice" className="w-full h-auto rounded-lg" />
-               ) : (
-              <p className="text-lg text-gray-800">{notices[currentIndex].content}</p>
-            )}
-           </div>
-          ) : (
-          <p className="text-lg text-gray-500">No notices to display.</p>
-        )}
-       </div>
-
+                {currentNoticeContent ? (
+                  <>
+                    {currentImageSrc ? (
+                      <img src={currentImageSrc} alt="Notice Image" className="w-full h-auto rounded-lg" />
+                    ) : (
+                      <p className="text-lg text-gray-800">{currentNoticeContent}</p>
+                    )}
+                  </>
+                ) : (
+                  <img 
+                    src={currentImageSrc} 
+                    alt={`Default Image ${currentIndex + 1}`} 
+                    className="w-full h-auto rounded-lg shadow-lg object-cover" 
+                    style={{ maxHeight: 'calc(100vh - 250px)' }} 
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;
+
