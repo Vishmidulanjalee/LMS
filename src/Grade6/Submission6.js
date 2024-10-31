@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { db, storage } from './firebase'; // Adjust the path based on your project structure
+import { db, storage } from '../firebase'; // Adjust the path based on your project structure
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
-const HomeworkSubmission = () => {
+const Submission6 = () => {
   const [file, setFile] = useState(null);
   const [name, setName] = useState('');
   const [className, setClassName] = useState('');
@@ -70,7 +70,7 @@ const HomeworkSubmission = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold mb-6">Submit Your Homework</h2>
+      <h2 className="text-3xl font-bold mb-6">Submit Your Homework - Grade 6</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -137,5 +137,4 @@ const HomeworkSubmission = () => {
   );
 };
 
-export default HomeworkSubmission;
-
+export default Submission6;
