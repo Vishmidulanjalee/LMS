@@ -84,7 +84,6 @@ function App() {
         <Route path="/Teacher8/Dashboard" element={<TeacherDashboard8 />} /> {/* TeacherDashboard8 route */}
         <Route path="/Teacher8/Homework" element={<TeacherHomework8 />} /> {/* TeacherHomework8 route */}
         <Route path="/Teacher8/Marks" element={<TeacherMarks8 />} /> {/* TeacherMarks8 route */}
-        
 
         
         {/* Add more routes as needed */}
