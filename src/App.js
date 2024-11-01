@@ -37,6 +37,9 @@ import TeacherMarks7 from './Teacher7/Marks';
 import TeacherDashboard8 from './Teacher8/Dashboard';
 import TeacherHomework8 from './Teacher8/Homework';
 import TeacherMarks8 from './Teacher8/Marks';
+import Dashboard from './Dashboard';
+
+import OtherGrade from './OtherGrade';
 
 
 function App() {
@@ -69,7 +72,7 @@ function App() {
         <Route path="/Grade8/Marks8" element={<Marks8 />} /> {/* Marks8 route */}
         <Route path="/Grade8/Submission8" element={<Submission8 />} /> {/* Submission8 route */}
 
-       
+        <Route path="/OtherGrade" element={<OtherGrade />} /> {/* OtherGrade route */}
 
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */} 
 
@@ -85,7 +88,7 @@ function App() {
         <Route path="/Teacher8/Homework" element={<TeacherHomework8 />} /> {/* TeacherHomework8 route */}
         <Route path="/Teacher8/Marks" element={<TeacherMarks8 />} /> {/* TeacherMarks8 route */}
 
-        
+        <Route path="/dashboard" element={<Dashboard/>} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>

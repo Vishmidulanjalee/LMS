@@ -22,9 +22,10 @@ const GradeSelect = () => {
     </div>
   );
 
-  const OtherCard = ({ className }) => (
+  const OtherCard = ({ className, route }) => (
     <div
       className={`w-56 h-48 bg-primary shadow-lg flex flex-col items-center justify-center cursor-pointer relative ${className}`}
+      onClick={() => navigate(route)}
     >
       <div className="absolute inset-0 flex flex-wrap justify-center items-center pointer-events-none">
         {[...Array(10)].map((_, index) => (
@@ -48,7 +49,7 @@ const GradeSelect = () => {
           <GradeCard grade={9} route="/Grade9/Dashboard9" /> {/* Specify the route for Grade 9 */}
           <GradeCard grade={10} route="/Grade10/Dashboard10" /> {/* Specify the route for Grade 10 */}
           <GradeCard grade={11} route="/Grade11/Dashboard11" /> {/* Specify the route for Grade 11 */}
-          <OtherCard />
+          <OtherCard route="/OtherGrade"/>
         </div>
       </div>
       <Footer />
