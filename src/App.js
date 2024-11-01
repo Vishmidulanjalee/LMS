@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet'; // Import Helmet
 import SignUp from './SignUp';
 import Signin from './SignIn';
 import WelcomeScreen from './WelcomeScreen';
+import Dashboard from './Dashboard';
 
 import GradeSelect from "./GradeSelect";
 
@@ -60,6 +61,22 @@ import TeacherNotes7 from './Teacher7/Notes';
 import TeacherDashboard8 from './Teacher8/Dashboard';
 import TeacherHomework8 from './Teacher8/Homework';
 import TeacherMarks8 from './Teacher8/Marks';
+import TeacherNotes8 from './Teacher8/Notes';
+
+import TeacherDashboard9 from './Teacher9/Dashboard';
+import TeacherHomework9 from './Teacher9/Homework';
+import TeacherMarks9 from './Teacher9/Marks';
+import TeacherNotes9 from './Teacher9/Notes';
+
+import TeacherDashboard10 from './Teacher10/Dashboard';
+import TeacherHomework10 from './Teacher10/Homework';
+import TeacherMarks10 from './Teacher10/Marks';
+import TeacherNotes10 from './Teacher10/Notes';
+
+import TeacherDashboard11 from './Teacher11/Dashboard';
+import TeacherHomework11 from './Teacher11/Homework';
+import TeacherMarks11 from './Teacher11/Marks';
+import TeacherNotes11 from './Teacher11/Notes';
 
 
 function App() {
