@@ -4,11 +4,11 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
 import { db, storage } from '../firebase';
 
 const institutions = [
-  'SVAITHA Institute',
-  'SYASA Institute',
-  'The BEE Academy',
-  'OMNI Institute',
-  'My Online School',
+    'SIYATHRA Institute',
+    'SIYASA Institute',
+    'The BEE Academy',
+    'OMIN Institute',
+    'ONLINE CLASS',
 ];
 
 const TeacherNotesGrade8 = () => {
@@ -23,7 +23,7 @@ const TeacherNotesGrade8 = () => {
     const fetchNotes = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, 'notes'));
+        const querySnapshot = await getDocs(collection(db, 'notes8'));
         const notesData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),

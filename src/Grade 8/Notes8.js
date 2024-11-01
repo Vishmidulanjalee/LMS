@@ -11,7 +11,7 @@ const Grade8Notes = () => {
     const fetchNotes = async () => {
       try {
         // Query to fetch notes only for Grade 8
-        const q = query(collection(db, 'notes'), where('grade', '==', 8));
+        const q = query(collection(db, 'notes8'), where('grade', '==', 8));
         const querySnapshot = await getDocs(q);
         const notesData = querySnapshot.docs.map(doc => ({
           id: doc.id,
