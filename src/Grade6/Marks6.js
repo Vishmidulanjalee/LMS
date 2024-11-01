@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase"; // Firebase config import
-
+import Sidebar from '../Sidebar6';
 
 const StudentMarks6 = () => {
   const [marksData, setMarksData] = useState([]);
@@ -46,7 +46,8 @@ const StudentMarks6 = () => {
 
   return (
     <div className="flex">
-      <div className="container mx-auto px-4 py-8">
+        <Sidebar activeItem="Marks"/>
+      <div className="container mx-auto px-4 py-8 bg-gray-50">
         <h2 className="text-3xl font-bold mb-6">Marks - Grade 6</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
           <thead className="bg-yellow-400">

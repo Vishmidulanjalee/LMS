@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase"; // Ensure your Firebase config is correctly imported
-import Sidebar from "../Sidebar";
+import Sidebar from "../Sidebar6";
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const Homework6 = () => {
@@ -76,7 +76,7 @@ const Homework6 = () => {
   return (
     <div className="flex">
       <Sidebar activeItem="Homework" />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 bg-gray-50">
         <h2 className="text-3xl font-bold mb-6">Homework - Grade 6</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
           <thead className="bg-yellow-400">
