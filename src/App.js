@@ -60,25 +60,6 @@ import TeacherNotes7 from './Teacher7/Notes';
 import TeacherDashboard8 from './Teacher8/Dashboard';
 import TeacherHomework8 from './Teacher8/Homework';
 import TeacherMarks8 from './Teacher8/Marks';
-import TeacherNotes8 from './Teacher8/Notes';
-//import StudentMarks10 from './Grade 10/Marks10';
-
-import TeacherDashboard9 from './Teacher9/Dashboard';
-import TeacherHomework9 from './Teacher9/Homework';
-import TeacherMarks9 from './Teacher9/Marks';
-import TeacherNotes9 from './Teacher9/Notes';
-
-import TeacherDashboard10 from './Teacher10/Dashboard';
-import TeacherHomework10 from './Teacher10/Homework';
-import TeacherMarks10 from './Teacher10/Marks';
-import TeacherNotes10 from './Teacher10/Notes';
-
-import TeacherDashboard11 from './Teacher11/Dashboard';
-import TeacherHomework11 from './Teacher11/Homework';
-import TeacherMarks11 from './Teacher11/Marks';
-import TeacherNotes11 from './Teacher11/Notes';
-
-
 
 
 function App() {
@@ -112,26 +93,8 @@ function App() {
         <Route path="/Grade8/Homework8" element={<Homework8 />} /> {/* Homework8 route */}
         <Route path="/Grade8/Marks8" element={<Marks8 />} /> {/* Marks8 route */}
         <Route path="/Grade8/Submission8" element={<Submission8 />} /> {/* Submission8 route */}
-        <Route path='/Grade8/Notes8' element={<Notes8 />} /> {/* Notes8 route */}
 
-        <Route path="/Grade9/Dashboard9" element={<Dashboard9 />} /> {/* Dashboard9 route */}
-        <Route path="/Grade9/Homework9" element={<Homework9 />} /> {/* Homework9 route */}
-        <Route path="/Grade9/Marks9" element={<Marks9 />} /> {/* Marks9 route */}
-        <Route path="/Grade9/Submission9" element={<Submission9 />} /> {/* Submission9 route */}
-        <Route path='/Grade9/Notes9' element={<Notes9 />} /> {/* Notes9 route */}
-
-        <Route path="/Grade10/Dashboard10" element={<Dashboard10 />} /> {/* Dashboard10 route */}
-        <Route path="/Grade10/Homework10" element={<Homework10 />} /> {/* Homework10 route */}
-        <Route path="/Grade10/Marks10" element={<StudentMarks10 />} /> {/* Marks10 route */}
-        <Route path="/Grade10/Submission10" element={<Submission10 />} /> {/* Submission10 route */}
-        <Route path="/Grade10/Notes10" element={<Notes10 />} /> {/* Notes10 route */}
-
-        <Route path="/Grade11/Dashboard11" element={<Dashboard11 />} /> {/* Dashboard11 route */}
-        <Route path="/Grade11/Homework11" element={<Homework11 />} /> {/* Homework11 route */}
-        <Route path="/Grade11/Marks11" element={<Marks11 />} /> {/* Marks11 route */}
-        <Route path="/Grade11/Submission11" element={<Submission11/>} /> {/* Submission11 route */}
-        <Route path="/Grade11/Notes11" element={<Notes11 />} /> {/* Notes11 route */}
-        
+       
 
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */} 
 
@@ -167,7 +130,7 @@ function App() {
 
 
 
-        
+        <Route path="/dashboard" element={<Dashboard/>} />
         {/* Add more routes as needed */}
       </Routes>
     </Router>
