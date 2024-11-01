@@ -93,6 +93,7 @@ function App() {
         <Route path="/Grade8/Homework8" element={<Homework8 />} /> {/* Homework8 route */}
         <Route path="/Grade8/Marks8" element={<Marks8 />} /> {/* Marks8 route */}
         <Route path="/Grade8/Submission8" element={<Submission8 />} /> {/* Submission8 route */}
+        <Route path='/Grade8/Notes8' element={<Notes8 />} /> {/* Notes8 route */}
 
        
 
