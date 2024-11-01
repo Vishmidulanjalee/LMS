@@ -80,7 +80,7 @@ const Dashboard9 = () => {
       <header className="bg-white shadow">
         <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Dhananjaya {userName}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back,  {userName}</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
           </div>
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
