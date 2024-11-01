@@ -90,7 +90,7 @@ const TeacherDashboard = () => {
                 { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/teacher/marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
-                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div key={index} className="bg-white shadow-lg rounded-lg">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
                       <item.icon className="h-7 w-7" />

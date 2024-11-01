@@ -15,15 +15,16 @@ import Dashboard6 from "./Grade6/Dashboard6";
 import TeacherDashboard6 from "./Teacher6/Dashboard";
 import GradeSelectTeacher from "./GradeSelectTeacher";
 import TeacherHomework6 from "./Teacher6/Homework";
+import Notes from "./NotesPage/Notes"
 
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<WelcomeScreen />} /> {/* Notes route */}
-        <Route path="/Signup" element={<SignUp />} /> {/* SignIn is the first page */}
-        <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
+        <Route path="/" element={<WelcomeScreen />} /> {/* Welcome route */}
+        <Route path="/Signup" element={<SignUp />} /> {/* Signup route */}
+        <Route path="/Signin" element={<Signin />} /> {/* Signin route */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* Main dashboard route */}
         <Route path="/Marks" element={<Marks />} /> {/* Marks route */}
         <Route path="/homework" element={<Homework />} /> {/* Homework route */}
@@ -33,6 +34,7 @@ function App() {
         <Route path="/Grade6/Homework6" element={<Homework6 />} /> {/* Homework6 route */}
         <Route path="/GradeSelect" element={<GradeSelect />} /> {/* GradeSelect route */}
         <Route path="/Grade6/Dashboard6" element={<Dashboard6 />} /> {/* Dashboard6 route */}
+        <Route path="/Grade6/Notes" element={<Notes />} /> {/* Dashboard6 route */}
         <Route path="/Teacher6/Dashboard" element={<TeacherDashboard6 />} /> {/* TeacherDashboard6 route */}
         <Route path="/Teacher6/Homework" element={<TeacherHomework6 />} /> {/* TeacherHomework6 route */}
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */}  
