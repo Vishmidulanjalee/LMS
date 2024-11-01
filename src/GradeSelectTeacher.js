@@ -43,8 +43,8 @@ const GradeSelect = () => {
         </h1>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-24 gap-y-10 justify-items-center mb-4">
           <GradeCard grade={6} route="/Teacher6/Dashboard" /> {/* Specify the route for Grade 6 */}
-          <GradeCard grade={7} route="/Grade7/Dashboard7" /> {/* Specify the route for Grade 7 */}
-          <GradeCard grade={8} route="/Grade8/Dashboard8" /> {/* Specify the route for Grade 8 */}
+          <GradeCard grade={7} route="/Teacher7/Dashboard" /> {/* Specify the route for Grade 7 */}
+          <GradeCard grade={8} route="/Teacher8/Dashboard" /> {/* Specify the route for Grade 8 */}
           <GradeCard grade={9} route="/Grade9/Dashboard9" /> {/* Specify the route for Grade 9 */}
           <GradeCard grade={10} route="/Grade10/Dashboard10" /> {/* Specify the route for Grade 10 */}
           <GradeCard grade={11} route="/Grade11/Dashboard11" /> {/* Specify the route for Grade 11 */}
