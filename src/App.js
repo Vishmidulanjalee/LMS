@@ -112,6 +112,24 @@ function App() {
         <Route path="/Grade8/Submission8" element={<Submission8 />} /> {/* Submission8 route */}
         <Route path='/Grade8/Notes8' element={<Notes8 />} /> {/* Notes8 route */}
 
+        <Route path="/Grade9/Dashboard9" element={<Dashboard9 />} /> {/* Dashboard9 route */}
+        <Route path="/Grade9/Homework9" element={<Homework9 />} /> {/* Homework9 route */}
+        <Route path="/Grade9/Marks9" element={<Marks9 />} /> {/* Marks9 route */}
+        <Route path="/Grade9/Submission9" element={<Submission9 />} /> {/* Submission9 route */}
+        <Route path='/Grade9/Notes9' element={<Notes9 />} /> {/* Notes9 route */}
+
+        <Route path="/Grade10/Dashboard10" element={<Dashboard10 />} /> {/* Dashboard10 route */}
+        <Route path="/Grade10/Homework10" element={<Homework10 />} /> {/* Homework10 route */}
+        <Route path="/Grade10/Marks10" element={<StudentMarks10 />} /> {/* Marks10 route */}
+        <Route path="/Grade10/Submission10" element={<Submission10 />} /> {/* Submission10 route */}
+        <Route path='/Grade10/Notes10' element={<Notes10 />} /> {/* Notes10 route */}
+
+        <Route path="/Grade11/Dashboard11" element={<Dashboard11 />} /> {/* Dashboard11 route */}
+        <Route path="/Grade11/Homework11" element={<Homework11 />} /> {/* Homework11 route */}
+        <Route path="/Grade11/Marks11" element={<Marks11 />} /> {/* Marks11 route */}
+        <Route path="/Grade11/Submission11" element={<Submission11 />} /> {/* Submission11 route */}
+        <Route path='/Grade11/Notes11' element={<Notes11 />} /> {/* Notes11 route */}
+
        
 
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */} 

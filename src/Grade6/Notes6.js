@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import Sidebar from '../Sidebar'; // Import the Sidebar component
 import { Eye, Download } from 'lucide-react';
@@ -7,7 +7,7 @@ import { Eye, Download } from 'lucide-react';
 const Grade6Notes = () => {
   const [notesByInstitution, setNotesByInstitution] = useState({});
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchNotes = async () => {
       try {
         // Query to fetch notes only for Grade 6
@@ -17,7 +17,7 @@ const Grade6Notes = () => {
           id: doc.id,
           ...doc.data(),
         }));
-
+        console.log("Fetched notes data:", notesData);// Check if data is retrieved
         // Group notes by institution
         const groupedNotes = notesData.reduce((acc, note) => {
           const institution = note.institution || 'Unknown Institution';
@@ -31,9 +31,31 @@ const Grade6Notes = () => {
         console.error('Error fetching notes:', error);
       }
     };
-
+    
     fetchNotes();
   }, []);
+    */
+  const groupedNotesByInstitution = (notesData) => {
+    return notesData.reduce((acc, note) => {
+      const institution = note.institution || 'Unknown Institution';
+      if (!acc[institution]) acc[institution] = [];
+      acc[institution].push(note);
+      return acc;
+    }, {});
+  };
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'notes6'), (querySnapshot) => {
+          const notesData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setNotesByInstitution(groupedNotesByInstitution(notesData));
+        });
+      
+        return () => unsubscribe(); // Cleanup on component unmount
+      }, []);
+      
+
 
   return (
     <div className="flex h-screen bg-gray-50">

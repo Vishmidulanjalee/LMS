@@ -62,7 +62,7 @@ const TeacherNotesGrade7 = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const docRef = await addDoc(collection(db, 'notes'), newNote);
+      const docRef = await addDoc(collection(db, 'notes7'), newNote);
       setNotesList(prevNotes => [...prevNotes, { ...newNote, id: docRef.id }]);
       resetFormFields();
     } catch (error) {

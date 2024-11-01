@@ -63,7 +63,7 @@ const TeacherNotesGrade6 = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const docRef = await addDoc(collection(db, 'notes'), newNote);
+      const docRef = await addDoc(collection(db, 'notes6'), newNote);
       setNotesList(prevNotes => [...prevNotes, { ...newNote, id: docRef.id }]);
       resetFormFields();
     } catch (error) {
@@ -101,7 +101,11 @@ const TeacherNotesGrade6 = () => {
   if (loading) {
     return <div className="flex items-center justify-center h-screen text-xl">Loading...</div>;
   }
-
+// Group notes by institution
+    const groupedNotesByInstitution = grade6Notes.reduce((acc, note) => {
+        (acc[note.institution] = acc[note.institution] || []).push(note);
+         return acc;
+  }, {});
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 p-10">
       <header className="mb-10">
@@ -138,14 +142,16 @@ const TeacherNotesGrade6 = () => {
 
       {/* Render notes for Grade 6 only */}
       <div className="mb-8">
-        {grade6Notes.length > 0 ? (
-          <>
-            <h3 className="text-2xl font-semibold mb-4">Grade 6 Notes</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {grade6Notes.map(note => (
-                <div className="bg-white p-5 rounded-lg shadow-md flex flex-col" key={note.id}>
-                  <h5 className="text-lg font-bold">{note.title}</h5>
-                  <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
+        
+            {Object.entries(groupedNotesByInstitution).length > 0 ? (
+          Object.entries(groupedNotesByInstitution).map(([institutionName, notes]) => (
+            <div key={institutionName} className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4">Institution: {institutionName}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {notes.map(note => (
+                  <div className="bg-white p-5 rounded-lg shadow-md flex flex-col" key={note.id}>
+                    <h5 className="text-lg font-bold">{note.title}</h5>
+                    <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
                   {/* Delete Button */}
                   <button
                     onClick={() => handleDeleteNote(note.id, note.fileURL)}
@@ -165,7 +171,8 @@ const TeacherNotesGrade6 = () => {
                 </div>
               ))}
             </div>
-          </>
+            </div>
+          ))
         ) : (
           <p>No notes available for Grade 6.</p>
         )}

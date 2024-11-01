@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection,onSnapshot, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
 import Sidebar from '../Sidebar'; // Import the Sidebar component
 import { Eye, Download } from 'lucide-react';
@@ -7,7 +7,7 @@ import { Eye, Download } from 'lucide-react';
 const Grade9Notes = () => {
   const [notesByInstitution, setNotesByInstitution] = useState({});
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchNotes = async () => {
       try {
         // Query to fetch notes only for Grade 9
@@ -33,7 +33,28 @@ const Grade9Notes = () => {
     };
 
     fetchNotes();
-  }, []);
+  }, []);*/
+
+  const groupedNotesByInstitution = (notesData) => {
+    return notesData.reduce((acc, note) => {
+      const institution = note.institution || 'Unknown Institution';
+      if (!acc[institution]) acc[institution] = [];
+      acc[institution].push(note);
+      return acc;
+    }, {});
+  };
+    useEffect(() => {
+        const unsubscribe = onSnapshot(collection(db, 'notes9'), (querySnapshot) => {
+          const notesData = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setNotesByInstitution(groupedNotesByInstitution(notesData));
+        });
+      
+        return () => unsubscribe(); // Cleanup on component unmount
+      }, []);
+      
 
   return (
     <div className="flex h-screen bg-gray-50">
