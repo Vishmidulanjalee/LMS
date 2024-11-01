@@ -86,7 +86,7 @@ const TeacherDashboard7 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/add-notes" },
+                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher7/Notes" },
                 { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher7/Homework" },
                 { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher7/Marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },

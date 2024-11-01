@@ -5,7 +5,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Book, FileText, GraduationCap, PlusCircle } from "lucide-react";
 import Footer from '../Footer';
 
-const TeacherDashboard8 = () => {
+const TeacherDashboard10 = () => {
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [customContent, setCustomContent] = useState('');
@@ -73,7 +73,7 @@ const TeacherDashboard8 = () => {
         <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Dhananjaya</h1>
-            <h1 className="text-3xl font-bold text-gray-900">Grade 8</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Grade 10</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
           </div>
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
@@ -86,9 +86,9 @@ const TeacherDashboard8 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher8/Notes" },
-                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher8/Homework" },
-                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher8/Marks" },
+                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher10/Notes" },
+                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher10/Homework" },
+                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher10/Marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -144,4 +144,4 @@ const TeacherDashboard8 = () => {
   );
 }
 
-export default TeacherDashboard8;
+export default TeacherDashboard10;

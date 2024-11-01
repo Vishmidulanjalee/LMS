@@ -11,14 +11,13 @@ const institutions = [
   'My Online School',
 ];
 
-const TeacherNotes = () => {
+const TeacherNotesGrade11 = () => {
   const [notesList, setNotesList] = useState([]);
   const [title, setTitle] = useState('');
-  const [grade, setGrade] = useState('');
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [institution, setInstitution] = useState('');
-  const [isAddingNote, setIsAddingNote] = useState(false); // Track if adding note is in progress
+  const [isAddingNote, setIsAddingNote] = useState(false);
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -41,15 +40,14 @@ const TeacherNotes = () => {
 
   const handleAddNote = async (e) => {
     e.preventDefault();
-    if (!title || !grade || !file || !institution) {
+    if (!title || !file || !institution) {
       alert('Please fill all fields and upload a file');
       return;
     }
 
-    // Prevent multiple submissions
     if (isAddingNote) return;
 
-    setIsAddingNote(true); // Set to true to prevent further clicks
+    setIsAddingNote(true);
 
     try {
       const fileRef = ref(storage, `Notes/${file.name}`);
@@ -58,7 +56,7 @@ const TeacherNotes = () => {
 
       const newNote = {
         title,
-        grade,
+        grade: '11',
         institution,
         fileURL,
         createdAt: new Date().toISOString(),
@@ -70,7 +68,7 @@ const TeacherNotes = () => {
     } catch (error) {
       console.error('Error adding note:', error);
     } finally {
-      setIsAddingNote(false); // Reset after attempt
+      setIsAddingNote(false);
     }
   };
 
@@ -93,18 +91,11 @@ const TeacherNotes = () => {
 
   const resetFormFields = () => {
     setTitle('');
-    setGrade('');
     setInstitution('');
     setFile(null);
   };
 
-  const notesByInstitutionAndGrade = notesList.reduce((acc, note) => {
-    const { institution, grade } = note;
-    if (!acc[institution]) acc[institution] = {};
-    if (!acc[institution][grade]) acc[institution][grade] = [];
-    acc[institution][grade].push(note);
-    return acc;
-  }, {});
+  const grade11Notes = notesList.filter(note => note.grade === '11');
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen text-xl">Loading...</div>;
@@ -113,7 +104,7 @@ const TeacherNotes = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 p-10">
       <header className="mb-10">
-        <h2 className="text-gray-800 text-2xl mb-2">Teacher's Notes</h2>
+        <h2 className="text-gray-800 text-2xl mb-2">Teacher's Notes - Grade 11</h2>
       </header>
 
       <form onSubmit={handleAddNote} className="mb-8">
@@ -122,13 +113,6 @@ const TeacherNotes = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Note Title"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
-        />
-        <input
-          type="text"
-          value={grade}
-          onChange={(e) => setGrade(e.target.value)}
-          placeholder="Grade"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
         />
         <select
@@ -151,43 +135,34 @@ const TeacherNotes = () => {
         </button>
       </form>
 
-      {/* Render notes by institution and grade */}
-      {Object.entries(notesByInstitutionAndGrade).map(([institution, grades]) => (
-        <div key={institution} className="mb-8">
-          <h3 className="text-2xl font-semibold mb-4">Institution: {institution}</h3>
-          {Object.entries(grades).map(([grade, notes]) => (
-            <div key={grade} className="mb-4">
-              <h4 className="text-xl font-semibold mb-2">Grade: {grade}</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {notes.map(note => (
-                  <div className="bg-white p-5 rounded-lg shadow-md flex flex-col" key={note.id}>
-                    <h5 className="text-lg font-bold">{note.title}</h5>
-                    <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteNote(note.id, note.fileURL)}
-                      className="bg-yellow-400 text-white px-3 py-1 rounded mb-2 mt-5"
-                    >
-                      Delete
-                    </button>
-                    {/* View File Link */}
-                    <a
-                      href={note.fileURL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      View File
-                    </a>
-                  </div>
-                ))}
-              </div>
+      {/* Render grade 11 notes */}
+      <div>
+        <h3 className="text-2xl font-semibold mb-4">Grade 11 Notes</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {grade11Notes.map(note => (
+            <div className="bg-white p-5 rounded-lg shadow-md flex flex-col" key={note.id}>
+              <h5 className="text-lg font-bold">{note.title}</h5>
+              <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
+              <button
+                onClick={() => handleDeleteNote(note.id, note.fileURL)}
+                className="bg-yellow-400 text-white px-3 py-1 rounded mb-2 mt-5"
+              >
+                Delete
+              </button>
+              <a
+                href={note.fileURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                View File
+              </a>
             </div>
           ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
 
-export default TeacherNotes;
+export default TeacherNotesGrade11;

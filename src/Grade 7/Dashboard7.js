@@ -97,7 +97,7 @@ const Dashboard7 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
+                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade7/Notes7" },
                 { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade7/Homework7" },
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade7/Marks7" },
                 { title: "Other", icon: FileText, description: "Review and submit your homework" },

@@ -8,7 +8,7 @@ import image2 from '../assets/img2.jpg';
 import image3 from '../assets/img3.jpg';
 import Footer from '../Footer';
 
-const Dashboard6 = () => {
+const Dashboard10 = () => {
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
@@ -29,7 +29,6 @@ const Dashboard6 = () => {
   // Set up the automatic slide rotation for notices and default images
   useEffect(() => {
     const interval = setInterval(() => {
-      // Update currentIndex for cycling through notices and default images
       setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length + images.length));
     }, 5000);
     return () => clearInterval(interval);
@@ -63,19 +62,17 @@ const Dashboard6 = () => {
 
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
-  // Determine current image to display
   let currentImageSrc;
   let currentNoticeContent;
 
   if (currentIndex < notices.length) {
     const currentNotice = notices[currentIndex];
-    currentImageSrc = currentNotice.image; // Assuming the image is in the notice
-    currentNoticeContent = currentNotice.content; // Content of the notice
+    currentImageSrc = currentNotice.image;
+    currentNoticeContent = currentNotice.content;
   } else {
-    // If currentIndex exceeds the number of notices, cycle through default images
     const defaultImageIndex = currentIndex - notices.length;
-    currentImageSrc = images[defaultImageIndex]; // Use default images
-    currentNoticeContent = null; // No notice content for default images
+    currentImageSrc = images[defaultImageIndex];
+    currentNoticeContent = null;
   }
 
   return (
@@ -95,11 +92,11 @@ const Dashboard6 = () => {
         <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
-              {[
-                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade6/Notes6" },
-                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade6/Homework6" },
-                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade6/Marks6" },
-                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
+              {[ // Updated for Grade 10
+                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade10/Notes10" },
+                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade10/Homework10" },
+                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade10/Marks10" },
+                { title: "Other", icon: FileText, description: "Explore additional resources for Grade 10" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">
@@ -122,7 +119,6 @@ const Dashboard6 = () => {
               ))}
             </div>
             <div className="lg:w-1/3 flex items-center">
-              {/* Show the currently selected notice image or the rotating default images */}
               <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
                 {currentNoticeContent ? (
                   <>
@@ -150,4 +146,4 @@ const Dashboard6 = () => {
   );
 }
 
-export default Dashboard6;
+export default Dashboard10;

@@ -5,11 +5,10 @@ import { onAuthStateChanged } from "firebase/auth";
 import { Book, FileText, GraduationCap, PlusCircle } from "lucide-react";
 import Footer from '../Footer';
 
-const TeacherDashboard8 = () => {
+const TeacherDashboard9 = () => {
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [customContent, setCustomContent] = useState('');
-  const [currentContent, setCurrentContent] = useState('');
   const [currentImage, setCurrentImage] = useState(null);
 
   useEffect(() => {
@@ -72,8 +71,8 @@ const TeacherDashboard8 = () => {
       <header className="bg-white shadow">
         <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Dhananjaya</h1>
-            <h1 className="text-3xl font-bold text-gray-900">Grade 8</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Grade 9</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
           </div>
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
@@ -86,9 +85,9 @@ const TeacherDashboard8 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher8/Notes" },
-                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher8/Homework" },
-                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher8/Marks" },
+                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher9/Notes" },
+                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher9/Homework" },
+                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher9/Marks" },
                 { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -112,7 +111,7 @@ const TeacherDashboard8 = () => {
             <div className="lg:w-1/3 flex flex-col items-center bg-white p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold mb-4">Custom Notice Board</h2>
               <div className="w-full mb-6 p-4 rounded-lg bg-gray-100 text-gray-800">
-                {currentContent || (currentImage ? <img src={currentImage} alt="Uploaded" className="w-full h-auto rounded-lg"/> : "No content added yet.")}
+                {customContent || (currentImage ? <img src={currentImage} alt="Uploaded" className="w-full h-auto rounded-lg"/> : "No content added yet.")}
               </div>
               <div className="w-full">
                 <textarea 
@@ -144,4 +143,4 @@ const TeacherDashboard8 = () => {
   );
 }
 
-export default TeacherDashboard8;
+export default TeacherDashboard9;
