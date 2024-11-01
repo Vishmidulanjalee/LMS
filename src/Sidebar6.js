@@ -6,7 +6,7 @@ import Logo from './assets/Logo.png';
 
 const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', route: "/Grade6/Dashboard6" },
-    { icon: Book, label: 'Notes', route: "/NotesPage/Notes" },
+    { icon: Book, label: 'Notes', route: "/Grade6/Notes6" },
     { icon: FileText, label: 'Homework', route: "/Grade6/Homework6" },
     { icon: GraduationCap, label: 'Marks', route: "/Grade6/Marks6" },
     { icon: LibraryBig, label: 'Other', route: "/other" },
