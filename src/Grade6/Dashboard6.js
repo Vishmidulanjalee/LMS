@@ -99,7 +99,7 @@ const Dashboard6 = () => {
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade6/Notes6" },
                 { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade6/Homework6" },
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade6/Marks6" },
-                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
+                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/Other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">

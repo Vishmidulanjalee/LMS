@@ -85,7 +85,7 @@ const TeacherMarks7 = () => {
 
 return (
     <div className="container mx-auto px-4 py-8">
-        <h2 className="text-3xl font-bold mb-6">Upload Marks - Grade 8</h2>
+        <h2 className="text-3xl font-bold mb-6">Upload Marks - Grade 7</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label className="block text-sm font-semibold text-gray-700">Exam Title:</label>

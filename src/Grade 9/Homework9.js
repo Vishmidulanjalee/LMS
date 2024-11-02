@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase"; // Ensure your Firebase config is correctly imported
-import Sidebar from "../Sidebar";
+import Sidebar from "../Sidebar9";
 import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 const Homework9 = () => {
