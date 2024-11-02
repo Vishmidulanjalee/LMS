@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { collection, doc, getDoc, addDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { Book, FileText, GraduationCap, PlusCircle } from "lucide-react";
+import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react";
 import Footer from '../Footer';
 
 const TeacherDashboard8 = () => {
@@ -73,23 +73,23 @@ const TeacherDashboard8 = () => {
         <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back, Dhananjaya</h1>
-            <h1 className="text-3xl font-bold text-gray-900">Grade 8</h1>
-            <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
+            <h1 className="text-2xl font-medium text-gray-800">Grade 8</h1>
+            <h2 className="text-lg font-normal text-gray-800 mt-1">{currentDate}</h2>
           </div>
           <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
             {userInitials}
           </div>
         </div>
       </header>
-      <main className="flex-grow">
-        <div className="h-full max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow overflow-auto pb-20">
+        <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
                 { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher8/Notes" },
                 { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher8/Homework" },
                 { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher8/Marks" },
-                { title: "Add Other", icon: PlusCircle, description: "Add other teaching materials", route: "/add-other" },
+                { title: "Add Other", icon: LibraryBig, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
                   <div className="p-5">

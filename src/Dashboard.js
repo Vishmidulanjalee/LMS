@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { Book, FileText, GraduationCap } from "lucide-react";
+import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react";
 import image1 from './assets/img1.jpg'; 
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
@@ -99,7 +99,7 @@ const Dashboard = () => {
                 { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/NotesPage/Notes" },
                 { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/homework" },
                 { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Marks" },
-                { title: "Other", icon: FileText, description: "Review and submit your homework", route: "/TeacherPages/TeacherMarks" },
+                { title: "Other", icon: LibraryBig, description: "Explore additional resources and materials", route: "/TeacherPages/TeacherMarks" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">

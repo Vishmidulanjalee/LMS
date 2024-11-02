@@ -46,6 +46,8 @@ import Marks11 from './Grade 11/Marks11';
 import Submission11 from './Grade 11/Submission11';
 import Notes11 from './Grade 11/Notes11';
 
+import OtherGrade from "./OtherGrade";
+
 import GradeSelectTeacher from "./GradeSelectTeacher";
 
 import TeacherDashboard6 from "./Teacher6/Dashboard";
@@ -130,7 +132,7 @@ function App() {
         <Route path="/Grade11/Submission11" element={<Submission11 />} /> {/* Submission11 route */}
         <Route path='/Grade11/Notes11' element={<Notes11 />} /> {/* Notes11 route */}
 
-       
+        <Route path="/OtherGrade" element={<OtherGrade />} /> {/* Other in grade selector route */}
 
         <Route path="/GradeSelectTeacher" element={<GradeSelectTeacher />} /> {/* GradeSelectTeacher route */} 
 
