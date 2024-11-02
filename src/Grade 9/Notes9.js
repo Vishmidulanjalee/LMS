@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection,onSnapshot, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
-import Sidebar from '../Sidebar'; // Import the Sidebar component
+import Sidebar from '../Sidebar9'; // Import the Sidebar component
 import { Eye, Download } from 'lucide-react';
 
 const Grade9Notes = () => {
@@ -58,7 +58,7 @@ const Grade9Notes = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar/>
+      <Sidebar activeItem="Notes" />
 
       <main className="flex-1 overflow-y-auto p-6">
         <header className="mb-12 mx-8">

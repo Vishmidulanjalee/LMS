@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase"; // Firebase config import
-
+import Sidebar8 from '../Sidebar8';
 
 const StudentMarks8 = () => {
   const [marksData, setMarksData] = useState([]);
@@ -46,6 +46,7 @@ const StudentMarks8 = () => {
 
   return (
     <div className="flex">
+      <Sidebar8 activeRoute="Marks"/>
       <div className="container mx-auto px-4 py-8">
         <h2 className="text-3xl font-bold mb-6">Marks - Grade 8</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">

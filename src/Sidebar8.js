@@ -5,10 +5,10 @@ import { LayoutDashboard, Book, FileText, GraduationCap, LibraryBig, LogOut, Men
 import Logo from './assets/Logo.png';
 
 const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', route: "/Grade 8/Dashboard8" },
-    { icon: Book, label: 'Notes', route: "/NotesPage/Notes" },
-    { icon: FileText, label: 'Homework', route: "/Grade 8/Homework8" },
-    { icon: GraduationCap, label: 'Marks', route: "/Grade 8/Marks8" },
+    { icon: LayoutDashboard, label: 'Dashboard', route: "/Grade8/Dashboard8" },
+    { icon: Book, label: 'Notes', route: "/Grade8/Notes8" },
+    { icon: FileText, label: 'Homework', route: "/Grade8/Homework8" },
+    { icon: GraduationCap, label: 'Marks', route: "/Grade8/Marks8" },
     { icon: LibraryBig, label: 'Other', route: "/other" },
 ];
 
