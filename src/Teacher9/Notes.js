@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import { FaTrash } from 'react-icons/fa';
+
 
 const institutions = [
-    'SIYATHRA Institute',
-    'SIYASA Institute',
+    'SIYATHRA ',
+    'SIYASA ',
     'The BEE Academy',
-    'OMIN Institute',
+    'OMIN ',
     'ONLINE CLASS',
 ];
 
@@ -75,7 +77,7 @@ const TeacherNotesGrade9 = () => {
   const handleDeleteNote = async (id, fileURL) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       try {
-        await deleteDoc(doc(db, 'notes', id));
+        await deleteDoc(doc(db, 'notes9', id));
 
         if (fileURL) {
           const fileRef = ref(storage, fileURL);
@@ -101,53 +103,73 @@ const TeacherNotesGrade9 = () => {
     return <div className="flex items-center justify-center h-screen text-xl">Loading...</div>;
   }
 
-  return (
-    <div className="flex flex-col min-h-screen bg-gray-100 p-10">
-      <header className="mb-10">
-        <h2 className="text-gray-800 text-2xl mb-2">Teacher's Notes - Grade 9</h2>
-      </header>
+  // Group notes by institution
+  const groupedNotesByInstitution = grade9Notes.reduce((acc, note) => {
+    (acc[note.institution] = acc[note.institution] || []).push(note);
+     return acc;
+}, {});
 
-      <form onSubmit={handleAddNote} className="mb-8">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Note Title"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
-        />
-        <select
-          value={institution}
-          onChange={(e) => setInstitution(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4"
-        >
-          <option value="">Select Institution</option>
-          {institutions.map(inst => (
-            <option key={inst} value={inst}>{inst}</option>
-          ))}
-        </select>
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="block w-full text-sm text-gray-500 mb-4"
-        />
-        <button type="submit" className={`bg-blue-500 text-white px-4 py-2 rounded-md ${isAddingNote ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isAddingNote}>
-          {isAddingNote ? 'Adding...' : 'Add Note'}
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-6">Upload Notes - Grade 9</h2>
+
+      <form onSubmit={handleAddNote} className="space-y-4 mb-8">
+      <div>
+          <label className="block text-sm font-semibold text-gray-700">Note Title:</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 p-2 block w-full border border-gray-300 rounded"
+            placeholder="Note Title"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700">Institute:</label>
+          <select
+            value={institution}
+            onChange={(e) => setInstitution(e.target.value)}
+            className="mt-1 p-2 block w-full border border-gray-300 rounded"
+            required
+          >
+            <option value="">Select Institute</option>
+            {institutions.map(inst => (
+              <option key={inst} value={inst}>{inst}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700">Upload File:</label>
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files[0])}
+             className="mt-1 p-2 block w-full border border-gray-300 rounded"
+            required
+          />
+        </div>
+        <button type="submit" className={`bg-yellow-500 text-white px-4 py-2 rounded-md ${isAddingNote ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={isAddingNote}>
+          {isAddingNote ? 'Uploading...' : 'Upload'}
         </button>
       </form>
 
       {/* Render grade 9 notes */}
-      <div>
-        <h3 className="text-2xl font-semibold mb-4">Grade 9 Notes</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {grade9Notes.map(note => (
-            <div className="bg-white p-5 rounded-lg shadow-md flex flex-col" key={note.id}>
-              <h5 className="text-lg font-bold">{note.title}</h5>
-              <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
+      <div className="mb-8">
+        
+            {Object.entries(groupedNotesByInstitution).length > 0 ? (
+          Object.entries(groupedNotesByInstitution).map(([institutionName, notes]) => (
+            <div key={institutionName} className="mb-8">
+              <h3 className="text-2xl font-semibold mb-4">Institution: {institutionName}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {notes.map(note => (
+                  <div className="bg-white p-5 rounded-lg shadow-md flex flex-col relative" key={note.id}>
+                    <h5 className="text-lg font-bold">{note.title}</h5>
+                    <p className="text-gray-500">{new Date(note.createdAt).toLocaleDateString()}</p>
               <button
                 onClick={() => handleDeleteNote(note.id, note.fileURL)}
-                className="bg-yellow-400 text-white px-3 py-1 rounded mb-2 mt-5"
+                className="text-red-500 hover:text-red-700 absolute top-2 right-2"
               >
-                Delete
+                <FaTrash />
               </button>
               <a
                 href={note.fileURL}
@@ -161,6 +183,11 @@ const TeacherNotesGrade9 = () => {
           ))}
         </div>
       </div>
+       ))
+      ) : (
+        <p>No notes available for Grade 9.</p>
+      )} 
+    </div>
     </div>
   );
 };

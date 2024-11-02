@@ -77,7 +77,7 @@ const TeacherNotesGrade6 = () => {
   const handleDeleteNote = async (id, fileURL) => {
     if (window.confirm("Are you sure you want to delete this note?")) {
       try {
-        await deleteDoc(doc(db, 'notes', id));
+        await deleteDoc(doc(db, 'notes6', id));
 
         if (fileURL) {
           const fileRef = ref(storage, fileURL);
