@@ -62,8 +62,8 @@ const Grade9Notes = () => {
 
       <main className="flex-1 overflow-y-auto p-6">
         <header className="mb-12 mx-8">
-          <h2 className="text-2xl font-semibold text-gray-600">Grade 9</h2>
-          <h1 className="text-4xl font-bold text-gray-800">Notes</h1>
+          <h2 className="text-3xl font-bold text-black"> Notes -Grade 9</h2>
+          
         </header>
 
         {Object.entries(notesByInstitution).map(([institution, notes]) => (

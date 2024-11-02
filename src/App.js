@@ -10,11 +10,11 @@ import Dashboard from './Dashboard';
 
 import GradeSelect from "./GradeSelect";
 
-import Homework6 from "./Grade6/Homework6";
-import Dashboard6 from "./Grade6/Dashboard6";
-import Marks6 from "./Grade6/Marks6";
-import Submission6 from "./Grade6/Submission6";
-import Notes6 from "./Grade6/Notes6";
+import Homework6 from "./Grade 6/Homework6";
+import Dashboard6 from "./Grade 6/Dashboard6";
+import Marks6 from "./Grade 6/Marks6";
+import Submission6 from "./Grade 6/Submission6";
+import Notes6 from "./Grade 6/Notes6";
 
 import Dashboard7 from './Grade 7/Dashboard7';
 import Homework7 from './Grade 7/Homework7';
