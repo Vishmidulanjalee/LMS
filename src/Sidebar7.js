@@ -23,6 +23,14 @@ const Sidebar = () => {
     navigate(route);
   };
 
+  const handleLogout = () => {
+    // Perform any logout logic here (e.g., clearing user session)
+    console.log('Logout clicked');
+    
+    // Redirect to the welcome page
+    navigate('/'); // Adjust the route according to your app structure
+  };
+
   const sidebarContent = (
     <motion.div
       initial={{ x: -300 }}
@@ -78,7 +86,7 @@ const Sidebar = () => {
       >
         <button
           className="w-full flex items-center justify-start px-4 py-2 mb-8 text-lg font-semibold text-gray-600 hover:bg-black hover:text-white rounded-lg transition-colors duration-200"
-          onClick={() => console.log('Logout clicked')}
+          onClick={handleLogout}
         >
           <LogOut className="mr-3 h-5 w-5" />
           Logout
