@@ -48,7 +48,7 @@ const StudentMarks6 = () => {
     <div className="flex">
         <Sidebar activeItem="Marks"/>
       <div className="container mx-auto px-4 py-8 bg-gray-50">
-        <h2 className="text-3xl font-bold mb-6">Marks - Grade 6</h2>
+        <h2 className="text-3xl font-bold mb-6 mt-5">Marks - Grade 6</h2>
         <table className="min-w-full bg-white border border-black-300 rounded-lg shadow-lg">
           <thead className="bg-yellow-400">
             <tr>

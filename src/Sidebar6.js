@@ -96,10 +96,10 @@ const Sidebar = () => {
   );
 
   return (
-    <div className="relative">
+    <div className="relative ">
       {/* Hamburger menu for small screens */}
       <button
-        className="fixed top-6 left-2 z-50 lg:hidden p-2 rounded-md bg-white shadow-md"
+        className="fixed top-3 left-2 z-50 lg:hidden p-2 rounded-md bg-white shadow-md"
         onClick={toggleSidebar}
       >
         <Menu className="w-6 h-6" />

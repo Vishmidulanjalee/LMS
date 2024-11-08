@@ -7,6 +7,10 @@ import image1 from '../assets/img1.jpg';
 import image2 from '../assets/img2.jpg';
 import image3 from '../assets/img3.jpg';
 import Footer from '../Footer';
+import notes from '../assets/notes.png';
+import marks from '../assets/marks.png';
+import homework from '../assets/homework.png';
+import other from '../assets/other.png';
 
 const Dashboard6 = () => {
   const [userName, setUserName] = useState('');
@@ -86,30 +90,30 @@ const Dashboard6 = () => {
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
             <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
           </div>
-          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
+          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center  font-semibold text-lg">
             {userInitials}
           </div>
         </div>
       </header>
-      <main className="flex-grow overflow-auto pb-20">
+      <main className="flex-grow overflow-auto">
         <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade6/Notes6" },
-                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade6/Homework6" },
-                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade6/Marks6" },
-                { title: "Other", icon: LibraryBig, description: "Explore additional resources and materials", route: "/Other" },
+                { title: "Notes", image: notes, description: "Access important notes for your lessons", route: "/Grade6/Notes6" },
+                { title: "Homework", image: homework, description: "Review and submit your homework", route: "/Grade6/Homework6" },
+                { title: "Marks", image: marks, description: "View your latest marks and track progress", route: "/Grade6/Marks6" },
+                { title: "Other", image: other, description: "Explore additional resources and materials", route: "/Other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
-                      <item.icon className="h-7 w-7" />
+                      <img src={item.image} alt={item.title} className="h-7 w-7" />
                       <h1 className="text-2xl font-semibold">{item.title}</h1>
                     </div>
                     <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
                     <button 
-                      className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200"
+                      className="w-full bg-primary font-semibold py-2 px-4 rounded hover:bg-secondary transition duration-200"
                       onClick={() => {
                         console.log(`Navigating to ${item.route}`);
                         window.location.href = item.route;

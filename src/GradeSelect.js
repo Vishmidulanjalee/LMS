@@ -37,12 +37,12 @@ const GradeSelect = () => {
   );
 
   return (
-    <div className="mx-auto min-h-screen flex flex-col pb-20">
+    <div className="mx-auto min-h-screen flex flex-col pb-4">
       <div className="container mx-auto flex flex-col h-full">
-        <h1 className="text-4xl font-semibold text-center mb-10 mt-4">
+        <h1 className="text-4xl font-semibold text-center mb-12 mt-4">
           Select your grade to access courses <br /> and start learning.
         </h1>
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-24 gap-y-10 justify-items-center mb-4">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-24 gap-y-10 justify-items-center mb-8">
           <GradeCard grade={6} route="/Grade6/Dashboard6" /> {/* Specify the route for Grade 6 */}
           <GradeCard grade={7} route="/Grade7/Dashboard7" /> {/* Specify the route for Grade 7 */}
           <GradeCard grade={8} route="/Grade8/Dashboard8" /> {/* Specify the route for Grade 8 */}
