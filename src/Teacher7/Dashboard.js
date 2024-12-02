@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { collection, doc, getDoc, addDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react";
 import Footer from '../Footer';
 import notes from '../assets/notes.png';
 import marks from '../assets/marks.png';

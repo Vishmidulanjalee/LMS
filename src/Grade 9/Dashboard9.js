@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import { Book, FileText, GraduationCap,LibraryBig } from "lucide-react";
 import image1 from '../assets/img1.jpg'; 
 import image2 from '../assets/img2.jpg';
 import image3 from '../assets/img3.jpg';
