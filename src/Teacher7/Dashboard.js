@@ -4,6 +4,10 @@ import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import { Book, FileText, GraduationCap, LibraryBig } from "lucide-react";
 import Footer from '../Footer';
+import notes from '../assets/notes.png';
+import marks from '../assets/marks.png';
+import homework from '../assets/homework.png';
+import other from '../assets/other.png';
 
 const TeacherDashboard7 = () => {
   const [userName, setUserName] = useState('');
@@ -86,15 +90,15 @@ const TeacherDashboard7 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Add Notes", icon: Book, description: "Add new notes for your lessons", route: "/Teacher7/Notes" },
-                { title: "Add Homework", icon: FileText, description: "Create homework assignments", route: "/Teacher7/Homework" },
-                { title: "Add Marks", icon: GraduationCap, description: "Record student marks", route: "/Teacher7/Marks" },
-                { title: "Add Other", icon: LibraryBig, description: "Add other teaching materials", route: "/add-other" },
+                { title: "Add Notes", image: notes, description: "Add new notes for your lessons", route: "/Teacher7/Notes" },
+                { title: "Add Homework", image: homework, description: "Create homework assignments", route: "/Teacher7/Homework" },
+                { title: "Add Marks", image: marks, description: "Record student marks", route: "/Teacher7/Marks" },
+                { title: "Add Other", image: other, description: "Add other teaching materials", route: "/add-other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
-                      <item.icon className="h-7 w-7" />
+                      <img src={item.image} alt={item.title} className="h-7 w-7" />
                       <h1 className="text-2xl font-semibold">{item.title}</h1>
                     </div>
                     <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>

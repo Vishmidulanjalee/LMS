@@ -8,6 +8,10 @@ import image1 from '../assets/img1.jpg';
 import image2 from '../assets/img2.jpg';
 import image3 from '../assets/img3.jpg';
 import Footer from '../Footer';
+import notes from '../assets/notes.png';
+import marks from '../assets/marks.png';
+import homework from '../assets/homework.png';
+import other from '../assets/other.png';
 
 const Dashboard7 = () => {
   const [userName, setUserName] = useState('');
@@ -97,15 +101,15 @@ const Dashboard7 = () => {
           <div className="flex flex-col lg:flex-row gap-10 h-full">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
               {[
-                { title: "Notes", icon: Book, description: "Access important notes for your lessons", route: "/Grade7/Notes7" },
-                { title: "Homework", icon: FileText, description: "Review and submit your homework", route: "/Grade7/Homework7" },
-                { title: "Marks", icon: GraduationCap, description: "View your latest marks and track progress", route: "/Grade7/Marks7" },
-                { title: "Other", icon: LibraryBig, description: "Explore additional resources and materials", route: "/Other" },
+                { title: "Notes", image: notes, description: "Access important notes for your lessons", route: "/Grade7/Notes7" },
+                { title: "Homework", image: homework, description: "Review and submit your homework", route: "/Grade7/Homework7" },
+                { title: "Marks", image: marks, description: "View your latest marks and track progress", route: "/Grade7/Marks7" },
+                { title: "Other", image: other, description: "Explore additional resources and materials", route: "/Other" },
               ].map((item, index) => (
                 <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
                   <div className="p-5">
                     <div className="flex items-center space-x-2">
-                      <item.icon className="h-7 w-7" />
+                      <img src={item.image} alt={item.title} className="h-7 w-7" />
                       <h1 className="text-2xl font-semibold">{item.title}</h1>
                     </div>
                     <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
