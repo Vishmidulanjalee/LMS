@@ -31,23 +31,49 @@ const Signin = () => {
       navigate('/GradeSelectTeacher');
       return;
     } else {
+
+      // Check if the email is signed up before
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        if (password === 'Bee12345') {
+          navigate('/GradeSelect');
+        } else {
+          setPasswordError('Incorrect password. Please try again.');
+        }
+      } catch (error) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+        setEmailError('No account found with this email.');
+        break;
+          case 'auth/wrong-password':
+        setPasswordError('Incorrect password. Please try again.');
+        break;
+          case 'auth/invalid-email':
+        setEmailError('Please enter a valid email address.');
+        break;
+          default:
+        setEmailError('Failed to sign in. Please try again.');
+        setPasswordError('');
+        }
+      }
+
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         navigate('/GradeSelect');
       } catch (error) {
         switch (error.code) {
           case 'auth/user-not-found':
-            setEmailError('No account found with this email.');
-            break;
+        setEmailError('No account found with this email.');
+        break;
           case 'auth/wrong-password':
-            setPasswordError('Incorrect password. Please try again.');
-            break;
+        setPasswordError('Incorrect password. Please try again.');
+        break;
           case 'auth/invalid-email':
-            setEmailError('Please enter a valid email address.');
-            break;
+        setEmailError('Please enter a valid email address.');
+        break;
           default:
-            setEmailError('Failed to sign in. Please try again.');
-            setPasswordError('');
+        setEmailError('Failed to sign in. Please try again.');
+        setPasswordError('');
         }
       }
     }
