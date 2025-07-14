@@ -10,6 +10,14 @@ import Dashboard from './Dashboard';
 
 import GradeSelect from "./GradeSelect";
 
+import Dashboard2 from './Dashboard2';
+
+import AdminDasboard from './AdminDasboard';
+
+import UploadRecordings from './UploadRecordings';
+
+import WatchVideos from './WatchVideos';
+
 import Homework6 from "./Grade 6/Homework6";
 import Dashboard6 from "./Grade 6/Dashboard6";
 import Marks6 from "./Grade 6/Marks6";
@@ -95,6 +103,14 @@ function App() {
       
 
         <Route path="/GradeSelect" element={<GradeSelect />} /> {/* GradeSelect route */}
+
+        <Route path="/Dashboard2" element={<Dashboard2 />} /> {/* Dashboard2 route */}
+
+        <Route path="/AdminDashboard" element={<AdminDasboard />} /> {/* AdminDasboard route */}
+
+        <Route path="/UploadRecordings" element={<UploadRecordings />} /> {/* UploadRecordings route */}
+
+        <Route path="/WatchVideos" element={<WatchVideos />} /> {/* WatchRecordings route */}
 
         <Route path="/Grade6/Dashboard6" element={<Dashboard6 />} /> {/* Dashboard6 route */}
         <Route path="/Grade6/Homework6" element={<Homework6 />} /> {/* Homework6 route */}

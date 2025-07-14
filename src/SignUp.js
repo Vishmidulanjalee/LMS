@@ -3,55 +3,44 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { setDoc, doc } from "firebase/firestore";
-import { auth, db } from './firebase'; // Import auth and db directly
+import { auth, db } from './firebase';
 import LogoBig from './assets/LogoBig.png';
 
 const Signup = () => {
-  const [username, setUsername] = useState(''); // Added state for username
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-
-   useEffect(() => {
+  useEffect(() => {
     const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 768);
-    checkScreenSize(); // Initial check
+    checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-   }, []);
-  
+  }, []);
+
   const handleSignUp = async (e) => {
     e.preventDefault();
     setEmailError('');
     setPasswordError('');
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
-      // Store user data in Firestore, including the username
       await setDoc(doc(db, "users", user.uid), {
         username: username,
         email: user.email,
       });
-      console.log("User saved:", { username, email: user.email });
-      
-  
-      // Navigate to the sign-in page after successful sign-up
       navigate('/signIn');
     } catch (error) {
-      console.log('Error code:', error.code);
-      console.log('Error message:', error.message);
-  
-      // Handle specific errors
       switch (error.code) {
         case 'auth/email-already-in-use':
-          // Allow navigation even if the email is already in use
           setEmailError('This email is already in use. You can sign in.');
-          navigate('/signIn');  // Navigate to sign-in
+          navigate('/signIn');
           break;
         case 'auth/invalid-email':
           setEmailError('Please enter a valid email address.');
@@ -65,149 +54,129 @@ const Signup = () => {
       }
     }
   };
-  
-  
-  
+
+  const PasswordInput = (
+    <div className="relative mt-1 w-4/5">
+      <input
+        type={showPassword ? "text" : "password"}
+        id="password"
+        name="password"
+        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+      <div
+        className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 hover:text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 hover:text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.974 9.974 0 012.174-3.309m1.659-1.526A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.221 5.308M15 12a3 3 0 00-3-3m0 0a3 3 0 00-3 3m3-3v3m0 0l3 3m-3-3l-3 3" />
+          </svg>
+        )}
+      </div>
+      {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+    </div>
+  );
 
   return (
     <div>
       {isSmallScreen ? (
         <div className="flex min-h-screen items-center justify-center bg-yellow-100 px-4 sm:px-6 lg:px-8">
-          <motion.div
-            className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8"
+          <motion.div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <div className="text-center">
-              <h2 className="text-3xl font-bold  text-gray-900 sm:text-4xl">Sign Up</h2>
+              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Sign Up</h2>
               <p className="mt-3 text-lg text-gray-600">Please enter your details to start learning</p>
             </div>
-         
+
             <form className="mt-12 space-y-6" onSubmit={handleSignUp}>
-              <div className="space-y-8">
-                  <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-                  <input
-                    type="text"
-                    id="username"
-                    name="username"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                    placeholder="Enter your username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                </div>
-
-                {/* Email Field */}
-                <div className="mb-10">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                    placeholder="example@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
-                </div>
-
-                {/* Password Field */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                  {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-                </div>
-              </div>
-              {/* Username Field */}
-              
-
-              {/* Remember me & Forgot password */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2 mb-6">
-                  <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-seconadry" />
-                  <label htmlFor="remember_me" className="text-sm font-medium text-gray-700">Remember me</label>
-                </div>
-              </div>
-
-              {/* Sign Up Button */}
               <div>
-                <button
-                  type="submit"
-                  className="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md"
-                >
-                  Sign Up
-                </button>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
               </div>
 
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                  placeholder="example@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                {PasswordInput}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="remember_me" className="h-4 w-4 rounded border-gray-300" />
+                <label htmlFor="remember_me" className="text-sm text-gray-700">Remember me</label>
+              </div>
+
+              <button type="submit" className="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md">Sign Up</button>
             </form>
-            
-            <div className=" mt-2">
-              <p className="text-center text-sm text-gray-600 ">
-              Already have an account? {' '}
+
+            <p className="mt-4 text-center text-sm text-gray-600">
+              Already have an account?{' '}
               <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
-              </p>
-            </div>
+            </p>
 
             <div className="mt-12 flex justify-center">
-              <img 
-                src={LogoBig}
-                alt="The Bee Academy Logo" 
-                className="w-full max-w-[300px] sm:max-w-[400px]"
-              />
+              <img src={LogoBig} alt="Logo" className="w-full max-w-[300px]" />
             </div>
-            
           </motion.div>
         </div>
       ) : (
         <div className="flex min-h-screen bg-gradient-to-br from-white to-yellow-200">
-          {/* Left Section */}
-          <motion.div
-            className="w-1/2 p-12 flex flex-col justify-center items-center"
+          <motion.div className="w-1/2 p-12 flex flex-col justify-center items-center"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-6xl font-bold mb-4">Welcome</h1>
             <p className="text-xl mb-20">Sign up to start your learning</p>
-            <img
-              src={LogoBig}
-              alt="The Bee Academy Logo"
-              width={500}
-              height={500}
-              className="mb-0"
-            />
+            <img src={LogoBig} alt="Logo" width={500} />
           </motion.div>
 
-          {/* Right Section */}
-          <motion.div
-            className="w-1/2 bg-white p-12 flex flex-col justify-center"
+          <motion.div className="w-1/2 bg-white p-12 flex flex-col justify-center"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h2 className="text-5xl font-bold  ml-10">Sign Up</h2>
-            <form className="space-y-8 ml-10" onSubmit={handleSignUp}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 ml-10">Sign Up</h2>
+            <form className="space-y-6 ml-10" onSubmit={handleSignUp}>
               {/* Username Field */}
-              <div className="mt-20">
+              <div className="mt-15">
+
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
                 <input
                   type="text"
                   id="username"
-                  name="username"
                   className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
                   placeholder="Enter your username"
                   value={username}
@@ -216,13 +185,11 @@ const Signup = () => {
                 />
               </div>
 
-              {/* Email Field */}
-              <div className="mb-10">
+              <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
                 <input
                   type="email"
                   id="email"
-                  name="email"
                   className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
                   placeholder="example@gmail.com"
                   value={email}
@@ -232,47 +199,21 @@ const Signup = () => {
                 {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
               </div>
 
-              {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
+                {PasswordInput}
               </div>
 
-              {/* Remember me & Forgot password */}
-              <div className="flex items-center justify-between w-4/5">
-                <div className="flex items-center -mt-5">
-                  <input id="remember_me" name="remember_me" type="checkbox" className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" />
-                  <label htmlFor="remember_me" className="ml-2 block text-sm text-gray-900">Remember me</label>
-                </div>
-                <div className="text-sm -mt-5">
-                  <Link href="/forgot-password" className="font-medium text-primary hover:text-secondary">Forgot password?</Link>
-                </div>
+              <div className="flex items-center space-x-2 w-4/5">
+                <input type="checkbox" id="remember_me" className="h-4 w-4 rounded border-gray-300" />
+                <label htmlFor="remember_me" className="text-sm text-gray-700">Remember me</label>
               </div>
 
-              {/* Sign Up Button */}
-              <div>
-                <button
-                  type="submit"
-                  className="w-4/5 flex justify-center py-2 px-4 mt-16 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                >
-                  Sign Up
-                </button>
-              </div>
-
+              <button type="submit" className="w-4/5 bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md mt-4">Sign Up</button>
             </form>
 
-            <p className="mt-4 w-4/5 pl-16 text-center text-sm text-gray-600 ">
-              Already have an account? {' '}
+            <p className="mt-4 w-4/5 text-center text-sm text-gray-600">
+              Already have an account?{' '}
               <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
             </p>
           </motion.div>
@@ -283,3 +224,4 @@ const Signup = () => {
 };
 
 export default Signup;
+
