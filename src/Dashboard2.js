@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
 import { auth, db } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
+import confetti from 'canvas-confetti';
+import { motion } from 'framer-motion';
 import image1 from './assets/img1.jpg'; 
 import image2 from './assets/img2.jpg';
 import image3 from './assets/img3.jpg';
 import Footer from './Footer';
+import bee from './assets/bee.png'; // 🐝 bee image
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
@@ -50,11 +53,7 @@ const Dashboard = () => {
     year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
-
-  let currentImageSrc;
-  let currentNoticeContent;
-
+  let currentImageSrc, currentNoticeContent;
   if (currentIndex < notices.length) {
     const currentNotice = notices[currentIndex];
     currentImageSrc = currentNotice.image;
@@ -64,26 +63,72 @@ const Dashboard = () => {
     currentImageSrc = images[defaultImageIndex];
     currentNoticeContent = null;
   }
+const [isEasterEggActive, setIsEasterEggActive] = useState(false);
+
+const handleBeeClick = () => {
+  // Trigger Confetti
+ confetti({
+  particleCount: 1000,
+  spread: 1000,
+  origin: { y: 0.9 },
+  shapes: ['text'],
+  shapeOptions: {
+    text: {
+      value: ['🌸'],
+    }
+  }
+});
+
+  // Start animation
+  setIsEasterEggActive(true);
+
+  // Reset animation after 2s
+  setTimeout(() => {
+    setIsEasterEggActive(false);
+  }, 4000);
+};
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen overflow-hidden relative">
+
       {/* HEADER */}
-      <header className="bg-white shadow">
+      <header className="bg-white shadow z-10">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome To The Bee Academy </h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome To The Bee Academy</h1>
             <h2 className="text-lg font-medium text-gray-700 mt-1">{currentDate}</h2>
           </div>
-          
         </div>
       </header>
+
       {/* Flying Bee Animation */}
-<img
-  src={require('./assets/bee.png')}
+      <motion.img
+  src={bee}
   alt="Flying Bee"
-  className="animate-beeFlight fixed top-10 left-[-100px] w-14 z-50 pointer-events-none"
+  className="animate-beeFlight fixed top-10 left-[-100px] w-14 z-50 cursor-pointer"
+  onClick={handleBeeClick}
+  animate={isEasterEggActive ? {
+    rotate: [0, 360, 0],
+    scale: [1, 1.5, 1],
+    x: [0, 20, -20, 0],
+    y: [0, -10, 10, 0]
+  } : {
+    x: ["-10%", "100%", "-10%"],
+    y: ["0%", "-10%", "10%", "0%"]
+  }}
+  transition={{
+    duration: isEasterEggActive ? 1.5 : 15,
+    repeat: isEasterEggActive ? 1 : Infinity,
+    ease: "easeInOut"
+  }}
 />
 
+
+{isEasterEggActive && (
+  <div className="fixed top-28 left-20 bg-yellow-200 text-black px-4 py-2 rounded shadow-lg z-50 animate-bounce">
+    🎉 Yayyy You're doing good!
+  </div>
+)}
 
       {/* MAIN */}
       <main className="flex-grow overflow-auto">
@@ -93,8 +138,12 @@ const Dashboard = () => {
             {/* LEFT CARDS */}
             <div className="flex flex-col gap-6 lg:w-2/3">
 
-              {/* Card 1 */}
-              <div className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border">
+              {/* CARD 1 */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border transition"
+              >
                 <div className="flex items-start gap-4">
                   <div className="p-2 bg-yellow-100 rounded-full">
                     <svg className="h-7 w-7 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -107,16 +156,21 @@ const Dashboard = () => {
                     <p className="text-gray-600 text-sm">Replay your missed classes anytime</p>
                   </div>
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-8 rounded hover:bg-yellow-600"
                   onClick={() => window.location.href = "/WatchVideosFolder"}
                 >
                   Watch Now
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
-              {/* Card 2 */}
-              <div className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border">
+              {/* CARD 2 */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border transition"
+              >
                 <div className="flex items-start gap-4">
                   <div className="p-2 bg-yellow-100 rounded-full">
                     <svg className="h-7 w-7 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -128,16 +182,21 @@ const Dashboard = () => {
                     <p className="text-gray-600 text-sm">See your grades and progress clearly</p>
                   </div>
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-6 rounded hover:bg-yellow-600"
                   onClick={() => window.location.href = "/MarkSheets"}
                 >
                   Check Results
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
 
-              {/* Card 3 */}
-              <div className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border">
+              {/* CARD 3 */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-white shadow-md rounded-xl p-5 min-h-[130px] flex flex-col md:flex-row justify-between items-center border transition"
+              >
                 <div className="flex items-start gap-4">
                   <div className="p-2 bg-yellow-100 rounded-full">
                     <svg className="h-7 w-7 text-yellow-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -145,23 +204,28 @@ const Dashboard = () => {
                     </svg>
                   </div>
                   <div>
-                    <h2 className="text-xl font-semibold">Tutes, Papers & Other documents</h2>
-                    <p className="text-gray-600 text-sm">Find your tutes and papers </p>
+                    <h2 className="text-xl font-semibold">Tutes, Papers & Other Documents</h2>
+                    <p className="text-gray-600 text-sm">Find your tutes and papers</p>
                   </div>
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-10 rounded hover:bg-yellow-600"
                   onClick={() => window.location.href = "/homework"}
                 >
                   Find Now
-                </button>
-              </div>
+                </motion.button>
+              </motion.div>
             </div>
 
-            {/* RIGHT IMAGE / SLIDE */}
+            {/* RIGHT IMAGE SLIDE */}
             <div className="lg:w-1/3 flex justify-center items-center">
               {currentImageSrc && (
-                <img
+                <motion.img
+                  key={currentImageSrc}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
                   src={currentImageSrc}
                   alt="Notice or Slide"
                   className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
@@ -173,7 +237,7 @@ const Dashboard = () => {
       </main>
 
       {/* FOOTER */}
-      <footer className="w-full bg-white border-t mt-auto">
+      <footer className="w-full bg-white border-t mt-auto z-10">
         <Footer />
       </footer>
     </div>
