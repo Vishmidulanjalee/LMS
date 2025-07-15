@@ -31,9 +31,9 @@ const Signin = () => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       if (email === 'dhananjaya.gishan@gmail.com') {
-        navigate('/GradeSelectTeacher');
+        navigate('/AdminDashboard');
       } else {
-        navigate('/GradeSelect');
+        navigate('/Dashboard2');
       }
     } catch (error) {
       switch (error.code) {
