@@ -17,13 +17,16 @@ const UploadRecordings = () => {
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
   const [month, setMonth] = useState('');
+  const [recordType, setRecordType] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
-  const [recordingsByMonth, setRecordingsByMonth] = useState({});
+  const [recordingsByGroup, setRecordingsByGroup] = useState({});
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
+
+  const recordTypes = ['Paper Mint Records', 'A පාර Records', 'Tute Class Records'];
 
   const fetchRecordings = async () => {
     const q = query(collection(db, 'recordings'), orderBy('timestamp', 'desc'));
@@ -32,11 +35,13 @@ const UploadRecordings = () => {
     snapshot.docs.forEach(docSnap => {
       const data = docSnap.data();
       const id = docSnap.id;
-      const m = data.month || 'Uncategorized';
-      if (!grouped[m]) grouped[m] = [];
-      grouped[m].push({ id, ...data });
+      const type = data.type || 'Unknown Type';
+      const m = data.month || 'Unknown Month';
+      const key = `${type} - ${m}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push({ id, ...data });
     });
-    setRecordingsByMonth(grouped);
+    setRecordingsByGroup(grouped);
   };
 
   useEffect(() => {
@@ -55,7 +60,7 @@ const UploadRecordings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !link || !thumbnail || !month) {
+    if (!title || !link || !thumbnail || !month || !recordType) {
       alert("All fields are required.");
       return;
     }
@@ -66,12 +71,14 @@ const UploadRecordings = () => {
         link,
         thumbnail,
         month,
+        type: recordType,
         timestamp: Timestamp.now()
       });
       alert("Recording uploaded successfully!");
       setTitle('');
       setLink('');
       setMonth('');
+      setRecordType('');
       setThumbnail(null);
       fetchRecordings();
     } catch (error) {
@@ -125,6 +132,19 @@ const UploadRecordings = () => {
               required
             />
 
+            <label className="text-gray-700 font-medium">Record Type</label>
+            <select
+              value={recordType}
+              onChange={(e) => setRecordType(e.target.value)}
+              className="border border-gray-300 rounded p-2"
+              required
+            >
+              <option value="">Select Type</option>
+              {recordTypes.map((type, i) => (
+                <option key={i} value={type}>{type}</option>
+              ))}
+            </select>
+
             <label className="text-gray-700 font-medium">Month</label>
             <select
               value={month}
@@ -152,12 +172,12 @@ const UploadRecordings = () => {
           </form>
         </div>
 
-        {/* Uploaded videos grouped by month */}
+        {/* Uploaded recordings grouped by type and month */}
         <div className="lg:w-1/2">
           <h2 className="text-xl font-semibold mb-4">Uploaded Recordings</h2>
-          {Object.entries(recordingsByMonth).map(([m, videos], idx) => (
+          {Object.entries(recordingsByGroup).map(([groupKey, videos], idx) => (
             <div key={idx} className="mb-6">
-              <h3 className="text-lg font-semibold text-yellow-600 mb-2">{m}</h3>
+              <h3 className="text-lg font-semibold text-yellow-600 mb-2">{groupKey}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {videos.map((rec) => (
                   <div key={rec.id} className="bg-white rounded shadow-md overflow-hidden relative">

@@ -24,7 +24,7 @@ import Documents from './Documents';
 
 
 
-import UploadVideosFolder from './UploadVideosFolder';
+
 import UploadMarks from './UploadMarks';
 import UploadDocument from './UploadDocuments';
 
@@ -145,7 +145,7 @@ function App() {
 
        
 
-        <Route path="/UploadVideosFolder" element={<UploadVideosFolder />} /> {/* UploadVideosFolder route */}
+        
 
         <Route path="/WatchVideosFolder" element={<WatchVideosFolder />} /> {/* WatchVideosFolder route */}
         <Route path="/MarkSheets" element={<MarkSheets />} /> {/* MarkSheets route */}

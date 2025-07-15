@@ -4,23 +4,27 @@ import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import Footer from './Footer';
 
 const June = () => {
-  const [recordings, setRecordings] = useState([]);
+  const [groupedRecordings, setGroupedRecordings] = useState({});
 
   useEffect(() => {
     const fetchJuneVideos = async () => {
       try {
         const q = query(
-  collection(db, 'recordings'),
-  where('month', '==', 'June')
-);
+          collection(db, 'recordings'),
+          where('month', '==', 'June'),
+          orderBy('timestamp', 'desc')
+        );
 
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        console.log("Fetched June recordings:", data);
-        setRecordings(data);
+        const grouped = {};
+        snapshot.docs.forEach(docSnap => {
+          const data = docSnap.data();
+          const id = docSnap.id;
+          const type = data.type || 'Unknown Type';
+          if (!grouped[type]) grouped[type] = [];
+          grouped[type].push({ id, ...data });
+        });
+        setGroupedRecordings(grouped);
       } catch (error) {
         console.error('Error fetching June recordings:', error);
       }
@@ -38,31 +42,36 @@ const June = () => {
       </header>
 
       <main className="flex-grow px-6 py-10 max-w-7xl mx-auto">
-        {recordings.length === 0 ? (
+        {Object.keys(groupedRecordings).length === 0 ? (
           <p className="text-center text-gray-600">No recordings found for June.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {recordings.map((rec) => (
-              <div key={rec.id} className="bg-white rounded shadow-md overflow-hidden flex flex-col">
-                <img
-                  src={rec.thumbnail}
-                  alt={rec.title}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 flex flex-col justify-between flex-grow">
-                  <h3 className="font-semibold text-gray-800 mb-2">{rec.title}</h3>
-                  <a
-                    href={rec.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline text-sm"
-                  >
-                    Watch on YouTube
-                  </a>
-                </div>
+          Object.entries(groupedRecordings).map(([type, recs], idx) => (
+            <div key={idx} className="mb-10">
+              <h2 className="text-xl font-bold mb-4 text-yellow-600">{type}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {recs.map((rec) => (
+                  <div key={rec.id} className="bg-white rounded shadow-md overflow-hidden flex flex-col">
+                    <img
+                      src={rec.thumbnail}
+                      alt={rec.title}
+                      className="w-full h-40 object-cover"
+                    />
+                    <div className="p-4 flex flex-col justify-between flex-grow">
+                      <h3 className="font-semibold text-gray-800 mb-2">{rec.title}</h3>
+                      <a
+                        href={rec.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline text-sm"
+                      >
+                        Watch on YouTube
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </main>
 
