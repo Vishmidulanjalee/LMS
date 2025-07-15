@@ -19,7 +19,7 @@ const Marks = () => {
         <div className="flex-1 flex flex-col">
           <header className="bg-white shadow">
             <div className="max-w-7xl mx-auto px-4 py-4">
-              <h1 className="text-3xl font-bold text-gray-800 font-mulish">View Mark Sheets</h1>
+              <h1 className="text-3xl font-bold text-gray-800 font-mulish text align-middle">View Mark Sheets</h1>
             </div>
           </header>
 
