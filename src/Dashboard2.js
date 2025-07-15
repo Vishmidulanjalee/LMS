@@ -71,14 +71,19 @@ const Dashboard = () => {
       <header className="bg-white shadow">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome To The Bee Academy </h1>
             <h2 className="text-lg font-medium text-gray-700 mt-1">{currentDate}</h2>
           </div>
-          <div className="h-12 w-12 rounded-full bg-yellow-500 flex items-center justify-center text-white font-semibold text-lg">
-            {userInitials}
-          </div>
+          
         </div>
       </header>
+      {/* Flying Bee Animation */}
+<img
+  src={require('./assets/bee.png')}
+  alt="Flying Bee"
+  className="animate-beeFlight fixed top-10 left-[-100px] w-14 z-50 pointer-events-none"
+/>
+
 
       {/* MAIN */}
       <main className="flex-grow overflow-auto">
@@ -104,7 +109,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-8 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/WatchVideos"}
+                  onClick={() => window.location.href = "/WatchVideosFolder"}
                 >
                   Watch Now
                 </button>
@@ -125,7 +130,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-6 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/Marks"}
+                  onClick={() => window.location.href = "/MarkSheets"}
                 >
                   Check Results
                 </button>

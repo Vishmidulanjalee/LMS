@@ -6,9 +6,9 @@ import Logo from './assets/Logo.png';
 
 const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', route: "/Dashboard2" },
-    { icon: Video, label: 'Videos', route: "/Videos" },
+    { icon: Video, label: 'Videos', route: "/WatchVideosFolder" },
     { icon: GraduationCap, label: 'Marks', route: "/MarkSheets" },
-    { icon: LibraryBig, label: 'Tutes', route: "/Tutes" },
+    { icon: LibraryBig, label: 'Tutes', route: "/Documents" },
 ];
 
 const Sidebar = () => {

@@ -10,13 +10,30 @@ import Dashboard from './Dashboard';
 
 import GradeSelect from "./GradeSelect";
 
+import SidebarNew from './SidebarNew'; // Import the new Sidebar component
+
 import Dashboard2 from './Dashboard2';
 
 import AdminDasboard from './AdminDasboard';
 
 import UploadRecordings from './UploadRecordings';
 
-import WatchVideos from './WatchVideos';
+import WatchVideosFolder from './WatchVideosFolder';
+import MarkSheets from './MarkSheets';
+import Documents from './Documents';
+
+
+
+import UploadVideosFolder from './UploadVideosFolder';
+import UploadMarks from './UploadMarks';
+import UploadDocument from './UploadDocuments';
+
+import June from './June';
+import July from './July'; 
+
+import JuneMarks from './JuneMarks'; // Import the JuneMarks component
+import JulyMarks from './JulyMarks'; // Import the JulyMarks component
+
 
 import Homework6 from "./Grade 6/Homework6";
 import Dashboard6 from "./Grade 6/Dashboard6";
@@ -56,6 +73,7 @@ import Notes11 from './Grade 11/Notes11';
 
 import OtherGrade from "./OtherGrade";
 
+
 import GradeSelectTeacher from "./GradeSelectTeacher";
 
 import TeacherDashboard6 from "./Teacher6/Dashboard";
@@ -88,6 +106,14 @@ import TeacherHomework11 from './Teacher11/Homework';
 import TeacherMarks11 from './Teacher11/Marks';
 import TeacherNotes11 from './Teacher11/Notes';
 
+import PaperMint from './PaperMint';
+import Apara from './Apara';
+import Tutes from './Tutes';
+import Other from './Others';
+
+
+
+
 
 function App() {
   return (
@@ -100,17 +126,47 @@ function App() {
         <Route path="/Signup" element={<SignUp />} /> {/* SignIn is the first page */}
         <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
 
-      
+
+        
 
         <Route path="/GradeSelect" element={<GradeSelect />} /> {/* GradeSelect route */}
+
+        <Route path="/SidebarNew" element={<SidebarNew />} /> {/* SidebarNew route */}
+
 
         <Route path="/Dashboard2" element={<Dashboard2 />} /> {/* Dashboard2 route */}
 
         <Route path="/AdminDashboard" element={<AdminDasboard />} /> {/* AdminDasboard route */}
 
         <Route path="/UploadRecordings" element={<UploadRecordings />} /> {/* UploadRecordings route */}
+        <Route path="/UploadMarks" element={<UploadMarks />} /> {/* UploadMarks route */}
+        <Route path="/UploadDocuments" element={<UploadDocument />} /> {/* UploadDocument route */}
 
-        <Route path="/WatchVideos" element={<WatchVideos />} /> {/* WatchRecordings route */}
+
+       
+
+        <Route path="/UploadVideosFolder" element={<UploadVideosFolder />} /> {/* UploadVideosFolder route */}
+
+        <Route path="/WatchVideosFolder" element={<WatchVideosFolder />} /> {/* WatchVideosFolder route */}
+        <Route path="/MarkSheets" element={<MarkSheets />} /> {/* MarkSheets route */}
+        <Route path="/Documents" element={<Documents />} /> {/* Documents route */}
+
+        <Route path="/June" element={<June />} /> {/* June route */}
+        <Route path="/July" element={<July />} /> {/* July route */}
+
+        <Route path="/marks/june" element={<JuneMarks />} />
+        <Route path="/marks/july" element={<JulyMarks />} /> {/* JulyMarks route */}
+
+        <Route path="/docs/papermint" element={<PaperMint />} />
+        <Route path="/docs/apara" element={<Apara />} />
+        <Route path="/docs/tutes" element={<Tutes />} />
+        <Route path="/docs/other" element={<Other />} />
+
+
+        {/* Grade 6 routes */}
+
+        
+
 
         <Route path="/Grade6/Dashboard6" element={<Dashboard6 />} /> {/* Dashboard6 route */}
         <Route path="/Grade6/Homework6" element={<Homework6 />} /> {/* Homework6 route */}

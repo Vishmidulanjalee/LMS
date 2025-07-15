@@ -71,7 +71,7 @@ const Dashboard = () => {
       <header className="bg-white shadow">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back, {userName}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back !!!</h1>
             <h2 className="text-lg font-medium text-gray-700 mt-1">{currentDate}</h2>
           </div>
           <div className="h-12 w-12 rounded-full bg-yellow-500 flex items-center justify-center text-white font-semibold text-lg">
@@ -104,7 +104,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-8 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/recordings"}
+                  onClick={() => window.location.href = "/UploadRecordings"}
                 >
                   Upload Now
                 </button>
@@ -125,7 +125,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-8 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/Marks"}
+                  onClick={() => window.location.href = "/UploadMarks"}
                 >
                   Upload Now
                 </button>
@@ -146,7 +146,7 @@ const Dashboard = () => {
                 </div>
                 <button
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-8 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/homework"}
+                  onClick={() => window.location.href = "/UploadDocuments"}
                 >
                   Upload Now
                 </button>

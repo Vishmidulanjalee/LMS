@@ -1,95 +1,83 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
-import { AiFillDelete } from 'react-icons/ai';
-import {
-  addDoc,
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  Timestamp,
-  deleteDoc,
-  doc
-} from 'firebase/firestore';
+import { addDoc, collection, getDocs, orderBy, query, Timestamp } from 'firebase/firestore';
 import Footer from './Footer';
 
-const UploadRecordings = () => {
+const UploadVideosFolder = () => {
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
-  const [month, setMonth] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
-  const [recordingsByMonth, setRecordingsByMonth] = useState({});
+  const [month, setMonth] = useState('');
+  const [videosByMonth, setVideosByMonth] = useState({});
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
-  const fetchRecordings = async () => {
-    const q = query(collection(db, 'recordings'), orderBy('timestamp', 'desc'));
-    const snapshot = await getDocs(q);
-    const grouped = {};
-    snapshot.docs.forEach(docSnap => {
-      const data = docSnap.data();
-      const id = docSnap.id;
-      const m = data.month || 'Uncategorized';
-      if (!grouped[m]) grouped[m] = [];
-      grouped[m].push({ id, ...data });
-    });
-    setRecordingsByMonth(grouped);
-  };
-
+  // Fetch videos grouped by month
   useEffect(() => {
-    fetchRecordings();
+    const fetchVideos = async () => {
+      const q = query(collection(db, 'recordings_folder'), orderBy('timestamp', 'desc'));
+      const snapshot = await getDocs(q);
+      const grouped = {};
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const m = data.month;
+        if (!grouped[m]) grouped[m] = [];
+        grouped[m].push(data);
+      });
+      setVideosByMonth(grouped);
+    };
+    fetchVideos();
   }, []);
 
+  // Handle thumbnail upload
   const handleThumbnailUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setThumbnail(reader.result);
-    };
+    reader.onloadend = () => setThumbnail(reader.result);
     reader.readAsDataURL(file);
   };
 
+  // Handle upload
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !link || !thumbnail || !month) {
-      alert("All fields are required.");
+      alert('Please fill all fields.');
       return;
     }
 
     try {
-      await addDoc(collection(db, 'recordings'), {
+      await addDoc(collection(db, 'recordings_folder'), {
         title,
         link,
         thumbnail,
         month,
         timestamp: Timestamp.now()
       });
-      alert("Recording uploaded successfully!");
+      alert('Video uploaded!');
       setTitle('');
       setLink('');
-      setMonth('');
       setThumbnail(null);
-      fetchRecordings();
-    } catch (error) {
-      console.error("Error uploading:", error);
-      alert("Upload failed.");
-    }
-  };
+      setMonth('');
 
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this recording?");
-    if (!confirm) return;
-
-    try {
-      await deleteDoc(doc(db, 'recordings', id));
-      fetchRecordings();
-    } catch (error) {
-      console.error("Error deleting:", error);
-      alert("Failed to delete recording.");
+      // Refresh
+      const q = query(collection(db, 'recordings_folder'), orderBy('timestamp', 'desc'));
+      const snapshot = await getDocs(q);
+      const grouped = {};
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const m = data.month;
+        if (!grouped[m]) grouped[m] = [];
+        grouped[m].push(data);
+      });
+      setVideosByMonth(grouped);
+    } catch (err) {
+      console.error(err);
+      alert('Upload failed.');
     }
   };
 
@@ -97,7 +85,7 @@ const UploadRecordings = () => {
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold text-gray-800">Upload Class Recordings</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Upload Videos to Monthly Folder</h1>
         </div>
       </header>
 
@@ -154,18 +142,18 @@ const UploadRecordings = () => {
 
         {/* Uploaded videos grouped by month */}
         <div className="lg:w-1/2">
-          <h2 className="text-xl font-semibold mb-4">Uploaded Recordings</h2>
-          {Object.entries(recordingsByMonth).map(([m, videos], idx) => (
+          <h2 className="text-xl font-semibold mb-4">Uploaded Videos</h2>
+          {Object.keys(videosByMonth).map((m, idx) => (
             <div key={idx} className="mb-6">
               <h3 className="text-lg font-semibold text-yellow-600 mb-2">{m}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {videos.map((rec) => (
-                  <div key={rec.id} className="bg-white rounded shadow-md overflow-hidden relative">
-                    <img src={rec.thumbnail} alt="Thumbnail" className="w-full h-40 object-cover" />
+                {videosByMonth[m].map((video, vIdx) => (
+                  <div key={vIdx} className="bg-white rounded shadow-md overflow-hidden">
+                    <img src={video.thumbnail} alt="Thumbnail" className="w-full h-40 object-cover" />
                     <div className="p-4">
-                      <h4 className="font-semibold text-gray-800">{rec.title}</h4>
+                      <h4 className="font-semibold text-gray-800">{video.title}</h4>
                       <a
-                        href={rec.link}
+                        href={video.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-500 hover:underline text-sm"
@@ -173,13 +161,6 @@ const UploadRecordings = () => {
                         Watch on YouTube
                       </a>
                     </div>
-                    <button
-                      onClick={() => handleDelete(rec.id)}
-                      className="absolute bottom-2 right-2 text-red-700 hover:text-red-800 text-xl"
-                      title="Delete"
-                    >
-                      <AiFillDelete />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -193,4 +174,4 @@ const UploadRecordings = () => {
   );
 };
 
-export default UploadRecordings;
+export default UploadVideosFolder;
