@@ -30,7 +30,7 @@ const Signin = () => {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      if (email === 'dhananjaya.gishan@gmail.com') {
+      if (email === 'dhananjayagishan@gmail.com') {
         navigate('/AdminDashboard');
       } else {
         navigate('/Dashboard2');
