@@ -211,7 +211,7 @@ const handleBeeClick = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   className="mt-4 md:mt-0 bg-yellow-500 text-white py-2 px-10 rounded hover:bg-yellow-600"
-                  onClick={() => window.location.href = "/homework"}
+                  onClick={() => window.location.href = "/Documents"}
                 >
                   Find Now
                 </motion.button>

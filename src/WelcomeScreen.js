@@ -86,7 +86,7 @@ const WelcomeScreen = () => {
         transition={{ duration: 1, delay: 2 }}
         className="absolute bottom-4 text-gray-600 text-xs sm:text-sm"
       >
-        © 2023 The Bee Academy. All rights reserved.
+        © 2025 The Bee Academy. All rights reserved.
       </motion.div>
     </div>
   )
