@@ -147,7 +147,7 @@ function App() {
 
         
 
-        <Route path="/WatchVideos" element={<WatchVideosFolder />} /> {/* WatchVideosFolder route */}
+        <Route path="/WatchVideosFolder" element={<WatchVideosFolder />} /> {/* WatchVideosFolder route */}
         <Route path="/MarkSheets" element={<MarkSheets />} /> {/* MarkSheets route */}
         <Route path="/Documents" element={<Documents />} /> {/* Documents route */}
 

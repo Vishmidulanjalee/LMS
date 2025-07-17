@@ -4,9 +4,13 @@ import { auth, db } from './firebase';
 import { onAuthStateChanged } from "firebase/auth";
 import confetti from 'canvas-confetti';
 import { motion } from 'framer-motion';
-import image1 from './assets/img1.jpg'; 
-import image2 from './assets/img2.jpg';
-import image3 from './assets/img3.jpg';
+import image1 from './assets/image1.jpg'; 
+import image2 from './assets/img1.jpg';
+import image3 from './assets/Image04.jpg';
+import image4 from './assets/img5.jpg';
+import image5 from './assets/img6.jpg';
+
+
 import Footer from './Footer';
 import bee from './assets/bee.png'; // 🐝 bee image
 
@@ -15,7 +19,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const images = [image1, image2, image3];
+  const images = [image1, image2, image3, image4, image5];
 
   useEffect(() => {
     const fetchNotices = async () => {
