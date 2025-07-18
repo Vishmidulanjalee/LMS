@@ -53,7 +53,7 @@ const June = () => {
               alt="Loading Bee"
               className="w-32 h-32 animate-bounce mb-4"
             />
-            <p className="text-gray-600 text-lg">The bee is fetching your recordings...</p>
+            <p className="text-gray-600 text-lg">The Bee is loading your lessons!! please wait...</p>
           </div>
         ) : Object.keys(groupedRecordings).length === 0 ? (
           <p className="text-center text-gray-600">No recordings found for June.</p>

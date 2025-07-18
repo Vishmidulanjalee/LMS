@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { db } from './firebase';
 import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import Footer from './Footer';
+import beeWaiting from './assets/beewaiting.png'; 
 
 const July = () => {
   const [groupedRecordings, setGroupedRecordings] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchJulyVideos = async () => {
@@ -27,6 +29,8 @@ const July = () => {
         setGroupedRecordings(grouped);
       } catch (error) {
         console.error('Error fetching July recordings:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -42,7 +46,16 @@ const July = () => {
       </header>
 
       <main className="flex-grow px-6 py-10 max-w-7xl mx-auto">
-        {Object.keys(groupedRecordings).length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center mt-20">
+            <img
+              src={beeWaiting}
+              alt="Loading Bee"
+              className="w-32 h-32 animate-bounce mb-4"
+            />
+            <p className="text-gray-600 text-lg">The Bee is loading your lessons!! please wait...</p>
+          </div>
+        ) : Object.keys(groupedRecordings).length === 0 ? (
           <p className="text-center text-gray-600">No recordings found for July.</p>
         ) : (
           Object.entries(groupedRecordings).map(([type, recs], idx) => (
