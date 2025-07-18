@@ -10,6 +10,8 @@ import Dashboard from './Dashboard';
 
 import GradeSelect from "./GradeSelect";
 
+import StudentTypeSelection from './StudentTypeSelection'; // Import the StudentTypeSelection component
+
 import SidebarNew from './SidebarNew'; // Import the new Sidebar component
 
 import Dashboard2 from './Dashboard2';
@@ -21,6 +23,8 @@ import UploadRecordings from './UploadRecordings';
 import WatchVideosFolder from './WatchVideosFolder';
 import MarkSheets from './MarkSheets';
 import Documents from './Documents';
+
+import GuestDashboard from './GuestDashboard';
 
 
 
@@ -126,12 +130,13 @@ function App() {
         <Route path="/Signup" element={<SignUp />} /> {/* SignIn is the first page */}
         <Route path="/Signin" element={<Signin />} /> {/* Notes route */}
 
-
-        
+        <Route path="/GuestDashboard" element={<GuestDashboard />} /> {/* GuestDashboard route */}
 
         <Route path="/GradeSelect" element={<GradeSelect />} /> {/* GradeSelect route */}
 
         <Route path="/SidebarNew" element={<SidebarNew />} /> {/* SidebarNew route */}
+
+        <Route path="/StudentTypeSelection" element={<StudentTypeSelection />} /> {/* StudentTypeSelection route */}
 
 
         <Route path="/Dashboard2" element={<Dashboard2 />} /> {/* Dashboard2 route */}
