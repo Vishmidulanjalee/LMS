@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Footer from './Footer';
 import { motion } from 'framer-motion';
+import Quiz from './Quiz';
 import { FaFileAlt, FaVideo, FaRegFilePdf, FaGlobeAsia, FaBook, FaPenNib, FaChalkboardTeacher } from 'react-icons/fa';
 
 import image1 from './assets/image1.jpg';
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const images = [image1, image2, image3, image4, image5];
   const currentImageSrc = images[currentImageIndex];
+  const [showQuiz, setShowQuiz] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,7 +46,6 @@ const Dashboard = () => {
         },
       },
     });
-
     setIsEasterEggActive(true);
     setTimeout(() => setIsEasterEggActive(false), 4000);
   };
@@ -55,6 +56,7 @@ const Dashboard = () => {
       spread: 180,
       origin: { y: 0.7 },
     });
+    setShowQuiz(true);
   };
 
   return (
@@ -103,96 +105,93 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Quiz Modal */}
+      {showQuiz && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-y-auto max-h-[90vh]">
+            <button
+              onClick={() => setShowQuiz(false)}
+              className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-2xl font-bold px-4"
+            >
+              ×
+            </button>
+            <Quiz />
+          </div>
+        </div>
+      )}
+
       {/* MAIN */}
       <main className="flex-grow">
-<div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-6 h-full">
-  <div className="flex flex-col lg:flex-row gap-10 h-full">
-    {/* LEFT CARDS */}
-    <div className="flex flex-col gap-6 lg:w-2/3">
-      {/* Papers Section */}
-      <div className="bg-white p-6 rounded-lg shadow w-full">
-        <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
-          <FaFileAlt className="inline-block text-yellow-600" />
-          Papers
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div
-            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
-            onClick={() => window.location.href = '/PastPapers'}
-          >
-            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-              <FaRegFilePdf className="text-yellow-600" />
-              Past Papers
+        <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-6 h-full">
+          <div className="flex flex-col lg:flex-row gap-10 h-full">
+            <div className="flex flex-col gap-6 lg:w-2/3">
+              <div className="bg-white p-6 rounded-lg shadow w-full">
+                <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
+                  <FaFileAlt className="inline-block text-yellow-600" />
+                  Papers
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div onClick={() => window.location.href = '/PastPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
+                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+                      <FaRegFilePdf className="text-yellow-600" />
+                      Past Papers
+                    </div>
+                    <p className="text-sm text-yellow-700">Previous exam papers</p>
+                  </div>
+                  <div onClick={() => window.location.href = '/ProvincialPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
+                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+                      <FaGlobeAsia className="text-yellow-600" />
+                      Provincial Papers
+                    </div>
+                    <p className="text-sm text-yellow-700">Regional exam papers</p>
+                  </div>
+                  <div onClick={() => window.location.href = '/ModelPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
+                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+                      <FaBook className="text-yellow-600" />
+                      Model Papers
+                    </div>
+                    <p className="text-sm text-yellow-700">Practice exam papers</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow w-full">
+                <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
+                  <FaVideo className="inline-block text-yellow-600" />
+                  Lessons
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div onClick={() => window.location.href = '/Essays'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
+                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+                      <FaPenNib className="text-yellow-600" />
+                      Essays
+                    </div>
+                    <p className="text-sm text-yellow-700">Essay recordings</p>
+                  </div>
+                  <div onClick={() => window.location.href = '/Seminar'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
+                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+                      <FaChalkboardTeacher className="text-yellow-600" />
+                      Seminar
+                    </div>
+                    <p className="text-sm text-yellow-700">Seminar recordings</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-yellow-700">Previous exam papers</p>
-          </div>
-          <div
-            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
-            onClick={() => window.location.href = '/ProvincialPapers'}
-          >
-            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-              <FaGlobeAsia className="text-yellow-600" />
-              Provincial Papers
+            <div className="lg:w-1/3 flex justify-center items-center">
+              {currentImageSrc && (
+                <motion.img
+                  key={currentImageSrc}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  src={currentImageSrc}
+                  alt="Notice or Slide"
+                  className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
+                />
+              )}
             </div>
-            <p className="text-sm text-yellow-700">Regional exam papers</p>
-          </div>
-          <div
-            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
-            onClick={() => window.location.href = '/ModelPapers'}
-          >
-            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-              <FaBook className="text-yellow-600" />
-              Model Papers
-            </div>
-            <p className="text-sm text-yellow-700">Practice exam papers</p>
           </div>
         </div>
-      </div>
-      {/* Lessons Section */}
-      <div className="bg-white p-6 rounded-lg shadow w-full">
-        <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
-          <FaVideo className="inline-block text-yellow-600" />
-          Lessons
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div
-            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
-            onClick={() => window.location.href = '/Essays'}
-          >
-            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-              <FaPenNib className="text-yellow-600" />
-              Essays
-            </div>
-            <p className="text-sm text-yellow-700">Essay recordings</p>
-          </div>
-          <div
-            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
-            onClick={() => window.location.href = '/Seminar'}
-          >
-            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-              <FaChalkboardTeacher className="text-yellow-600" />
-              Seminar
-            </div>
-            <p className="text-sm text-yellow-700">Seminar recordings</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div className="lg:w-1/3 flex justify-center items-center">
-      {currentImageSrc && (
-        <motion.img
-          key={currentImageSrc}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          src={currentImageSrc}
-          alt="Notice or Slide"
-          className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
-        />
-      )}
-    </div>
-  </div>
-</div>
       </main>
 
       {/* FOOTER */}

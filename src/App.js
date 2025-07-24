@@ -31,6 +31,8 @@ import AdminDashboardGuest from './AdminDashboardGuest'; // Import the AdminDash
 import Essays from './Essays';
 import Seminar from './Seminar';
 
+import Quiz from './Quiz';
+
 
 
 import UploadMarks from './UploadMarks';
@@ -173,6 +175,9 @@ function App() {
         <Route path="/June" element={<June />} /> {/* June route */}
         <Route path="/July" element={<July />} /> {/* July route */}
 
+
+        <Route path="/Quiz" element={<Quiz />} /> {/* Quiz route */}
+        
         <Route path="/marks/june" element={<JuneMarks />} />
         <Route path="/marks/july" element={<JulyMarks />} /> {/* JulyMarks route */}
 
