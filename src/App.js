@@ -26,6 +26,10 @@ import Documents from './Documents';
 
 import GuestDashboard from './GuestDashboard';
 
+import AdminDashboardGuest from './AdminDashboardGuest'; // Import the AdminDashboardGuest component
+
+import Essays from './Essays';
+import Seminar from './Seminar';
 
 
 
@@ -38,6 +42,10 @@ import July from './July';
 import JuneMarks from './JuneMarks'; // Import the JuneMarks component
 import JulyMarks from './JulyMarks'; // Import the JulyMarks component
 
+
+import PastPapers from './PastPapers';
+import ModelPapers from './ModelPapers';
+import ProvincialPapers from './ProvincialPapers';
 
 import Homework6 from "./Grade 6/Homework6";
 import Dashboard6 from "./Grade 6/Dashboard6";
@@ -141,6 +149,11 @@ function App() {
 
         <Route path="/Dashboard2" element={<Dashboard2 />} /> {/* Dashboard2 route */}
 
+        <Route path="/Essays" element={<Essays />} /> {/* Essays route */}
+        <Route path="/Seminar" element={<Seminar />} /> {/* Seminar route */}
+
+        <Route path="/AdminDashboardGuest" element={<AdminDashboardGuest />} /> {/* AdminDashboardGuest route */}
+
         <Route path="/AdminDashboard" element={<AdminDasboard />} /> {/* AdminDasboard route */}
 
         <Route path="/UploadRecordings" element={<UploadRecordings />} /> {/* UploadRecordings route */}
@@ -148,9 +161,10 @@ function App() {
         <Route path="/UploadDocuments" element={<UploadDocument />} /> {/* UploadDocument route */}
 
 
-       
+        <Route path="/PastPapers" element={<PastPapers />} /> {/* PastPapers route */}
+        <Route path="/ModelPapers" element={<ModelPapers />} /> {/* ModelPapers route */}
+        <Route path="/ProvincialPapers" element={<ProvincialPapers />} /> {/* ProvincialPapers route */}
 
-        
 
         <Route path="/WatchVideosFolder" element={<WatchVideosFolder />} /> {/* WatchVideosFolder route */}
         <Route path="/MarkSheets" element={<MarkSheets />} /> {/* MarkSheets route */}

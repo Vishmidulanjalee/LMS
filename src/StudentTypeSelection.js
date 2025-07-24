@@ -61,7 +61,9 @@ const StudentTypeSelection = () => {
               <p className="text-sm text-gray-600 text-center">
                 Explore sample content, preview courses, and discover what we offer
               </p>
-              <button className="mt-4 bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-full transition-colors">
+              <button className="mt-4 bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-6 rounded-full transition-colors"
+              onClick={() => window.location.href = '/GuestDashboard'}>
+
                 Browse as Guest
               </button>
             </div>

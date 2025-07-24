@@ -14,7 +14,7 @@ const July = () => {
         const q = query(
           collection(db, 'recordings'),
           where('month', '==', 'July'),
-          orderBy('timestamp', 'desc')
+          orderBy('timestamp', 'asc')
         );
 
         const snapshot = await getDocs(q);

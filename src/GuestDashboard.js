@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import Footer from './Footer';
 import { motion } from 'framer-motion';
-import { BsStars } from 'react-icons/bs';
-
-import { FaFileAlt } from 'react-icons/fa'; // ✅ Added import
+import { FaFileAlt, FaVideo, FaRegFilePdf, FaGlobeAsia, FaBook, FaPenNib, FaChalkboardTeacher } from 'react-icons/fa';
 
 import image1 from './assets/image1.jpg';
 import image2 from './assets/img1.jpg';
@@ -51,19 +49,29 @@ const Dashboard = () => {
     setTimeout(() => setIsEasterEggActive(false), 4000);
   };
 
+  const handleQuizStart = () => {
+    confetti({
+      particleCount: 300,
+      spread: 180,
+      origin: { y: 0.7 },
+    });
+  };
+
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden relative bg-yellow-50">
+    <div className="flex flex-col min-h-screen overflow-hidden relative bg-gradient-to-br from-yellow-300 via-white to-yellow-300">
       {/* HEADER */}
       <header className="bg-white shadow z-10 shrink-0">
         <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Welcome To The Bee Academy</h1>
             <h2 className="text-lg font-medium text-gray-700 mt-1">{currentDate}</h2>
-            
           </div>
-          <button className="bg-yellow-500 hover:bg-yellow-800 hover:text-white font-semibold px-4 py-2 rounded-full shadow flex items-center gap-2">
-          <BsStars /> Start Quiz
-        </button>
+          <button
+            onClick={handleQuizStart}
+            className="bg-yellow-300 hover:bg-yellow-500 hover:text-white font-semibold px-4 py-2 rounded-full shadow flex items-center gap-2"
+          >
+            Start Quiz
+          </button>
         </div>
       </header>
 
@@ -97,68 +105,94 @@ const Dashboard = () => {
 
       {/* MAIN */}
       <main className="flex-grow">
-        <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-6 h-full">
-          <div className="flex flex-col lg:flex-row gap-10 h-full">
-            {/* LEFT CARDS */}
-            <div className="flex flex-col gap-6 lg:w-2/3">
-              {/* Papers Section */}
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-4 text-yellow-800">Papers</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-white p-4 rounded shadow">
-                    <FaFileAlt className="text-black mb-2" />
-                    <p className="font-medium text-yellow-900">Past Papers</p>
-                    <p className="text-xs text-yellow-700">Previous exam papers</p>
-                  </div>
-                  <div className="bg-yellow-100 p-4 rounded shadow">
-                    <FaFileAlt className="text-black mb-2" />
-                    <p className="font-medium text-yellow-900">Provincial Papers</p>
-                    <p className="text-xs text-yellow-700">Regional exam papers</p>
-                  </div>
-                  <div className="bg-yellow-100 p-4 rounded shadow">
-                    <FaFileAlt className="text-black mb-2" />
-                    <p className="font-medium text-yellow-900">Model Papers</p>
-                    <p className="text-xs text-yellow-700">Practice exam papers</p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-lg font-semibold mb-4 text-yellow-800">Free Lessons</h2>
-                <div className="flex gap-2 mb-4 text-sm">
-                  <button className="bg-yellow-500 text-white px-5 py-1 rounded hover:text-white">Essay</button>
-                  <button className="text-yellow-700 bg-transparent hover:bg-yellow-500 hover:text-white px-5 py-1 rounded">Grammar</button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-yellow-100 p-4 rounded shadow">
-                    <div className="bg-yellow-300 h-16 mb-2 rounded"></div>
-                    <p className="text-sm font-semibold text-yellow-900">Introduction to Essays</p>
-                    <p className="text-xs text-yellow-700">Learn the fundamentals</p>
-                  </div>
-                  <div className="bg-yellow-100 p-4 rounded shadow">
-                    <div className="bg-yellow-300 h-16 mb-2 rounded"></div>
-                    <p className="text-sm font-semibold text-yellow-900">Advanced Writing</p>
-                    <p className="text-xs text-yellow-700">Master persuasive writing</p>
-                  </div>
-                </div>
-              </div>
+<div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-6 h-full">
+  <div className="flex flex-col lg:flex-row gap-10 h-full">
+    {/* LEFT CARDS */}
+    <div className="flex flex-col gap-6 lg:w-2/3">
+      {/* Papers Section */}
+      <div className="bg-white p-6 rounded-lg shadow w-full">
+        <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
+          <FaFileAlt className="inline-block text-yellow-600" />
+          Papers
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div
+            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
+            onClick={() => window.location.href = '/PastPapers'}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+              <FaRegFilePdf className="text-yellow-600" />
+              Past Papers
             </div>
-
-            {/* RIGHT IMAGE SLIDER */}
-            <div className="lg:w-1/3 flex justify-center items-center">
-              {currentImageSrc && (
-                <motion.img
-                  key={currentImageSrc}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  src={currentImageSrc}
-                  alt="Notice or Slide"
-                  className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
-                />
-              )}
+            <p className="text-sm text-yellow-700">Previous exam papers</p>
+          </div>
+          <div
+            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
+            onClick={() => window.location.href = '/ProvincialPapers'}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+              <FaGlobeAsia className="text-yellow-600" />
+              Provincial Papers
             </div>
+            <p className="text-sm text-yellow-700">Regional exam papers</p>
+          </div>
+          <div
+            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
+            onClick={() => window.location.href = '/ModelPapers'}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+              <FaBook className="text-yellow-600" />
+              Model Papers
+            </div>
+            <p className="text-sm text-yellow-700">Practice exam papers</p>
           </div>
         </div>
+      </div>
+      {/* Lessons Section */}
+      <div className="bg-white p-6 rounded-lg shadow w-full">
+        <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
+          <FaVideo className="inline-block text-yellow-600" />
+          Lessons
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div
+            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
+            onClick={() => window.location.href = '/Essays'}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+              <FaPenNib className="text-yellow-600" />
+              Essays
+            </div>
+            <p className="text-sm text-yellow-700">Essay recordings</p>
+          </div>
+          <div
+            className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer"
+            onClick={() => window.location.href = '/Seminar'}
+          >
+            <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
+              <FaChalkboardTeacher className="text-yellow-600" />
+              Seminar
+            </div>
+            <p className="text-sm text-yellow-700">Seminar recordings</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div className="lg:w-1/3 flex justify-center items-center">
+      {currentImageSrc && (
+        <motion.img
+          key={currentImageSrc}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          src={currentImageSrc}
+          alt="Notice or Slide"
+          className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
+        />
+      )}
+    </div>
+  </div>
+</div>
       </main>
 
       {/* FOOTER */}
