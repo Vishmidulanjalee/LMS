@@ -105,18 +105,18 @@ const Dashboard = () => {
               <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-lg font-semibold mb-4 text-yellow-800">Papers</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-yellow-100 p-4 rounded shadow">
-                    <FaFileAlt className="text-yellow-600 mb-2" />
+                  <div className="bg-white p-4 rounded shadow">
+                    <FaFileAlt className="text-black mb-2" />
                     <p className="font-medium text-yellow-900">Past Papers</p>
                     <p className="text-xs text-yellow-700">Previous exam papers</p>
                   </div>
                   <div className="bg-yellow-100 p-4 rounded shadow">
-                    <FaFileAlt className="text-yellow-600 mb-2" />
+                    <FaFileAlt className="text-black mb-2" />
                     <p className="font-medium text-yellow-900">Provincial Papers</p>
                     <p className="text-xs text-yellow-700">Regional exam papers</p>
                   </div>
                   <div className="bg-yellow-100 p-4 rounded shadow">
-                    <FaFileAlt className="text-yellow-600 mb-2" />
+                    <FaFileAlt className="text-black mb-2" />
                     <p className="font-medium text-yellow-900">Model Papers</p>
                     <p className="text-xs text-yellow-700">Practice exam papers</p>
                   </div>
