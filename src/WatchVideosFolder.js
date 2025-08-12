@@ -6,6 +6,7 @@ import SidebarNew from './SidebarNew';
 const months = [
   { name: 'June', route: '/June' },
   { name: 'July', route: '/July' },
+  { name: 'August', route: '/August' },
 ];
 
 const WatchRecordings = () => {

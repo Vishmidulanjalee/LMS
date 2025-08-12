@@ -40,6 +40,7 @@ import UploadDocument from './UploadDocuments';
 
 import June from './June';
 import July from './July'; 
+import August from './August'; // Import the August component
 
 import JuneMarks from './JuneMarks'; // Import the JuneMarks component
 import JulyMarks from './JulyMarks'; // Import the JulyMarks component
@@ -174,6 +175,7 @@ function App() {
 
         <Route path="/June" element={<June />} /> {/* June route */}
         <Route path="/July" element={<July />} /> {/* July route */}
+        <Route path="/August" element={<August />} /> {/* August route */}
 
 
         <Route path="/Quiz" element={<Quiz />} /> {/* Quiz route */}
