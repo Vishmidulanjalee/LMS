@@ -9,7 +9,8 @@ import {
   query,
   Timestamp,
   deleteDoc,
-  doc
+  doc,
+  updateDoc
 } from 'firebase/firestore';
 import Footer from './Footer';
 
@@ -20,6 +21,8 @@ const UploadRecordings = () => {
   const [recordType, setRecordType] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
   const [recordingsByGroup, setRecordingsByGroup] = useState({});
+  const [editingId, setEditingId] = useState(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -100,6 +103,24 @@ const UploadRecordings = () => {
     }
   };
 
+  // Start editing the title of the selected recording
+  const startEdit = (rec) => {
+    setEditingId(rec.id);
+    setEditingTitle(rec.title || '');
+  };
+
+  const saveEdit = async () => {
+    if (!editingTitle.trim()) return alert('Title cannot be empty.');
+    try {
+      await updateDoc(doc(db, 'recordings', editingId), { title: editingTitle.trim() });
+      setEditingId(null); setEditingTitle(''); fetchRecordings();
+    } catch (err) {
+      console.error(err); alert('Failed to update title.');
+    }
+  };
+
+  const cancelEdit = () => { setEditingId(null); setEditingTitle(''); };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <header className="bg-white shadow">
@@ -178,34 +199,60 @@ const UploadRecordings = () => {
           {Object.entries(recordingsByGroup).map(([groupKey, videos], idx) => (
             <div key={idx} className="mb-6">
               <h3 className="text-lg font-semibold text-yellow-600 mb-2">{groupKey}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {videos.map((rec) => (
-                  <div key={rec.id} className="bg-white rounded shadow-md overflow-hidden relative">
-                    <img src={rec.thumbnail} alt="Thumbnail" className="w-full h-40 object-cover" />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-gray-800">{rec.title}</h4>
+                  <div key={rec.id} className="bg-white rounded shadow p-4 flex justify-between items-center">
+                    <div className="flex-1">
+                      {editingId === rec.id ? (
+                        <input
+                          className="border border-gray-300 rounded p-2 w-full"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          autoFocus
+                        />
+                      ) : (
+                        <h4 className="font-semibold text-gray-800">{rec.title}</h4>
+                      )}
                       <a
                         href={rec.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline text-sm"
+                        className="text-blue-600 hover:underline text-sm break-all"
                       >
-                        Watch on YouTube
+                        {rec.link}
                       </a>
                     </div>
-                    <button
-                      onClick={() => handleDelete(rec.id)}
-                      className="absolute bottom-2 right-2 text-red-700 hover:text-red-800 text-xl"
-                      title="Delete"
-                    >
-                      <AiFillDelete />
-                    </button>
+
+                    {editingId === rec.id ? (
+                      <div className="flex items-center gap-2">
+                        <button onClick={saveEdit} className="px-3 py-1 rounded bg-green-600 text-white">Save</button>
+                        <button onClick={cancelEdit} className="px-3 py-1 rounded bg-gray-300">Cancel</button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => startEdit(rec)}
+                          className="px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+                          title="Edit title"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(rec.id)}
+                          className="text-red-700 hover:text-red-800 text-2xl"
+                          title="Delete"
+                        >
+                          <AiFillDelete />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           ))}
         </div>
+
       </main>
 
       <Footer />
