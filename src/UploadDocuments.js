@@ -19,6 +19,7 @@ const UploadDocument = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [docsByCategory, setDocsByCategory] = useState({});
+  const [loading, setLoading] = useState(false);  // Added loading state
 
   const categories = [
     'Paper Mint Papers',
@@ -59,6 +60,7 @@ const UploadDocument = () => {
     }
 
     try {
+      setLoading(true);  // Set loading to true before starting upload
       const fileRef = ref(storage, `documents/${Date.now()}_${pdfFile.name}`);
       await uploadBytes(fileRef, pdfFile);
       const downloadURL = await getDownloadURL(fileRef);
@@ -76,8 +78,10 @@ const UploadDocument = () => {
       setTitle('');
       setCategory('');
       fetchDocuments();
+      setLoading(false);  // Set loading to false after the upload is complete
       alert('Document uploaded successfully!');
     } catch (err) {
+      setLoading(false);  // Set loading to false if upload fails
       console.error(err);
       alert('Upload failed.');
     }
@@ -142,8 +146,13 @@ const UploadDocument = () => {
             <button
               type="submit"
               className="bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-600"
+              disabled={loading} // Disable button when uploading
             >
-              Upload
+              {loading ? (
+                <span className="animate-spin inline-block w-5 h-5 border-4 border-t-4 border-yellow-600 rounded-full"></span> // Loading spinner
+              ) : (
+                'Upload'
+              )}
             </button>
           </form>
         </div>
