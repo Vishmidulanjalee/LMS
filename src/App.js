@@ -44,6 +44,7 @@ import August from './August'; // Import the August component
 
 import JuneMarks from './JuneMarks'; // Import the JuneMarks component
 import JulyMarks from './JulyMarks'; // Import the JulyMarks component
+import AugustMarks from './AugustMarks'; // Import the AugustMarks component
 
 
 import PastPapers from './PastPapers';
@@ -182,6 +183,7 @@ function App() {
         
         <Route path="/marks/june" element={<JuneMarks />} />
         <Route path="/marks/july" element={<JulyMarks />} /> {/* JulyMarks route */}
+        <Route path="/marks/august" element={<AugustMarks />} /> {/* AugustMarks route */}
 
         <Route path="/docs/papermint" element={<PaperMint />} />
         <Route path="/docs/apara" element={<Apara />} />
