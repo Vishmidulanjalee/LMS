@@ -21,6 +21,9 @@ const Signin = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      // Save user data in localStorage to persist authentication
+      localStorage.setItem('user', JSON.stringify({ email }));
+
       if (email === 'dhananjayagishan@gmail.com') {
         navigate('/AdminDashboard');
       } else {
@@ -59,7 +62,6 @@ const Signin = () => {
   };
 
   return (
-    
     <div className="flex min-h-screen items-center justify-center bg-yellow-100 px-4">
       <motion.div 
         className="w-full max-w-sm bg-white px-6 py-8 rounded-lg shadow-lg"
