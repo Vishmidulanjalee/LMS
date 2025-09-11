@@ -1,31 +1,48 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  getIdToken,
+  getIdTokenResult
+} from "firebase/auth";
 import { auth } from './firebase';
+
+const ADMIN_EMAILS = ['dhananjayagishan@gmail.com']; // add more if needed
 
 const Signin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [resetMessage, setResetMessage] = useState('');
   const navigate = useNavigate();
 
+  const saveAuth = (key, value) =>
+    (remember ? localStorage : sessionStorage).setItem(key, value);
+
   const handleSignIn = async (e) => {
     e.preventDefault();
-    setEmailError('');
-    setPasswordError('');
-    setResetMessage('');
+    setEmailError(''); setPasswordError(''); setResetMessage('');
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      if (email === 'dhananjayagishan@gmail.com') {
-        navigate('/AdminDashboard');
-      } else {
-        navigate('/Dashboard2');
-      }
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+
+      // token for guards
+      const token = await getIdToken(user, /* forceRefresh */ true);
+      saveAuth('access_token', token);
+
+      // role via custom claims (if you set them), else fallback by email
+      const result = await getIdTokenResult(user);
+      let role = result?.claims?.role || (ADMIN_EMAILS.includes(user.email) ? 'admin' : 'student');
+      saveAuth('role', role);
+
+      // go where needed
+      if (role === 'admin') navigate('/AdminDashboard');
+      else navigate('/Dashboard2');
     } catch (error) {
       switch (error.code) {
         case 'auth/user-not-found':
@@ -39,33 +56,25 @@ const Signin = () => {
           break;
         default:
           setEmailError('Failed to sign in. Please try again.');
-          setPasswordError('');
       }
     }
   };
 
   const handleForgotPassword = async () => {
-    if (!email) {
-      setEmailError('Please enter your email to reset password.');
-      return;
-    }
-
+    if (!email) return setEmailError('Please enter your email to reset password.');
     try {
       await sendPasswordResetEmail(auth, email);
       setResetMessage('Password reset email sent. Please check your inbox.');
-    } catch (error) {
+    } catch {
       setEmailError('Failed to send password reset email.');
     }
   };
 
   return (
-    
     <div className="flex min-h-screen items-center justify-center bg-yellow-100 px-4">
-      <motion.div 
+      <motion.div
         className="w-full max-w-sm bg-white px-6 py-8 rounded-lg shadow-lg"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
       >
         <div className="text-center">
           <h2 className="text-3xl font-bold text-gray-900">Sign In</h2>
@@ -75,14 +84,10 @@ const Signin = () => {
         <form className="mt-4 space-y-6 w-full" onSubmit={handleSignIn}>
           <div className="w-full">
             <label htmlFor="email" className='block text-sm font-medium text-gray-700'>Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              placeholder="example@gmail.com" 
+            <input
+              type="email" id="email" placeholder="example@gmail.com"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
+              value={email} onChange={(e) => setEmail(e.target.value)} required
             />
             {emailError && <p className="text-sm text-red-500">{emailError}</p>}
           </div>
@@ -90,19 +95,15 @@ const Signin = () => {
           <div className="mt-6 w-full">
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
-              <input 
-                type={showPassword ? "text" : "password"} 
-                id="password" 
-                name="password" 
-                className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500" 
-                placeholder="••••••••" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                required 
+              <input
+                type={showPassword ? "text" : "password"} id="password" name="password"
+                className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
+                placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required
               />
-              <div 
+              <div
                 className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Hide" : "Show"}
               >
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 hover:text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -119,12 +120,27 @@ const Signin = () => {
             {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
           </div>
 
-          <div className="flex items-center space-x-2">
-            <input type="checkbox" id="remember" className="h-4 w-4 border-gray-300 text-primary focus:ring-secondary" />
-            <label htmlFor="remember" className="text-sm font-medium text-gray-700">Remember me</label>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox" className="h-4 w-4 border-gray-300 text-primary focus:ring-secondary"
+                checked={remember} onChange={(e) => setRemember(e.target.checked)}
+              />
+              <span className="text-sm font-medium text-gray-700">Remember me</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm text-yellow-600 hover:text-yellow-700"
+            >
+              Forgot password?
+            </button>
           </div>
 
-          <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-white py-2 px-4 rounded-md">Sign In</button>
+          <button type="submit" className="w-full bg-yellow-400 hover:bg-yellow-500 text-white py-2 px-4 rounded-md">
+            Sign In
+          </button>
         </form>
 
         {resetMessage && <p className="mt-4 text-center text-sm text-green-500">{resetMessage}</p>}
