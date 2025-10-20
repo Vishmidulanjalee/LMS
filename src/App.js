@@ -5,44 +5,43 @@ import { Helmet } from 'react-helmet'; // Import Helmet
 import SignUp from './SignUp';
 import Signin from './SignIn';
 import WelcomeScreen from './WelcomeScreen';
-import Dashboard from './Dashboard';
-import GradeSelect from "./GradeSelect";
 import StudentTypeSelection from './StudentTypeSelection';
 
 import SidebarNew from './SidebarNew';
 import Dashboard2 from './Dashboard2';
 
-import AdminDasboard from './AdminDasboard';
-import UploadRecordings from './UploadRecordings';
+import AdminDasboard from './Admin/AdminDasboard';
+import UploadRecordings from './Admin/UploadRecordings';
+import AdminDashboardGuest from './Admin/AdminDashboardGuest';
+import UploadMarks from './Admin/UploadMarks';
+import UploadDocument from './Admin/UploadDocuments';
 
 import WatchVideosFolder from './WatchVideosFolder';
 import MarkSheets from './MarkSheets';
 import Documents from './Documents';
 
-import GuestDashboard from './GuestDashboard';
-import AdminDashboardGuest from './AdminDashboardGuest';
+//Guest Pages
+import GuestDashboard from './GuestPages/GuestDashboard';
+import Essays from './GuestPages/Essays';
+import Seminar from './GuestPages/Seminar';
+import Quiz from './GuestPages/Quiz';
+import PastPapers from './GuestPages/PastPapers';
+import ModelPapers from './GuestPages/ModelPapers';
+import ProvincialPapers from './GuestPages/ProvincialPapers';
 
-import Essays from './Essays';
-import Seminar from './Seminar';
+// Recordings by Month
+import June from './Recordings/June';
+import July from './Recordings/July'; 
+import August from './Recordings/August';
+import September from './Recordings/September';
+import October from './Recordings/October';
 
-import Quiz from './Quiz';
 
-import UploadMarks from './UploadMarks';
-import UploadDocument from './UploadDocuments';
+// Marks by Month
+import JulyMarks from './Marks/JulyMarks';
+import AugustMarks from './Marks/AugustMarks';
 
-import June from './June';
-import July from './July'; 
-import August from './August';
-import September from './September';
-
-import JuneMarks from './JuneMarks';
-import JulyMarks from './JulyMarks';
-import AugustMarks from './AugustMarks';
-
-import PastPapers from './PastPapers';
-import ModelPapers from './ModelPapers';
-import ProvincialPapers from './ProvincialPapers';
-
+// Documents by Type
 import PaperMint from './PaperMint';
 import Apara from './Apara';
 import Tutes from './Tutes';
@@ -61,7 +60,6 @@ function App() {
         <Route path="/Signup" element={<SignUp />} />
         <Route path="/Signin" element={<Signin />} />
         <Route path="/GuestDashboard" element={<GuestDashboard />} />
-        <Route path="/GradeSelect" element={<GradeSelect />} />
         <Route path="/SidebarNew" element={<SidebarNew />} />
         <Route path="/StudentTypeSelection" element={<StudentTypeSelection />} />
 
@@ -84,9 +82,10 @@ function App() {
         <Route path="/July" element={<PrivateRoute element={<July />} />} />
         <Route path="/August" element={<PrivateRoute element={<August />} />} />
         <Route path="/September" element={<PrivateRoute element={<September />} />} />
+        <Route path="/October" element={<PrivateRoute element={<October />} />} />
         <Route path="/Quiz" element={<PrivateRoute element={<Quiz />} />} />
 
-        <Route path="/marks/june" element={<PrivateRoute element={<JuneMarks />} />} />
+    
         <Route path="/marks/july" element={<PrivateRoute element={<JulyMarks />} />} />
         <Route path="/marks/august" element={<PrivateRoute element={<AugustMarks />} />} />
 
@@ -95,7 +94,7 @@ function App() {
         <Route path="/docs/tutes" element={<PrivateRoute element={<Tutes />} />} />
         <Route path="/docs/other" element={<PrivateRoute element={<Other />} />} />
 
-        <Route path="/dashboard" element={<PrivateRoute element={<Dashboard />} />} />
+        
       </Routes>
     </Router>
   );
