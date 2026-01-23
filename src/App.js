@@ -35,6 +35,11 @@ import July from './Recordings/July';
 import August from './Recordings/August';
 import September from './Recordings/September';
 import October from './Recordings/October';
+import November from './Recordings/November';
+import December from './Recordings/December';
+import January from './Recordings/January';
+
+
 
 
 // Marks by Month
@@ -78,11 +83,16 @@ function App() {
         <Route path="/WatchVideosFolder" element={<PrivateRoute element={<WatchVideosFolder />} />} />
         <Route path="/MarkSheets" element={<PrivateRoute element={<MarkSheets />} />} />
         <Route path="/Documents" element={<PrivateRoute element={<Documents />} />} />
+
         <Route path="/June" element={<PrivateRoute element={<June />} />} />
         <Route path="/July" element={<PrivateRoute element={<July />} />} />
         <Route path="/August" element={<PrivateRoute element={<August />} />} />
         <Route path="/September" element={<PrivateRoute element={<September />} />} />
         <Route path="/October" element={<PrivateRoute element={<October />} />} />
+        <Route path="/November" element={<PrivateRoute element={<November />} />} />
+        <Route path="/December" element={<PrivateRoute element={<December />} />} />
+        <Route path="/January" element={<PrivateRoute element={<January />} />} />
+
         <Route path="/Quiz" element={<PrivateRoute element={<Quiz />} />} />
 
     

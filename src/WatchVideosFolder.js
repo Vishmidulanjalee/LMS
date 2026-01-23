@@ -8,7 +8,10 @@ const months = [
   { name: 'July', route: '/July' },
   { name: 'August', route: '/August' },
   { name: 'September', route: '/September' },
-  { name: 'October', route: '/October' }
+  { name: 'October', route: '/October' },
+  { name: 'November', route: '/November' },
+  { name: 'December', route: '/December' },
+  { name: 'January', route: '/January' }
 ];
 
 const WatchRecordings = () => {
