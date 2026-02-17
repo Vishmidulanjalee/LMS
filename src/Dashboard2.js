@@ -56,15 +56,19 @@ const Dashboard = () => {
     year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  let currentImageSrc, currentNoticeContent;
+  
+  const currentNotice = notices[currentIndex];
+
+
+  let currentImageSrc;
   if (currentIndex < notices.length) {
-    const currentNotice = notices[currentIndex];
+   
     currentImageSrc = currentNotice.image;
-    currentNoticeContent = currentNotice.content;
+    
   } else {
     const defaultImageIndex = currentIndex - notices.length;
     currentImageSrc = images[defaultImageIndex];
-    currentNoticeContent = null;
+   
   }
 const [isEasterEggActive, setIsEasterEggActive] = useState(false);
 

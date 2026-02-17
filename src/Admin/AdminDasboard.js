@@ -1,27 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from "firebase/auth";
-import image1 from '../assets/img1.jpg'; 
-import image2 from '../assets/img2.jpg';
-import image3 from '../assets/img3.jpg';
 import Footer from '../Footer';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
-  const [notices, setNotices] = useState([]);
-  const images = [image1, image2, image3];
-
-  useEffect(() => {
-    const fetchNotices = async () => {
-      const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      const fetchedNotices = querySnapshot.docs.map(doc => doc.data());
-      setNotices(fetchedNotices);
-    };
-    fetchNotices();
-  }, []);
-
+ 
 
 
   useEffect(() => {

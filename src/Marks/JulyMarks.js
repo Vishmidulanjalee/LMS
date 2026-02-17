@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, where} from 'firebase/firestore';
 import Footer from '../Footer';
 
 const JulyMarks = () => {
