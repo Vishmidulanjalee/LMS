@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom'; // Import useNavigate and useLocation
-import { LayoutDashboard, Video, FileText, GraduationCap, LibraryBig, LogOut, Menu } from "lucide-react";
+import { LayoutDashboard, Video, GraduationCap, LibraryBig, LogOut, Menu } from "lucide-react";
 import Logo from './assets/Logo.png';
 
 const menuItems = [

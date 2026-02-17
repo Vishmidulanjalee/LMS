@@ -15,8 +15,7 @@ import Footer from './Footer';
 import bee from './assets/bee.png'; // 🐝 bee image
 
 const Dashboard = () => {
-  const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
+
   const [notices, setNotices] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = [image1, image2, image3, image4, image5];
@@ -44,10 +43,10 @@ const Dashboard = () => {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setUserName(docSnap.data().username);
+         
         }
       }
-      setLoading(false);
+     
     });
     return () => unsubscribe();
   }, []);

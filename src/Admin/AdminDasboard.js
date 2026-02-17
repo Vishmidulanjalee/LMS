@@ -9,9 +9,7 @@ import Footer from '../Footer';
 
 const Dashboard = () => {
   const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const images = [image1, image2, image3];
 
   useEffect(() => {
@@ -24,12 +22,7 @@ const Dashboard = () => {
     fetchNotices();
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length + images.length));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [notices.length, images.length]);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -40,7 +33,6 @@ const Dashboard = () => {
           setUserName(docSnap.data().username);
         }
       }
-      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -53,17 +45,8 @@ const Dashboard = () => {
   const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
 
   let currentImageSrc;
-  let currentNoticeContent;
 
-  if (currentIndex < notices.length) {
-    const currentNotice = notices[currentIndex];
-    currentImageSrc = currentNotice.image;
-    currentNoticeContent = currentNotice.content;
-  } else {
-    const defaultImageIndex = currentIndex - notices.length;
-    currentImageSrc = images[defaultImageIndex];
-    currentNoticeContent = null;
-  }
+ 
 
   return (
     <div className="flex flex-col min-h-screen">

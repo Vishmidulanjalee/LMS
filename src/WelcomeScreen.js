@@ -1,16 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Logo from './assets/Logo.png';
 import { Link } from 'react-router-dom';
 
 const WelcomeScreen = () => {
-  const [isLoaded, setIsLoaded] = useState(false)
 
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-yellow-50 to-orange-100 overflow-hidden px-4 sm:px-6 lg:px-8">

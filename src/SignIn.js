@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from './firebase';
 
 const Signin = () => {
@@ -44,20 +44,6 @@ const Signin = () => {
           setEmailError('Failed to sign in. Please try again.');
           setPasswordError('');
       }
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setEmailError('Please enter your email to reset password.');
-      return;
-    }
-
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setResetMessage('Password reset email sent. Please check your inbox.');
-    } catch (error) {
-      setEmailError('Failed to send password reset email.');
     }
   };
 
