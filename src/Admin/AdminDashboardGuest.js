@@ -7,246 +7,258 @@ import {
   deleteDoc,
   doc,
   updateDoc,
+  query,
+  orderBy,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
-const AdminUpload = () => {
-  const [section, setSection] = useState('papers');
-  const [type, setType] = useState('');
+const SpokenEnglishAdmin = () => {
+  const [tab, setTab] = useState('recordings');
+  const [items, setItems] = useState([]);
+
+  // Form state
+  const [editId, setEditId] = useState(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [file, setFile] = useState(null); // for papers
-  const [thumbnail, setThumbnail] = useState(null); // for lessons
-  const [youtubeURL, setYoutubeURL] = useState(''); // for lessons
-  const [uploads, setUploads] = useState([]);
-  const [editId, setEditId] = useState(null);
+  const [youtubeURL, setYoutubeURL] = useState('');
+  const [thumbnail, setThumbnail] = useState(null);
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
-  const paperOptions = ['Past Papers', 'Provincial Papers', 'Model Papers'];
-  const lessonOptions = ['Essays', 'Seminar'];
-
-  const fetchUploads = async () => {
-    const querySnapshot = await getDocs(collection(db, 'uploads'));
-    const docs = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-    setUploads(docs);
+  const fetchItems = async () => {
+    const snap = await getDocs(query(collection(db, 'spokenContent'), orderBy('timestamp', 'desc')));
+    setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
   };
 
-  useEffect(() => {
-    fetchUploads();
-  }, []);
+  useEffect(() => { fetchItems(); }, []);
+
+  const resetForm = () => {
+    setEditId(null);
+    setTitle('');
+    setDescription('');
+    setYoutubeURL('');
+    setThumbnail(null);
+    setPdfFile(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setUploading(true);
+    try {
+      const data = {
+        type: tab === 'recordings' ? 'recording' : 'material',
+        title,
+        description,
+        timestamp: Date.now(),
+      };
 
-    let fileURL = '';
-    let thumbURL = '';
-
-    // Upload PDF file if section is papers
-    if (section === 'papers' && file) {
-      const fileRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
-      await uploadBytes(fileRef, file);
-      fileURL = await getDownloadURL(fileRef);
-    }
-
-    // Upload thumbnail if section is lessons
-    if (section === 'lessons' && thumbnail) {
-      const thumbRef = ref(storage, `thumbnails/${Date.now()}_${thumbnail.name}`);
-      await uploadBytes(thumbRef, thumbnail);
-      thumbURL = await getDownloadURL(thumbRef);
-    }
-
-    const data = {
-      section,
-      type,
-      title,
-      description,
-      timestamp: Date.now(),
-    };
-
-    if (section === 'papers') {
-      data.fileName = file?.name || '';
-      data.fileURL = fileURL;
-    } else if (section === 'lessons') {
-      data.youtubeURL = youtubeURL;
-      data.thumbnailURL = thumbURL;
-    }
-
-    if (editId) {
-      const docRef = doc(db, 'uploads', editId);
-      await updateDoc(docRef, data);
-      setEditId(null);
-    } else {
-      await addDoc(collection(db, 'uploads'), data);
-    }
-
-    // Reset
-    setSection('papers');
-    setType('');
-    setTitle('');
-    setDescription('');
-    setFile(null);
-    setThumbnail(null);
-    setYoutubeURL('');
-    fetchUploads();
-  };
-
-  const handleDelete = async (upload) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
-      await deleteDoc(doc(db, 'uploads', upload.id));
-      if (upload.fileURL) {
-        const fileRef = ref(storage, upload.fileURL);
-        deleteObject(fileRef).catch(() => {});
+      if (tab === 'recordings') {
+        data.youtubeURL = youtubeURL;
+        if (thumbnail) {
+          const thumbRef = ref(storage, `spoken/thumbnails/${Date.now()}_${thumbnail.name}`);
+          await uploadBytes(thumbRef, thumbnail);
+          data.thumbnailURL = await getDownloadURL(thumbRef);
+        }
+      } else {
+        if (pdfFile) {
+          const fileRef = ref(storage, `spoken/materials/${Date.now()}_${pdfFile.name}`);
+          await uploadBytes(fileRef, pdfFile);
+          data.fileURL = await getDownloadURL(fileRef);
+          data.fileName = pdfFile.name;
+        }
       }
-      if (upload.thumbnailURL) {
-        const thumbRef = ref(storage, upload.thumbnailURL);
-        deleteObject(thumbRef).catch(() => {});
+
+      if (editId) {
+        await updateDoc(doc(db, 'spokenContent', editId), data);
+      } else {
+        await addDoc(collection(db, 'spokenContent'), data);
       }
-      fetchUploads();
+
+      resetForm();
+      fetchItems();
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleEdit = (upload) => {
-    setEditId(upload.id);
-    setSection(upload.section);
-    setType(upload.type);
-    setTitle(upload.title);
-    setDescription(upload.description);
-    setYoutubeURL(upload.youtubeURL || '');
+  const handleEdit = (item) => {
+    setEditId(item.id);
+    setTitle(item.title || '');
+    setDescription(item.description || '');
+    setYoutubeURL(item.youtubeURL || '');
+    setTab(item.type === 'recording' ? 'recordings' : 'materials');
   };
+
+  const handleDelete = async (item) => {
+    if (!window.confirm('Delete this item?')) return;
+    await deleteDoc(doc(db, 'spokenContent', item.id));
+    if (item.thumbnailURL) deleteObject(ref(storage, item.thumbnailURL)).catch(() => {});
+    if (item.fileURL) deleteObject(ref(storage, item.fileURL)).catch(() => {});
+    fetchItems();
+  };
+
+  const displayed = items.filter(i => i.type === (tab === 'recordings' ? 'recording' : 'material'));
 
   return (
-    <div className="max-w-5xl mx-auto mt-10 bg-white p-8 rounded shadow">
-      <h2 className="text-2xl font-bold mb-6 text-yellow-700">
-        {editId ? 'Edit Content' : 'Upload New Content'}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="max-w-5xl mx-auto mt-10 px-4 pb-16">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">Spoken English — Content Manager</h2>
+        <p className="text-sm text-gray-500 mt-1">Upload and manage recordings and support materials for spoken students.</p>
+      </div>
 
-        <div>
-          <label className="block font-medium mb-1">Section</label>
-          <select
-            value={section}
-            onChange={(e) => setSection(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          >
-            <option value="papers">Papers</option>
-            <option value="lessons">Lessons</option>
-          </select>
-        </div>
+      {/* Tabs */}
+      <div className="flex gap-0 border-b border-gray-200 mb-6">
+        <button
+          onClick={() => { setTab('recordings'); resetForm(); }}
+          className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition ${
+            tab === 'recordings' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          Recordings
+        </button>
+        <button
+          onClick={() => { setTab('materials'); resetForm(); }}
+          className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition ${
+            tab === 'materials' ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-600'
+          }`}
+        >
+          Support Materials (PDFs)
+        </button>
+      </div>
 
-        <div>
-          <label className="block font-medium mb-1">Type</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            className="w-full border px-3 py-2 rounded"
-          >
-            <option value="">-- Select Type --</option>
-            {(section === 'papers' ? paperOptions : lessonOptions).map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block font-medium mb-1">Title</label>
-          <input
-            type="text"
-            className="w-full border px-3 py-2 rounded"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-medium mb-1">Description</label>
-          <textarea
-            className="w-full border px-3 py-2 rounded"
-            rows="3"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
-        </div>
-
-        {section === 'papers' && (
+      {/* Form */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-8">
+        <h3 className="text-base font-semibold text-gray-800 mb-4">
+          {editId ? 'Edit' : 'Add'} {tab === 'recordings' ? 'Recording' : 'Support Material'}
+        </h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-medium mb-1">Upload PDF File</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="block w-full"
+              type="text"
+              required
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              placeholder={tab === 'recordings' ? 'e.g. Pronunciation Drills — Session 1' : 'e.g. Speaking Guide Booklet'}
             />
           </div>
-        )}
 
-        {section === 'lessons' && (
-          <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              rows="2"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              placeholder="Optional short description"
+            />
+          </div>
+
+          {tab === 'recordings' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">YouTube URL</label>
+                <input
+                  type="url"
+                  required={!editId}
+                  value={youtubeURL}
+                  onChange={e => setYoutubeURL(e.target.value)}
+                  className="w-full border border-gray-300 px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Thumbnail (optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setThumbnail(e.target.files[0])}
+                  className="block w-full text-sm text-gray-500"
+                />
+              </div>
+            </>
+          )}
+
+          {tab === 'materials' && (
             <div>
-              <label className="block font-medium mb-1">YouTube Video URL</label>
-              <input
-                type="url"
-                value={youtubeURL}
-                onChange={(e) => setYoutubeURL(e.target.value)}
-                className="w-full border px-3 py-2 rounded"
-                placeholder="https://www.youtube.com/watch?v=..."
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">Upload Thumbnail</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">PDF File {editId ? '(leave blank to keep existing)' : ''}</label>
               <input
                 type="file"
-                accept="image/*"
-                onChange={(e) => setThumbnail(e.target.files[0])}
-                className="block w-full"
+                accept="application/pdf"
+                required={!editId}
+                onChange={e => setPdfFile(e.target.files[0])}
+                className="block w-full text-sm text-gray-500"
               />
             </div>
-          </>
-        )}
+          )}
 
-        <button
-          type="submit"
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-        >
-          {editId ? 'Update' : 'Upload'}
-        </button>
-      </form>
+          <div className="flex gap-3 pt-1">
+            <button
+              type="submit"
+              disabled={uploading}
+              className="bg-gray-900 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700 transition disabled:opacity-60"
+            >
+              {uploading ? 'Uploading...' : editId ? 'Update' : 'Upload'}
+            </button>
+            {editId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg text-sm font-semibold hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
 
-      {/* View Table */}
-      <div className="mt-12">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800">Uploaded Content</h3>
-        <table className="w-full border text-sm">
-          <thead className="bg-yellow-100">
-            <tr>
-              <th className="border px-3 py-2">Type</th>
-              <th className="border px-3 py-2">Title</th>
-              <th className="border px-3 py-2">Preview</th>
-              <th className="border px-3 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {uploads.map((upload) => (
-              <tr key={upload.id} className="text-center">
-                <td className="border px-3 py-2">{upload.type}</td>
-                <td className="border px-3 py-2">{upload.title}</td>
-                <td className="border px-3 py-2">
-                  {upload.fileURL && (
-                    <a href={upload.fileURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">PDF</a>
-                  )}
-                  {upload.youtubeURL && (
-                    <a href={upload.youtubeURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">YouTube</a>
-                  )}
-                </td>
-                <td className="border px-3 py-2">
-                  <button onClick={() => handleEdit(upload)} className="text-yellow-600 font-medium mr-2">Edit</button>
-                  <button onClick={() => handleDelete(upload)} className="text-red-600 font-medium">Delete</button>
-                </td>
+      {/* Uploaded Items Table */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h3 className="text-base font-semibold text-gray-800">
+            Uploaded {tab === 'recordings' ? 'Recordings' : 'Materials'}
+            <span className="ml-2 text-xs font-normal text-gray-400">({displayed.length})</span>
+          </h3>
+        </div>
+        {displayed.length === 0 ? (
+          <p className="text-center text-sm text-gray-400 py-10">Nothing uploaded yet.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-500 uppercase text-xs tracking-wider">
+              <tr>
+                <th className="px-4 py-3 text-left">Title</th>
+                <th className="px-4 py-3 text-left">Description</th>
+                <th className="px-4 py-3 text-left">Link</th>
+                <th className="px-4 py-3 text-left">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {displayed.map(item => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-900">{item.title}</td>
+                  <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{item.description || '—'}</td>
+                  <td className="px-4 py-3">
+                    {item.youtubeURL && (
+                      <a href={item.youtubeURL} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">YouTube</a>
+                    )}
+                    {item.fileURL && (
+                      <a href={item.fileURL} target="_blank" rel="noopener noreferrer" className="text-red-600 underline text-xs">PDF</a>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 flex gap-3">
+                    <button onClick={() => handleEdit(item)} className="text-yellow-600 font-medium hover:underline">Edit</button>
+                    <button onClick={() => handleDelete(item)} className="text-red-600 font-medium hover:underline">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );
 };
 
-export default AdminUpload;
+export default SpokenEnglishAdmin;

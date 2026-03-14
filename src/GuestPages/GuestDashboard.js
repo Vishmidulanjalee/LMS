@@ -1,205 +1,207 @@
 import { useEffect, useState } from 'react';
 import Footer from '../Footer';
-import { motion } from 'framer-motion';
-import Quiz from './Quiz';
-import { FaFileAlt, FaVideo, FaRegFilePdf, FaGlobeAsia, FaBook, FaPenNib, FaChalkboardTeacher } from 'react-icons/fa';
+import { db } from '../firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 
-import image1 from '../assets/image1.jpg';
-import image2 from '../assets/img1.jpg';
-import image3 from '../assets/Image04.jpg';
-import image4 from '../assets/img5.jpg';
-import image5 from '../assets/img6.jpg';
-import bee from '../assets/bee.png';
-import confetti from 'canvas-confetti';
+const MicIcon = () => (
+  <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" />
+  </svg>
+);
 
-const Dashboard = () => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const images = [image1, image2, image3, image4, image5];
-  const currentImageSrc = images[currentImageIndex];
-  const [showQuiz, setShowQuiz] = useState(false);
+const PlayIcon = () => (
+  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.868v4.264a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+  </svg>
+);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [images.length]);
+const PdfIcon = () => (
+  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+
+const DownloadIcon = () => (
+  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+  </svg>
+);
+
+const getYouTubeThumbnail = (url) => {
+  if (!url) return null;
+  const match = url.match(/(?:v=|youtu\.be\/)([^&?/]+)/);
+  return match ? `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg` : null;
+};
+
+const SpokenEnglishDashboard = () => {
+  const [recordings, setRecordings] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('recordings');
 
   const today = new Date();
   const currentDate = today.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  const [isEasterEggActive, setIsEasterEggActive] = useState(false);
-
-  const handleBeeClick = () => {
-    confetti({
-      particleCount: 1000,
-      spread: 1000,
-      origin: { y: 0.9 },
-      shapes: ['text'],
-      shapeOptions: {
-        text: {
-          value: ['🌸'],
-        },
-      },
-    });
-    setIsEasterEggActive(true);
-    setTimeout(() => setIsEasterEggActive(false), 4000);
-  };
-
-  const handleQuizStart = () => {
-    confetti({
-      particleCount: 300,
-      spread: 180,
-      origin: { y: 0.7 },
-    });
-    setShowQuiz(true);
-  };
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const snap = await getDocs(query(collection(db, 'spokenContent'), orderBy('timestamp', 'desc')));
+        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        setRecordings(all.filter(d => d.type === 'recording'));
+        setMaterials(all.filter(d => d.type === 'material'));
+      } catch (err) {
+        console.error('Failed to fetch spoken content:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContent();
+  }, []);
 
   return (
-    <div className="flex flex-col min-h-screen overflow-hidden relative bg-gradient-to-br from-yellow-300 via-white to-yellow-300">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* HEADER */}
-      <header className="bg-white shadow z-10 shrink-0">
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome To The Bee Academy</h1>
-            <h2 className="text-lg font-medium text-gray-700 mt-1">{currentDate}</h2>
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gray-900 rounded-xl">
+              <MicIcon />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Spoken English</h1>
+              <p className="text-sm text-gray-500">{currentDate}</p>
+            </div>
           </div>
           <button
-            onClick={handleQuizStart}
-            className="bg-yellow-300 hover:bg-yellow-500 hover:text-white font-semibold px-4 py-2 rounded-full shadow flex items-center gap-2"
+            onClick={() => window.location.href = '/StudentTypeSelection'}
+            className="text-sm text-gray-500 hover:text-gray-800 border border-gray-200 px-3 py-1.5 rounded-lg transition"
           >
-            Start Quiz
+            ← Back
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-0 border-t border-gray-100">
+          <button
+            onClick={() => setActiveTab('recordings')}
+            className={`px-6 py-3 text-sm font-semibold border-b-2 transition ${
+              activeTab === 'recordings'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <span className="flex items-center gap-2"><PlayIcon /> Recordings</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('materials')}
+            className={`px-6 py-3 text-sm font-semibold border-b-2 transition ${
+              activeTab === 'materials'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <span className="flex items-center gap-2"><PdfIcon /> Support Materials</span>
           </button>
         </div>
       </header>
 
-      {/* Flying Bee Animation */}
-      <motion.img
-        src={bee}
-        alt="Flying Bee"
-        className="animate-beeFlight fixed top-10 left-[-100px] w-14 z-50 cursor-pointer"
-        onClick={handleBeeClick}
-        animate={isEasterEggActive ? {
-          rotate: [0, 360, 0],
-          scale: [1, 1.5, 1],
-          x: [0, 20, -20, 0],
-          y: [0, -10, 10, 0]
-        } : {
-          x: ["-10%", "100%", "-10%"],
-          y: ["0%", "-10%", "10%", "0%"]
-        }}
-        transition={{
-          duration: isEasterEggActive ? 1.5 : 15,
-          repeat: isEasterEggActive ? 1 : Infinity,
-          ease: "easeInOut"
-        }}
-      />
-
-      {isEasterEggActive && (
-        <div className="fixed top-28 left-20 bg-yellow-200 text-black px-4 py-2 rounded shadow-lg z-50 animate-bounce">
-          🎉 Yayyy You're doing good!
-        </div>
-      )}
-
-      {/* Quiz Modal */}
-      {showQuiz && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl relative overflow-y-auto max-h-[90vh]">
-            <button
-              onClick={() => setShowQuiz(false)}
-              className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-2xl font-bold px-4"
-            >
-              ×
-            </button>
-            <Quiz />
-          </div>
-        </div>
-      )}
-
       {/* MAIN */}
       <main className="flex-grow">
-        <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-6 h-full">
-          <div className="flex flex-col lg:flex-row gap-10 h-full">
-            <div className="flex flex-col gap-6 lg:w-2/3">
-              <div className="bg-white p-6 rounded-lg shadow w-full">
-                <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
-                  <FaFileAlt className="inline-block text-yellow-600" />
-                  Papers
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div onClick={() => window.location.href = '/PastPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
-                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-                      <FaRegFilePdf className="text-yellow-600" />
-                      Past Papers
-                    </div>
-                    <p className="text-sm text-yellow-700">Previous exam papers</p>
-                  </div>
-                  <div onClick={() => window.location.href = '/ProvincialPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
-                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-                      <FaGlobeAsia className="text-yellow-600" />
-                      Provincial Papers
-                    </div>
-                    <p className="text-sm text-yellow-700">Regional exam papers</p>
-                  </div>
-                  <div onClick={() => window.location.href = '/ModelPapers'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
-                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-                      <FaBook className="text-yellow-600" />
-                      Model Papers
-                    </div>
-                    <p className="text-sm text-yellow-700">Practice exam papers</p>
-                  </div>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {loading ? (
+            <div className="flex items-center justify-center py-24 text-gray-400 text-sm">Loading...</div>
+          ) : activeTab === 'recordings' ? (
+            recordings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-3">
+                <PlayIcon />
+                <p className="text-sm">No recordings uploaded yet.</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow w-full">
-                <h2 className="text-2xl font-serif font-semibold mb-4 text-black flex items-center gap-2">
-                  <FaVideo className="inline-block text-yellow-600" />
-                  Lessons
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div onClick={() => window.location.href = '/Essays'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
-                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-                      <FaPenNib className="text-yellow-600" />
-                      Essays
-                    </div>
-                    <p className="text-sm text-yellow-700">Essay recordings</p>
-                  </div>
-                  <div onClick={() => window.location.href = '/Seminar'} className="bg-white p-4 rounded shadow-lg border border-yellow-100 hover:bg-yellow-300 transition-colors min-h-[120px] flex flex-col justify-center cursor-pointer">
-                    <div className="flex items-center gap-2 text-xl font-semibold text-black mb-1">
-                      <FaChalkboardTeacher className="text-yellow-600" />
-                      Seminar
-                    </div>
-                    <p className="text-sm text-yellow-700">Seminar recordings</p>
-                  </div>
-                </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recordings.map(rec => {
+                  const thumb = rec.thumbnailURL || getYouTubeThumbnail(rec.youtubeURL);
+                  return (
+                    <a
+                      key={rec.id}
+                      href={rec.youtubeURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col"
+                    >
+                      {thumb ? (
+                        <img src={thumb} alt={rec.title} className="w-full h-44 object-cover" />
+                      ) : (
+                        <div className="w-full h-44 bg-gray-100 flex items-center justify-center text-gray-400">
+                          <PlayIcon />
+                        </div>
+                      )}
+                      <div className="p-4 flex flex-col gap-1 flex-grow">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">Recording</span>
+                        <h3 className="font-semibold text-gray-900 text-base leading-snug">{rec.title}</h3>
+                        {rec.description && (
+                          <p className="text-sm text-gray-500 line-clamp-2">{rec.description}</p>
+                        )}
+                        <div className="mt-auto pt-3">
+                          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-gray-900 px-3 py-1.5 rounded-lg">
+                            <PlayIcon /> Watch Now
+                          </span>
+                        </div>
+                      </div>
+                    </a>
+                  );
+                })}
               </div>
-            </div>
-            <div className="lg:w-1/3 flex justify-center items-center">
-              {currentImageSrc && (
-                <motion.img
-                  key={currentImageSrc}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  src={currentImageSrc}
-                  alt="Notice or Slide"
-                  className="rounded-lg shadow-md max-h-[400px] w-full object-contain"
-                />
-              )}
-            </div>
-          </div>
+            )
+          ) : (
+            materials.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-gray-400 gap-3">
+                <PdfIcon />
+                <p className="text-sm">No support materials uploaded yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {materials.map(mat => (
+                  <div
+                    key={mat.id}
+                    className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-red-50 rounded-lg text-red-500 shrink-0">
+                        <PdfIcon />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">PDF</span>
+                        <h3 className="font-semibold text-gray-900 text-base leading-snug">{mat.title}</h3>
+                        {mat.description && (
+                          <p className="text-sm text-gray-500 mt-1 line-clamp-2">{mat.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <a
+                      href={mat.fileURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded-lg transition self-start mt-auto"
+                    >
+                      <DownloadIcon /> Open PDF
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )
+          )}
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer className="w-full bg-white border-t z-10 shrink-0">
+      <footer className="w-full bg-white border-t">
         <Footer />
       </footer>
     </div>
   );
 };
 
-export default Dashboard;
+export default SpokenEnglishDashboard;

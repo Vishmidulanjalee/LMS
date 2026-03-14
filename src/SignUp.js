@@ -1,227 +1,297 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { setDoc, doc } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from './firebase';
 import LogoBig from './assets/LogoBig.png';
+import {
+  Eye, EyeOff, BookOpen, Video, FileText,
+  User, Mail, BadgeCheck, GraduationCap, Lock,
+  AlertCircle, Info, Loader2, ArrowRight, ChevronDown
+} from 'lucide-react';
+
+const GRADES = ['Grade 9', 'Grade 10', 'Grade 11'];
+
+const inputBase = (err) =>
+  `w-full py-3 border-2 rounded-xl bg-white text-sm text-gray-900 placeholder-gray-300 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-300 transition-all duration-200 shadow-sm ${
+    err ? 'border-red-300 bg-red-50/30' : 'border-yellow-200 hover:border-yellow-300'
+  }`;
+
+const FieldError = ({ msg }) => (
+  <motion.p
+    initial={{ opacity: 0, y: -4 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="flex items-center gap-1.5 text-xs text-red-500 font-medium"
+  >
+    <AlertCircle className="w-3 h-3 shrink-0" />
+    {msg}
+  </motion.p>
+);
+
+const Label = ({ children }) => (
+  <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1.5">
+    {children}
+  </label>
+);
+
+const InputField = ({ label, id, type = 'text', placeholder, value, onChange, error, required = true, icon: Icon, children }) => (
+  <div className="space-y-1">
+    <Label>{label}</Label>
+    {children || (
+      <div className="relative">
+        {Icon && (
+          <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+            <Icon className="w-4 h-4 text-yellow-400" />
+          </span>
+        )}
+        <input
+          type={type} id={id} placeholder={placeholder} value={value}
+          onChange={onChange} required={required}
+          className={`${inputBase(error)} ${Icon ? 'pl-10' : 'pl-4'} pr-4`}
+        />
+      </div>
+    )}
+    {error && <FieldError msg={error} />}
+  </div>
+);
+
+const FeatureCard = ({ icon: Icon, label, sub }) => (
+  <div className="flex items-center gap-3.5 bg-black/10 backdrop-blur-sm rounded-2xl px-4 py-3.5 border border-black/10">
+    <div className="bg-black/15 rounded-xl p-2.5 shrink-0">
+      <Icon className="w-4 h-4 text-yellow-900" strokeWidth={1.8} />
+    </div>
+    <div>
+      <p className="text-sm font-bold text-yellow-900 leading-tight">{label}</p>
+      <p className="text-xs text-yellow-800/70 mt-0.5">{sub}</p>
+    </div>
+  </div>
+);
 
 const Signup = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form, setForm] = useState({ name: '', email: '', studentId: '', grade: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-  useEffect(() => {
-    const checkScreenSize = () => setIsSmallScreen(window.innerWidth < 768);
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
+  const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+
+  const validate = () => {
+    const errs = {};
+    if (!form.name.trim()) errs.name = 'Full name is required.';
+    if (!form.email.trim()) errs.email = 'Email is required.';
+    if (!form.studentId.trim()) errs.studentId = 'Student ID is required.';
+    if (!form.grade) errs.grade = 'Please select your grade.';
+    if (form.password.length < 6) errs.password = 'Password must be at least 6 characters.';
+    return errs;
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
-    setEmailError('');
-    setPasswordError('');
-
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    setErrors({});
+    setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const user = userCredential.user;
+      const isAdmin = process.env.REACT_APP_ADMIN_EMAIL && form.email.trim() === process.env.REACT_APP_ADMIN_EMAIL;
       await setDoc(doc(db, "users", user.uid), {
-        username: username,
-        email: user.email,
+        name: form.name.trim(), username: form.name.trim(), email: form.email.trim(),
+        studentId: form.studentId.trim(), grade: form.grade,
+        role: isAdmin ? 'admin' : 'student',
+        status: isAdmin ? 'approved' : 'pending', paid: isAdmin, createdAt: serverTimestamp(),
       });
-      navigate('/signIn');
-    } catch (error) {
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          setEmailError('This email is already in use. You can sign in.');
-          navigate('/signIn');
-          break;
-        case 'auth/invalid-email':
-          setEmailError('Please enter a valid email address.');
-          break;
-        case 'auth/weak-password':
-          setPasswordError('Password should be at least 6 characters.');
-          break;
-        default:
-          setEmailError('Failed to sign up. Please try again.');
-          setPasswordError('');
+      if (isAdmin) {
+        navigate('/AdminDashboard');
+      } else {
+        navigate('/pending-approval');
       }
+    } catch (error) {
+      const errs = {};
+      if (error.code === 'auth/email-already-in-use') errs.email = 'This email is already registered.';
+      else if (error.code === 'auth/invalid-email') errs.email = 'Invalid email address.';
+      else if (error.code === 'auth/weak-password') errs.password = 'Password is too weak.';
+      else errs.email = 'Sign up failed. Please try again.';
+      setErrors(errs);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const PasswordInput = (
-    <div className="relative mt-1 w-4/5">
-      <input
-        type={showPassword ? "text" : "password"}
-        id="password"
-        name="password"
-        className="block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-        placeholder="••••••••"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <div
-        className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 hover:text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600 hover:text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.269-2.943-9.543-7a9.974 9.974 0 012.174-3.309m1.659-1.526A9.956 9.956 0 0112 5c4.477 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.221 5.308M15 12a3 3 0 00-3-3m0 0a3 3 0 00-3 3m3-3v3m0 0l3 3m-3-3l-3 3" />
-          </svg>
-        )}
-      </div>
-      {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
-    </div>
-  );
-
   return (
-    <div>
-      {isSmallScreen ? (
-        <div className="flex min-h-screen items-center justify-center bg-yellow-100 px-4 sm:px-6 lg:px-8">
-          <motion.div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg sm:p-8"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+    <div className="min-h-screen flex" style={{ background: '#FFFDE7' }}>
+
+      {/* ── Left Panel ── */}
+      <motion.div
+        className="hidden lg:flex lg:w-[44%] relative flex-col justify-between p-12 overflow-hidden"
+        style={{ background: 'linear-gradient(145deg, #FDE047 0%, #FACC15 45%, #EAB308 100%)' }}
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/20 pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-black/08 pointer-events-none" />
+        <div className="absolute top-1/2 right-10 w-4 h-4 rounded-full bg-white/40 pointer-events-none" />
+        <div className="absolute top-1/3 right-28 w-2 h-2 rounded-full bg-black/20 pointer-events-none" />
+        <div className="absolute bottom-1/3 left-12 w-3 h-3 rounded-full bg-white/50 pointer-events-none" />
+
+        <div className="relative z-10">
+          <img src={LogoBig} alt="The BEE Academy" className="h-14 drop-shadow" />
+        </div>
+
+        <div className="relative z-10">
+          <div className="inline-block bg-black/10 text-yellow-900 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
+            Join Us Today
+          </div>
+          <h1
+            className="text-5xl font-black text-yellow-900 leading-tight mb-4 tracking-tight"
+            style={{ fontFamily: "'Georgia', serif", textShadow: '0 1px 8px rgba(255,255,255,0.4)' }}
           >
-            <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">Sign Up</h2>
-              <p className="mt-3 text-lg text-gray-600">Please enter your details to start learning</p>
+            Start your<br />journey.
+          </h1>
+          <p className="text-yellow-800 text-base leading-relaxed max-w-xs font-medium">
+            Create your account and get access to everything you need to succeed — once approved by admin.
+          </p>
+        </div>
+
+        <div className="relative z-10 space-y-2.5">
+          <FeatureCard icon={BookOpen} label="Quality Content" sub="Curriculum-aligned study materials" />
+          <FeatureCard icon={Video} label="Video Lessons" sub="Watch and rewatch at your own pace" />
+          <FeatureCard icon={FileText} label="Practice Papers" sub="Past papers and targeted quizzes" />
+        </div>
+
+        <p className="relative z-10 text-yellow-800/40 text-xs">
+          © {new Date().getFullYear()} The BEE Academy
+        </p>
+      </motion.div>
+
+      {/* ── Right Panel ── */}
+      <motion.div
+        className="flex-1 flex items-center justify-center p-6 lg:p-16 overflow-y-auto"
+        style={{ background: '#FFFDE7' }}
+        initial={{ opacity: 0, x: 40 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <div className="w-full max-w-sm py-8">
+
+          <div className="flex justify-center mb-8 lg:hidden">
+            <img src={LogoBig} alt="The BEE Academy" className="h-12" />
+          </div>
+
+          <div className="mb-8">
+            <h2
+              className="text-3xl font-black text-gray-900 mb-1.5 tracking-tight"
+              style={{ fontFamily: "'Georgia', serif" }}
+            >
+              Create Account
+            </h2>
+            <p className="text-sm text-gray-500">Register below — admin reviews before activation.</p>
+          </div>
+
+          <form onSubmit={handleSignUp} className="space-y-5">
+
+            <InputField
+              label="Full Name" id="name" placeholder="e.g. Kamal Perera"
+              value={form.name} onChange={set('name')} error={errors.name} icon={User}
+            />
+
+            <InputField
+              label="Email Address" id="email" type="email" placeholder="student@example.com"
+              value={form.email} onChange={set('email')} error={errors.email} icon={Mail}
+            />
+
+            <div className="grid grid-cols-2 gap-3">
+              <InputField
+                label="Student ID" id="studentId" placeholder="S-2024-001"
+                value={form.studentId} onChange={set('studentId')} error={errors.studentId} icon={BadgeCheck}
+              />
+
+              <div className="space-y-1">
+                <Label>Grade</Label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+                    <GraduationCap className="w-4 h-4 text-yellow-400" />
+                  </span>
+                  <select
+                    id="grade" value={form.grade} onChange={set('grade')} required
+                    className={`${inputBase(errors.grade)} pl-10 pr-8 appearance-none cursor-pointer`}
+                  >
+                    <option value="">Grade</option>
+                    {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                  <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                    <ChevronDown className="w-3.5 h-3.5 text-yellow-400" />
+                  </span>
+                </div>
+                {errors.grade && <FieldError msg={errors.grade} />}
+              </div>
             </div>
 
-            <form className="mt-12 space-y-6" onSubmit={handleSignUp}>
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+            <div className="space-y-1">
+              <Label>Password</Label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none">
+                  <Lock className="w-4 h-4 text-yellow-400" />
+                </span>
                 <input
-                  type="text"
-                  id="username"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
+                  type={showPassword ? 'text' : 'password'} id="password"
+                  placeholder="At least 6 characters"
+                  value={form.password} onChange={set('password')} required
+                  className={`${inputBase(errors.password)} pl-10 pr-12`}
                 />
+                <button
+                  type="button" onClick={() => setShowPassword(v => !v)}
+                  className="absolute inset-y-0 right-3.5 flex items-center text-gray-300 hover:text-yellow-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  placeholder="example@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                {PasswordInput}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input type="checkbox" id="remember_me" className="h-4 w-4 rounded border-gray-300" />
-                <label htmlFor="remember_me" className="text-sm text-gray-700">Remember me</label>
-              </div>
-
-              <button type="submit" className="w-full bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md">Sign Up</button>
-            </form>
-
-            <p className="mt-4 text-center text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
-            </p>
-
-            <div className="mt-12 flex justify-center">
-              <img src={LogoBig} alt="Logo" className="w-full max-w-[300px]" />
+              {errors.password && <FieldError msg={errors.password} />}
             </div>
-          </motion.div>
+
+            {/* Info notice */}
+            <div className="flex items-start gap-2.5 px-3.5 py-3 bg-yellow-100 border border-yellow-300 rounded-xl">
+              <Info className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-yellow-800 leading-relaxed font-medium">
+                Your account will be reviewed by an admin. You can log in once approved and payment is confirmed.
+              </p>
+            </div>
+
+            <button
+              type="submit" disabled={loading}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm text-yellow-900 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                background: loading
+                  ? '#FDE047'
+                  : 'linear-gradient(135deg, #FDE047 0%, #FACC15 50%, #EAB308 100%)',
+              }}
+            >
+              {loading
+                ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Creating account…</span></>
+                : <><span>Create Account</span><ArrowRight className="w-4 h-4" /></>
+              }
+            </button>
+          </form>
+
+          <div className="mt-7 flex items-center gap-3">
+            <div className="flex-1 h-px bg-yellow-200" />
+            <span className="text-xs text-gray-400 font-semibold">Already a member?</span>
+            <div className="flex-1 h-px bg-yellow-200" />
+          </div>
+
+          <p className="mt-4 text-center text-sm text-gray-500">
+            Already have an account?{' '}
+            <Link to="/Signin" className="font-black text-yellow-600 hover:text-yellow-700 transition-colors">
+              Sign In
+            </Link>
+          </p>
         </div>
-      ) : (
-        <div className="flex min-h-screen bg-gradient-to-br from-white to-yellow-200">
-          <motion.div className="w-1/2 p-12 flex flex-col justify-center items-center"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-6xl font-bold mb-4">Welcome</h1>
-            <p className="text-xl mb-20">Sign up to start your learning</p>
-            <img src={LogoBig} alt="Logo" width={500} />
-          </motion.div>
-
-          <motion.div className="w-1/2 bg-white p-12 flex flex-col justify-center"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 ml-10">Sign Up</h2>
-            <form className="space-y-6 ml-10" onSubmit={handleSignUp}>
-              {/* Username Field */}
-              <div className="mt-15">
-
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  className="mt-1 block w-4/5 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500"
-                  placeholder="example@gmail.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                {PasswordInput}
-              </div>
-
-              <div className="flex items-center space-x-2 w-4/5">
-                <input type="checkbox" id="remember_me" className="h-4 w-4 rounded border-gray-300" />
-                <label htmlFor="remember_me" className="text-sm text-gray-700">Remember me</label>
-              </div>
-
-              <button type="submit" className="w-4/5 bg-primary hover:bg-secondary text-white py-2 px-4 rounded-md mt-4">Sign Up</button>
-            </form>
-
-            <p className="mt-4 w-4/5 text-center text-sm text-gray-600">
-              Already have an account?{' '}
-              <Link to="/signin" className="font-medium text-primary hover:text-secondary">Sign In</Link>
-            </p>
-          </motion.div>
-        </div>
-      )}
+      </motion.div>
     </div>
   );
 };
 
 export default Signup;
-

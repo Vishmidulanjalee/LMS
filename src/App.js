@@ -1,13 +1,9 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Helmet } from 'react-helmet'; // Import Helmet
+import { Helmet } from 'react-helmet';
 
 import SignUp from './SignUp';
 import Signin from './SignIn';
-import WelcomeScreen from './WelcomeScreen';
 import StudentTypeSelection from './StudentTypeSelection';
-
-import SidebarNew from './SidebarNew';
 import Dashboard2 from './Dashboard2';
 
 import AdminDasboard from './Admin/AdminDasboard';
@@ -15,12 +11,14 @@ import UploadRecordings from './Admin/UploadRecordings';
 import AdminDashboardGuest from './Admin/AdminDashboardGuest';
 import UploadMarks from './Admin/UploadMarks';
 import UploadDocument from './Admin/UploadDocuments';
+import StudentApprovals from './Admin/StudentApprovals';
+import ApprovedStudents from './Admin/ApprovedStudents';
+import PendingApproval from './PendingApproval';
 
 import WatchVideosFolder from './WatchVideosFolder';
 import MarkSheets from './MarkSheets';
-import Documents from './Documents';
 
-//Guest Pages
+// Guest Pages
 import GuestDashboard from './GuestPages/GuestDashboard';
 import Essays from './GuestPages/Essays';
 import Seminar from './GuestPages/Seminar';
@@ -28,10 +26,11 @@ import Quiz from './GuestPages/Quiz';
 import PastPapers from './GuestPages/PastPapers';
 import ModelPapers from './GuestPages/ModelPapers';
 import ProvincialPapers from './GuestPages/ProvincialPapers';
+import Home from './home';
 
 // Recordings by Month
 import June from './Recordings/June';
-import July from './Recordings/July'; 
+import July from './Recordings/July';
 import August from './Recordings/August';
 import September from './Recordings/September';
 import October from './Recordings/October';
@@ -39,51 +38,43 @@ import November from './Recordings/November';
 import December from './Recordings/December';
 import January from './Recordings/January';
 
-
-
-
 // Marks by Month
 import JulyMarks from './Marks/JulyMarks';
 import AugustMarks from './Marks/AugustMarks';
 
-// Documents by Type
-import PaperMint from './PaperMint';
-import Apara from './Apara';
 import Tutes from './Tutes';
-import Other from './Others';
-
-import PrivateRoute from './RequirAuth'; // Import PrivateRoute
+import ForgotPassword from './ForgotPassword';
+import PrivateRoute from './RequirAuth';
+import AdminRoute from './AdminRoute';
 
 function App() {
   return (
     <Router>
       <Helmet>
-        <title>The BEE Academy</title> {/* Dynamic site title */}
+        <title>The BEE Academy</title>
       </Helmet>
       <Routes>
-        <Route path="/" element={<WelcomeScreen />} />
+        <Route path="/" element={<Home />} />
         <Route path="/Signup" element={<SignUp />} />
         <Route path="/Signin" element={<Signin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/GuestDashboard" element={<GuestDashboard />} />
-        <Route path="/SidebarNew" element={<SidebarNew />} />
+        <Route path="/Home" element={<Home />} />
         <Route path="/StudentTypeSelection" element={<StudentTypeSelection />} />
 
-        {/* Protected Routes */}
+        {/* Protected Student Routes */}
         <Route path="/Dashboard2" element={<PrivateRoute element={<Dashboard2 />} />} />
         <Route path="/Essays" element={<PrivateRoute element={<Essays />} />} />
         <Route path="/Seminar" element={<PrivateRoute element={<Seminar />} />} />
-        <Route path="/AdminDashboardGuest" element={<PrivateRoute element={<AdminDashboardGuest />} />} />
-        <Route path="/AdminDashboard" element={<PrivateRoute element={<AdminDasboard />} />} />
-        <Route path="/UploadRecordings" element={<PrivateRoute element={<UploadRecordings />} />} />
-        <Route path="/UploadMarks" element={<PrivateRoute element={<UploadMarks />} />} />
-        <Route path="/UploadDocuments" element={<PrivateRoute element={<UploadDocument />} />} />
+        <Route path="/WatchVideosFolder" element={<PrivateRoute element={<WatchVideosFolder />} />} />
+        <Route path="/MarkSheets" element={<PrivateRoute element={<MarkSheets />} />} />
         <Route path="/PastPapers" element={<PrivateRoute element={<PastPapers />} />} />
         <Route path="/ModelPapers" element={<PrivateRoute element={<ModelPapers />} />} />
         <Route path="/ProvincialPapers" element={<PrivateRoute element={<ProvincialPapers />} />} />
-        <Route path="/WatchVideosFolder" element={<PrivateRoute element={<WatchVideosFolder />} />} />
-        <Route path="/MarkSheets" element={<PrivateRoute element={<MarkSheets />} />} />
-        <Route path="/Documents" element={<PrivateRoute element={<Documents />} />} />
+        <Route path="/Quiz" element={<PrivateRoute element={<Quiz />} />} />
+        <Route path="/docs/tutes" element={<PrivateRoute element={<Tutes />} />} />
 
+        {/* Recordings by Month */}
         <Route path="/June" element={<PrivateRoute element={<June />} />} />
         <Route path="/July" element={<PrivateRoute element={<July />} />} />
         <Route path="/August" element={<PrivateRoute element={<August />} />} />
@@ -93,18 +84,19 @@ function App() {
         <Route path="/December" element={<PrivateRoute element={<December />} />} />
         <Route path="/January" element={<PrivateRoute element={<January />} />} />
 
-        <Route path="/Quiz" element={<PrivateRoute element={<Quiz />} />} />
-
-    
+        {/* Marks by Month */}
         <Route path="/marks/july" element={<PrivateRoute element={<JulyMarks />} />} />
         <Route path="/marks/august" element={<PrivateRoute element={<AugustMarks />} />} />
 
-        <Route path="/docs/papermint" element={<PrivateRoute element={<PaperMint />} />} />
-        <Route path="/docs/apara" element={<PrivateRoute element={<Apara />} />} />
-        <Route path="/docs/tutes" element={<PrivateRoute element={<Tutes />} />} />
-        <Route path="/docs/other" element={<PrivateRoute element={<Other />} />} />
-
-        
+        {/* Admin Routes */}
+        <Route path="/AdminDashboard" element={<AdminRoute element={<AdminDasboard />} />} />
+        <Route path="/AdminDashboardGuest" element={<AdminRoute element={<AdminDashboardGuest />} />} />
+        <Route path="/StudentApprovals" element={<AdminRoute element={<StudentApprovals />} />} />
+        <Route path="/ApprovedStudents" element={<AdminRoute element={<ApprovedStudents />} />} />
+        <Route path="/UploadRecordings" element={<AdminRoute element={<UploadRecordings />} />} />
+        <Route path="/UploadMarks" element={<AdminRoute element={<UploadMarks />} />} />
+        <Route path="/UploadDocuments" element={<AdminRoute element={<UploadDocument />} />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
       </Routes>
     </Router>
   );
