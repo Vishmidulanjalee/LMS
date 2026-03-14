@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Logo from './assets/Logo.png';
 import HeroImg from './assets/home.jpg';
 
@@ -307,18 +307,6 @@ const tv = vis => ({
   transition: 'opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1)',
 });
 
-/* ════════════════════════════════════════════════════════════
-   GALLERY CAROUSEL
-════════════════════════════════════════════════════════════ */
-const useIsMobile = () => {
-  const [m, setM] = useState(() => window.innerWidth < 768);
-  useEffect(() => {
-    const fn = () => setM(window.innerWidth < 768);
-    window.addEventListener('resize', fn);
-    return () => window.removeEventListener('resize', fn);
-  }, []);
-  return m;
-};
 
 
 

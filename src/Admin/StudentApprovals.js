@@ -68,7 +68,7 @@ const StudentApprovals = () => {
     }
   };
 
-  useEffect(() => { fetchPending(); }, []);
+  useEffect(() => { fetchPending(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleApprove = async (uid, name) => {
     setActionLoading(uid);

@@ -71,7 +71,7 @@ const ApprovedStudents = () => {
     }
   };
 
-  useEffect(() => { fetchApproved(); }, []);
+  useEffect(() => { fetchApproved(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMarkPaid = async (uid, name) => {
     setActionLoading(uid + '-pay');
