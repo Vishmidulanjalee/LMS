@@ -43,7 +43,7 @@ const STYLES = `
   @keyframes beeBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
 `;
 
-const August = () => {
+const March = () => {
   const navigate = useNavigate();
   const [groupedRecordings, setGroupedRecordings] = useState({});
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,7 @@ const August = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const q = query(collection(db, 'recordings'), where('month', '==', 'August'), orderBy('timestamp', 'asc'));
+        const q = query(collection(db, 'recordings'), where('month', '==', 'March'), orderBy('timestamp', 'asc'));
         const snap = await getDocs(q);
         const grouped = {};
         snap.docs.forEach(d => {
@@ -62,7 +62,7 @@ const August = () => {
         });
         setGroupedRecordings(grouped);
       } catch (err) {
-        console.error('Error fetching August recordings:', err);
+        console.error('Error fetching March recordings:', err);
       } finally {
         setLoading(false);
       }
@@ -76,6 +76,7 @@ const August = () => {
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
       <style>{STYLES}</style>
 
+      {/* Header */}
       <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ height: 4, background: 'linear-gradient(90deg, #FBBF24, #F59E0B, #D97706)' }} />
         <div style={{ padding: '15px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 1280, margin: '0 auto', flexWrap: 'wrap', gap: 12 }}>
@@ -91,9 +92,9 @@ const August = () => {
             </div>
             <div>
               <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#111827', margin: 0, lineHeight: 1.2 }}>
-                Recordings — August
+                Recordings — March 2026
               </h1>
-              <p style={{ fontSize: 13, color: '#9CA3AF', margin: '2px 0 0', fontWeight: 400 }}>Class recordings for August</p>
+              <p style={{ fontSize: 13, color: '#9CA3AF', margin: '2px 0 0', fontWeight: 400 }}>Class recordings for March</p>
             </div>
           </div>
           {!loading && totalCount > 0 && (
@@ -105,6 +106,7 @@ const August = () => {
         </div>
       </header>
 
+      {/* Main */}
       <main style={{ flexGrow: 1, padding: '30px 32px', maxWidth: 1280, margin: '0 auto', width: '100%' }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 0', gap: 16 }}>
@@ -116,7 +118,7 @@ const August = () => {
             <div style={{ width: 72, height: 72, borderRadius: 18, background: '#FEF3C7', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <VideoIcon />
             </div>
-            <p style={{ fontSize: 15, color: '#6B7280', margin: 0, fontWeight: 500 }}>No recordings found for August.</p>
+            <p style={{ fontSize: 15, color: '#6B7280', margin: 0, fontWeight: 500 }}>No recordings found for March.</p>
           </div>
         ) : (
           Object.entries(groupedRecordings).map(([type, recs], idx) => (
@@ -151,4 +153,4 @@ const August = () => {
   );
 };
 
-export default August;
+export default March;

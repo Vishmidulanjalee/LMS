@@ -28,15 +28,10 @@ import ModelPapers from './GuestPages/ModelPapers';
 import ProvincialPapers from './GuestPages/ProvincialPapers';
 import Home from './home';
 
-// Recordings by Month
-import June from './Recordings/June';
-import July from './Recordings/July';
-import August from './Recordings/August';
-import September from './Recordings/September';
-import October from './Recordings/October';
-import November from './Recordings/November';
-import December from './Recordings/December';
+
 import January from './Recordings/January';
+import February from './Recordings/February';
+import March from './Recordings/March';
 
 // Marks by Month
 import JulyMarks from './Marks/JulyMarks';
@@ -75,14 +70,11 @@ function App() {
         <Route path="/docs/tutes" element={<PrivateRoute element={<Tutes />} />} />
 
         {/* Recordings by Month */}
-        <Route path="/June" element={<PrivateRoute element={<June />} />} />
-        <Route path="/July" element={<PrivateRoute element={<July />} />} />
-        <Route path="/August" element={<PrivateRoute element={<August />} />} />
-        <Route path="/September" element={<PrivateRoute element={<September />} />} />
-        <Route path="/October" element={<PrivateRoute element={<October />} />} />
-        <Route path="/November" element={<PrivateRoute element={<November />} />} />
-        <Route path="/December" element={<PrivateRoute element={<December />} />} />
+       
         <Route path="/January" element={<PrivateRoute element={<January />} />} />
+        <Route path="/February" element={<PrivateRoute element={<February />} />} />
+        <Route path="/March" element={<PrivateRoute element={<March />} />} />
+
 
         {/* Marks by Month */}
         <Route path="/marks/july" element={<PrivateRoute element={<JulyMarks />} />} />
