@@ -501,7 +501,7 @@ const Home = () => {
             </p>
 
             <div className="hero-btns a-up" style={{ animationDelay:'.32s', display:'flex', gap:12, alignItems:'center', marginBottom:32, flexWrap:'wrap' }}>
-              <a href="#contact" className="bp"><span>Enroll Now</span><Icon n="arrow" size={15} color="currentColor" sw={2} /></a>
+              <a href="/Signin" className="bp"><span>Login Now</span><Icon n="arrow" size={15} color="currentColor" sw={2} /></a>
               <a href="#about"   className="bo"><span>Discover More</span></a>
             </div>
 
