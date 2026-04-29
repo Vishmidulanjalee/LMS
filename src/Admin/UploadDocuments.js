@@ -12,6 +12,14 @@ const MONTHS = [
 ];
 const MONTH_ORDER = Object.fromEntries(MONTHS.map((m, i) => [m, i]));
 
+const GRADES = ['General', 'Grade 9', 'Grade 10 & 11'];
+
+const gradeCollection = (g) => {
+  if (g === 'Grade 9') return 'notes9';
+  if (g === 'Grade 10 & 11') return 'notes1011';
+  return 'documents';
+};
+
 const UploadIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -58,11 +66,17 @@ const UploadDocument = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [title, setTitle] = useState('');
   const [month, setMonth] = useState('');
+  const [grade, setGrade] = useState('Grade 9');
+  const [institution, setInstitution] = useState('');
+  const [activeGrade, setActiveGrade] = useState('Grade 9');
   const [tutesByMonth, setTutesByMonth] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const fetchTutes = async () => {
-    const q = query(collection(db, 'documents'), where('category', '==', 'Tutes'), orderBy('timestamp', 'desc'));
+  const fetchTutes = async (g) => {
+    const col = gradeCollection(g);
+    const q = col === 'documents'
+      ? query(collection(db, col), where('category', '==', 'Tutes'), orderBy('timestamp', 'desc'))
+      : query(collection(db, col), orderBy('timestamp', 'desc'));
     const snapshot = await getDocs(q);
     const grouped = {};
     snapshot.docs.forEach(docSnap => {
@@ -74,30 +88,32 @@ const UploadDocument = () => {
     setTutesByMonth(grouped);
   };
 
-  useEffect(() => { fetchTutes(); }, []);
+  useEffect(() => { fetchTutes(activeGrade); }, [activeGrade]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!pdfFile || !title || !month) return alert('Please provide all fields.');
     try {
       setLoading(true);
-      const fileRef = ref(storage, `documents/${Date.now()}_${pdfFile.name}`);
+      const col = gradeCollection(grade);
+      const fileRef = ref(storage, `${col}/${Date.now()}_${pdfFile.name}`);
       await uploadBytes(fileRef, pdfFile);
-      const downloadURL = await getDownloadURL(fileRef);
-      await addDoc(collection(db, 'documents'), {
+      const fileUrl = await getDownloadURL(fileRef);
+      const payload = {
         fileName: pdfFile.name,
-        fileUrl: downloadURL,
+        fileUrl,
         filePath: fileRef.fullPath,
         title,
-        category: 'Tutes',
         month,
+        grade,
         timestamp: Timestamp.now(),
-      });
-      setPdfFile(null);
-      setTitle('');
-      setMonth('');
-      fetchTutes();
-      alert('Tute uploaded successfully!');
+      };
+      if (col === 'documents') payload.category = 'Tutes';
+      if (institution.trim()) payload.institution = institution.trim();
+      await addDoc(collection(db, col), payload);
+      setPdfFile(null); setTitle(''); setMonth(''); setInstitution('');
+      setActiveGrade(grade);
+      fetchTutes(grade);
     } catch (err) {
       console.error(err);
       alert('Upload failed.');
@@ -109,9 +125,9 @@ const UploadDocument = () => {
   const handleDelete = async (id, filePath) => {
     if (!window.confirm('Delete this document?')) return;
     try {
-      await deleteDoc(doc(db, 'documents', id));
+      await deleteDoc(doc(db, gradeCollection(activeGrade), id));
       await deleteObject(ref(storage, filePath));
-      fetchTutes();
+      fetchTutes(activeGrade);
     } catch (err) {
       console.error(err);
       alert('Failed to delete document.');
@@ -157,8 +173,8 @@ const UploadDocument = () => {
               <UploadIcon />
             </div>
             <div>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 800, color: 'white', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.15)' }}>Upload Tutes</h1>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', margin: 0 }}>The BEE Academy — {totalTutes} tute{totalTutes !== 1 ? 's' : ''} total</p>
+              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 800, color: 'white', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.15)' }}>Upload Study Materials</h1>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', margin: 0 }}>The BEE Academy — {totalTutes} file{totalTutes !== 1 ? 's' : ''} for {activeGrade}</p>
             </div>
           </div>
         </div>
@@ -182,12 +198,20 @@ const UploadDocument = () => {
             </div>
 
             <form onSubmit={handleSubmit} style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Month</label>
-                <select className="ud-input" value={month} onChange={e => setMonth(e.target.value)} required>
-                  <option value="">Select Month</option>
-                  {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
-                </select>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Grade</label>
+                  <select className="ud-input" value={grade} onChange={e => setGrade(e.target.value)} required>
+                    {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Month</label>
+                  <select className="ud-input" value={month} onChange={e => setMonth(e.target.value)} required>
+                    <option value="">Select Month</option>
+                    {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -197,6 +221,17 @@ const UploadDocument = () => {
                   onChange={e => setTitle(e.target.value)}
                   placeholder="e.g., Week 1 — Grammar Notes"
                   required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>
+                  Institution <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span>
+                </label>
+                <input
+                  type="text" className="ud-input" value={institution}
+                  onChange={e => setInstitution(e.target.value)}
+                  placeholder="e.g., Royal College"
                 />
               </div>
 
@@ -230,14 +265,33 @@ const UploadDocument = () => {
             </form>
           </div>
 
-          {/* Uploaded tutes grouped by month */}
+          {/* Uploaded tutes grouped by grade then month */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+            {/* Grade tabs */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {GRADES.map(g => (
+                <button
+                  key={g}
+                  onClick={() => setActiveGrade(g)}
+                  style={{
+                    padding: '7px 18px', borderRadius: 9, fontWeight: 600, fontSize: 13,
+                    cursor: 'pointer', border: '1.5px solid transparent', transition: 'all 0.2s', whiteSpace: 'nowrap',
+                    background: activeGrade === g ? 'linear-gradient(135deg, #FBBF24, #D97706)' : 'white',
+                    color: activeGrade === g ? 'white' : '#6B7280',
+                    borderColor: activeGrade === g ? 'transparent' : '#E5E7EB',
+                  }}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+
             {sortedMonths.length === 0 ? (
               <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid #E9EBF0', padding: '60px 24px', textAlign: 'center' }}>
                 <div style={{ width: 56, height: 56, borderRadius: 14, background: '#FEF3C7', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                   <FileIcon />
                 </div>
-                <p style={{ fontSize: 14, color: '#6B7280', margin: 0, fontWeight: 500 }}>No tutes uploaded yet.</p>
+                <p style={{ fontSize: 14, color: '#6B7280', margin: 0, fontWeight: 500 }}>No study materials uploaded for {activeGrade}.</p>
               </div>
             ) : sortedMonths.map(m => (
               <div key={m}>

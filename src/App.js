@@ -42,6 +42,17 @@ import ForgotPassword from './ForgotPassword';
 import PrivateRoute from './RequirAuth';
 import AdminRoute from './AdminRoute';
 
+// Grade 9
+import Dashboard9 from './ADDITIONAL/Grade 9/Dashboard9';
+import Marks9 from './ADDITIONAL/Grade 9/Marks9';
+import Notes9 from './ADDITIONAL/Grade 9/Notes9';
+import Grade9March from './ADDITIONAL/Grade 9/Grade9March';
+import Grade9Recordings from './ADDITIONAL/Grade 9/Grade9Recordings';
+import Grade9MonthPage from './ADDITIONAL/Grade 9/Grade9MonthPage';
+
+import April from './Recordings/April';
+import May from './Recordings/May';
+
 function App() {
   return (
     <Router>
@@ -79,6 +90,17 @@ function App() {
         {/* Marks by Month */}
         <Route path="/marks/july" element={<PrivateRoute element={<JulyMarks />} />} />
         <Route path="/marks/august" element={<PrivateRoute element={<AugustMarks />} />} />
+
+        {/* Grade 9 Routes */}
+        <Route path="/Grade9/Dashboard" element={<PrivateRoute element={<Dashboard9 />} />} />
+        <Route path="/Grade9/Marks" element={<PrivateRoute element={<Marks9 />} />} />
+        <Route path="/Grade9/Notes" element={<PrivateRoute element={<Notes9 />} />} />
+        <Route path="/Grade9/March" element={<PrivateRoute element={<Grade9March />} />} />
+        <Route path="/Grade9/Recordings" element={<PrivateRoute element={<Grade9Recordings />} />} />
+        <Route path="/Grade9/Recordings/:month" element={<PrivateRoute element={<Grade9MonthPage />} />} />
+
+        <Route path="/April" element={<PrivateRoute element={<April />} />} />
+        <Route path="/May" element={<PrivateRoute element={<May />} />} />
 
         {/* Admin Routes */}
         <Route path="/AdminDashboard" element={<AdminRoute element={<AdminDasboard />} />} />

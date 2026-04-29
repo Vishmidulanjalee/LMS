@@ -12,7 +12,13 @@ const MONTHS = [
 ];
 const MONTH_ORDER = Object.fromEntries(MONTHS.map((m, i) => [m, i]));
 
-const RECORD_TYPES = ['Tute Class Records'];
+const RECORD_TYPES = [
+  'Write to Bright 1',
+  'Write to Bright 2',
+  'Grammar Hammer',
+  'Paper Shaper',
+];
+const GRADES = ['All Grades', 'Grade 9', 'Grade 10 & 11'];
 
 // ── Icons ──────────────────────────────────────────────
 const UploadIcon = () => (
@@ -65,6 +71,7 @@ const UploadRecordings = () => {
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
   const [month, setMonth] = useState('');
+  const [grade, setGrade] = useState('All Grades');
   const [recordType, setRecordType] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -114,8 +121,9 @@ const UploadRecordings = () => {
       setUploading(true);
       const payload = { title, link, thumbnail, month, timestamp: Timestamp.now() };
       if (recordType && recordType.trim()) payload.type = recordType.trim();
+      if (grade && grade !== 'All Grades') payload.grade = grade;
       await addDoc(collection(db, 'recordings'), payload);
-      setTitle(''); setLink(''); setMonth(''); setRecordType(''); setThumbnail(null);
+      setTitle(''); setLink(''); setMonth(''); setGrade('All Grades'); setRecordType(''); setThumbnail(null);
       fetchRecordings();
     } catch (error) {
       console.error('Error uploading:', error);
@@ -169,11 +177,24 @@ const UploadRecordings = () => {
         .month-tab-active { background: linear-gradient(135deg, #FBBF24, #D97706); color: white; }
         .month-tab-inactive { background: white; color: #6B7280; border-color: #E5E7EB; }
         .month-tab-inactive:hover { border-color: #F59E0B; color: #D97706; }
+        .ur-layout { display: grid; grid-template-columns: 1fr 1.6fr; gap: 28px; align-items: start; }
+        .ur-form-sticky { position: sticky; top: 24px; }
+        .ur-month-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
+        .ur-rec-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        @media (max-width: 768px) {
+          .ur-layout { grid-template-columns: 1fr; gap: 24px; }
+          .ur-form-sticky { position: static; }
+          .ur-month-tabs { flex-wrap: nowrap; }
+        }
+        @media (max-width: 540px) {
+          .ur-rec-thumb { display: none; }
+          .ur-rec-actions { flex-direction: column; align-items: flex-end; gap: 6px; }
+        }
       `}</style>
 
       {/* Header */}
       <header style={{ background: 'linear-gradient(135deg, #FACC15 0%, #F59E0B 60%, #D97706 100%)', boxShadow: '0 4px 20px rgba(245,158,11,0.3)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.location.href = '/AdminDashboard'}
@@ -193,10 +214,10 @@ const UploadRecordings = () => {
       </header>
 
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-6 py-8" style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 28, alignItems: 'start' }}>
+        <div className="ur-layout" style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 20px' }}>
 
           {/* Upload Form */}
-          <div style={{ background: 'white', borderRadius: 20, border: '1.5px solid #E9EBF0', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', position: 'sticky', top: 24 }}>
+          <div className="ur-form-sticky" style={{ background: 'white', borderRadius: 20, border: '1.5px solid #E9EBF0', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #F3F4F6' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #FEF9C3, #FDE68A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -232,12 +253,19 @@ const UploadRecordings = () => {
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Type <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></label>
-                  <select className="ur-input" value={recordType} onChange={e => setRecordType(e.target.value)}>
-                    <option value="">— None —</option>
-                    {RECORD_TYPES.map((t, i) => <option key={i} value={t}>{t}</option>)}
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Grade</label>
+                  <select className="ur-input" value={grade} onChange={e => setGrade(e.target.value)}>
+                    {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Type <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></label>
+                <select className="ur-input" value={recordType} onChange={e => setRecordType(e.target.value)}>
+                  <option value="">— None —</option>
+                  {RECORD_TYPES.map((t, i) => <option key={i} value={t}>{t}</option>)}
+                </select>
               </div>
 
               <div>
@@ -269,7 +297,7 @@ const UploadRecordings = () => {
           <div>
             {/* Month tabs */}
             {sortedMonths.length > 0 && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+              <div className="ur-month-tabs">
                 {sortedMonths.map(m => (
                   <button key={m} className={`month-tab ${activeMonth === m ? 'month-tab-active' : 'month-tab-inactive'}`} onClick={() => setActiveMonth(m)}>
                     {m}
@@ -303,7 +331,7 @@ const UploadRecordings = () => {
                           <div style={{ height: 3, background: 'linear-gradient(90deg, #FBBF24, #D97706)' }} />
                           <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
                             {rec.thumbnail && (
-                              <img src={rec.thumbnail} alt={rec.title} style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                              <img src={rec.thumbnail} alt={rec.title} className="ur-rec-thumb" style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
                             )}
                             <div style={{ flex: 1, minWidth: 0 }}>
                               {editingId === rec.id ? (
@@ -321,7 +349,7 @@ const UploadRecordings = () => {
                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.link}</span>
                               </a>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                            <div className="ur-rec-actions">
                               {editingId === rec.id ? (
                                 <>
                                   <button onClick={saveEdit} style={{ padding: '6px 12px', borderRadius: 8, background: '#10B981', color: 'white', border: 'none', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>Save</button>

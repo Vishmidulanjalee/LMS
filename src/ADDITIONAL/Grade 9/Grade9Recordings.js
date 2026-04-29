@@ -1,27 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from './firebase';
-import Footer from './Footer';
-import SidebarNew from './SidebarNew';
+import { db } from '../../firebase';
+import Sidebar9 from '../Sidebar9';
+import Footer from '../../Footer';
 
 const months = [
-  { name: 'January',  route: '/January' },
-  { name: 'February', route: '/February' },
-  { name: 'March',    route: '/March' },
-  { name: 'April',    route: '/April' },
-  { name: 'May',      route: '/May' },
+  { name: 'January',  route: '/Grade9/Recordings/January'  },
+  { name: 'February', route: '/Grade9/Recordings/February' },
+  { name: 'March',    route: '/Grade9/Recordings/March'    },
+  { name: 'April',    route: '/Grade9/Recordings/April'    },
+  { name: 'May',      route: '/Grade9/Recordings/May'      },
 ];
 
-const monthMeta = [
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(245,158,11,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(245,158,11,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },
-];
-
-// ── Icons ─────────────────────────────────────────────
 const CalendarIcon = () => (
   <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -54,9 +45,8 @@ const SpinnerIcon = () => (
     </path>
   </svg>
 );
-// ─────────────────────────────────────────────────────
 
-const WatchRecordings = () => {
+const Grade9Recordings = () => {
   const navigate = useNavigate();
   const [counts, setCounts] = useState({});
   const [loading, setLoading] = useState(true);
@@ -68,14 +58,18 @@ const WatchRecordings = () => {
         const results = {};
         await Promise.all(
           months.map(async ({ name }) => {
-            const q = query(collection(db, 'recordings'), where('month', '==', name));
+            const q = query(
+              collection(db, 'recordings'),
+              where('month', '==', name),
+              where('grade', '==', 'Grade 9')
+            );
             const snap = await getDocs(q);
             results[name] = snap.size;
           })
         );
         setCounts(results);
       } catch (err) {
-        console.error('Error fetching recording counts:', err);
+        console.error('Error fetching Grade 9 recording counts:', err);
       } finally {
         setLoading(false);
       }
@@ -84,17 +78,17 @@ const WatchRecordings = () => {
   }, []);
 
   const totalRecordings = Object.values(counts).reduce((a, b) => a + b, 0);
+  const color = '#F59E0B';
+  const shadow = 'rgba(245,158,11,0.32)';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
         * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
 
         .wr-card {
-          background: #fff;
-          border-radius: 18px;
-          overflow: hidden;
+          background: #fff; border-radius: 18px; overflow: hidden;
           border: 1.5px solid #E5E7EB;
           transition: transform 0.26s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.26s ease, border-color 0.26s ease;
           cursor: pointer;
@@ -108,26 +102,25 @@ const WatchRecordings = () => {
           transition: filter 0.2s, transform 0.15s; letter-spacing: 0.01em; color: white;
         }
         .wr-btn:hover { filter: brightness(1.12); transform: translateY(-2px); }
-        .wr-btn:active { transform: translateY(0); filter: brightness(0.96); }
+        .wr-btn:active { transform: translateY(0); }
 
         .wr-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
           gap: 22px;
         }
         @media (max-width: 580px) { .wr-grid { grid-template-columns: 1fr; } }
-        @media (min-width: 1024px) { .wr-content { margin-left: 228px; } }
-        @media (max-width: 1023px) { .wr-header { padding-left: 60px !important; } }
+        @media (max-width: 767px) { .wr-content { padding-top: 60px; } }
       `}</style>
 
       <div style={{ display: 'flex', flexGrow: 1 }}>
-        <SidebarNew activeItem="Videos" />
+        <Sidebar9 activeItem="Recordings" />
 
         <div className="wr-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
 
-          {/* ── Header ── */}
-          <header className="wr-header" style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '0 32px' }}>
-            <div style={{ padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          {/* Header */}
+          <header style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '0 28px' }}>
+            <div style={{ padding: '18px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
                 <div style={{
                   width: 46, height: 46, borderRadius: 13,
@@ -138,54 +131,42 @@ const WatchRecordings = () => {
                   <VideoIcon />
                 </div>
                 <div>
-                  <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 23, fontWeight: 700, color: '#111827', margin: 0, lineHeight: 1.2 }}>
-                    Watch Recordings
+                  <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: '#111827', margin: 0, lineHeight: 1.2 }}>
+                    Recordings
                   </h1>
-                  <p style={{ fontSize: 13, color: '#9CA3AF', margin: '3px 0 0', fontWeight: 400 }}>
-                    All class recordings organized by month
-                  </p>
+                  <p style={{ fontSize: 13, color: '#9CA3AF', margin: '3px 0 0' }}>Grade 9 recordings by month</p>
                 </div>
               </div>
-
               {!loading && totalRecordings > 0 && (
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 7,
-                  background: '#111827', borderRadius: 10, padding: '9px 16px',
-                }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: '#111827', borderRadius: 10, padding: '9px 16px' }}>
                   <FilmIcon size={16} />
-                  <span style={{ fontSize: 13.5, color: 'white', fontWeight: 600 }}>
-                    {totalRecordings} total recordings
-                  </span>
+                  <span style={{ fontSize: 13.5, color: 'white', fontWeight: 600 }}>{totalRecordings} total recordings</span>
                 </div>
               )}
             </div>
           </header>
 
-          {/* ── Cards Grid ── */}
-          <main style={{ flexGrow: 1, padding: '30px 32px' }}>
+          {/* Cards */}
+          <main style={{ flexGrow: 1, padding: '28px' }}>
             <div className="wr-grid">
               {months.map((month, index) => {
-                const meta = monthMeta[index];
                 const count = counts[month.name] ?? 0;
                 const isHovered = hoveredIndex === index;
-
                 return (
                   <div
                     key={index}
                     className="wr-card"
                     style={{
-                      borderColor: isHovered ? meta.color : '#E5E7EB',
-                      boxShadow: isHovered
-                        ? `0 20px 52px ${meta.shadow}`
-                        : '0 2px 8px rgba(0,0,0,0.06)',
+                      borderColor: isHovered ? color : '#E5E7EB',
+                      boxShadow: isHovered ? `0 20px 52px ${shadow}` : '0 2px 8px rgba(0,0,0,0.06)',
                     }}
                     onMouseEnter={() => setHoveredIndex(index)}
                     onMouseLeave={() => setHoveredIndex(null)}
                   >
-                    {/* Colored gradient header */}
+                    {/* Coloured header */}
                     <div style={{
-                      background: `linear-gradient(135deg, ${meta.color}, ${meta.dark})`,
-                      padding: '20px 20px 18px',
+                      background: `linear-gradient(135deg, ${color}, #D97706)`,
+                      padding: '18px 20px 16px',
                       display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
                     }}>
                       <div style={{
@@ -197,7 +178,6 @@ const WatchRecordings = () => {
                       }}>
                         <CalendarIcon />
                       </div>
-
                       <span style={{
                         display: 'inline-flex', alignItems: 'center', gap: 5,
                         fontSize: 12, fontWeight: 600, padding: '4px 11px', borderRadius: 20,
@@ -208,25 +188,19 @@ const WatchRecordings = () => {
                     </div>
 
                     {/* White body */}
-                    <div style={{ padding: '18px 20px 20px' }}>
-                      <h2 style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 20, fontWeight: 700, color: '#111827',
-                        margin: '0 0 6px', letterSpacing: '-0.01em',
-                      }}>
+                    <div style={{ padding: '16px 20px 20px' }}>
+                      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, fontWeight: 700, color: '#111827', margin: '0 0 5px', letterSpacing: '-0.01em' }}>
                         {month.name}
                       </h2>
-                      <p style={{ fontSize: 13, color: '#9CA3AF', margin: '0 0 18px', lineHeight: 1.5 }}>
-                        {loading ? 'Loading recordings…' : `${count} class ${count === 1 ? 'recording' : 'recordings'} available`}
+                      <p style={{ fontSize: 13, color: '#9CA3AF', margin: '0 0 16px', lineHeight: 1.5 }}>
+                        {loading ? 'Loading…' : `${count} class ${count === 1 ? 'recording' : 'recordings'} available`}
                       </p>
-
                       <button
                         className="wr-btn"
                         onClick={() => navigate(month.route)}
-                        style={{ background: `linear-gradient(135deg, ${meta.color}, ${meta.dark})` }}
+                        style={{ background: `linear-gradient(135deg, ${color}, #D97706)` }}
                       >
-                        <PlayIcon />
-                        View Recordings
+                        <PlayIcon /> View Recordings
                       </button>
                     </div>
                   </div>
@@ -242,4 +216,4 @@ const WatchRecordings = () => {
   );
 };
 
-export default WatchRecordings;
+export default Grade9Recordings;

@@ -99,7 +99,12 @@ const Signin = () => {
         return;
       }
 
-      navigate('/Dashboard2');
+      const grade = data.grade || '';
+      if (grade === 'Grade 9') {
+        navigate('/Grade9/Dashboard');
+      } else {
+        navigate('/Dashboard2');
+      }
 
     } catch (error) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {

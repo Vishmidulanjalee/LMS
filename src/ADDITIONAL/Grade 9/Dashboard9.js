@@ -1,152 +1,257 @@
-import React, { useState, useEffect } from 'react';
-import { doc, getDocs, getDoc, collection, orderBy, query } from "firebase/firestore";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../firebase';
-import { onAuthStateChanged } from "firebase/auth";
-import image1 from '../assets/img1.jpg'; 
-import image2 from '../assets/img2.jpg';
-import image3 from '../assets/img3.jpg';
-import Footer from '../../Footer';
-import notes from '../assets/notes.png';
-import marks from '../assets/marks.png';
-import homework from '../assets/homework.png';
-import other from '../assets/other.png';
+import { onAuthStateChanged } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
-const Dashboard9 = () => {
+const CARDS = [
+  { id: 'notes',      emoji: '📝', title: 'Study Materials', desc: 'Notes & resources for your lessons', btn: 'View Notes',  href: '/Grade9/Notes'  },
+  { id: 'marks',      emoji: '📊', title: 'Marks',           desc: 'View your latest marks & progress', btn: 'View Marks',  href: '/Grade9/Marks'  },
+  { id: 'recordings', emoji: '🎬', title: 'Recordings',      desc: 'Watch class recordings',             btn: 'Watch Now',   href: '/Grade9/Recordings'  },
+  { id: 'other',      emoji: '📂', title: 'Other',           desc: 'Explore additional resources',       btn: 'Open',        href: '/Other'         },
+];
+
+const ArrowRight = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+);
+
+const STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .dash-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #FFFDF9;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #EDE8DF;
+    flex-shrink: 0;
+    height: 62px;
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .body { flex: 1; display: flex; }
+
+  .left-panel {
+    width: 300px; flex-shrink: 0;
+    background: #FDF8F0;
+    border-right: 1px solid #EDE8DF;
+    display: flex; flex-direction: column;
+    padding: 40px 32px 32px;
+  }
+
+  .right-panel {
+    flex: 1; min-width: 0;
+    background: #FFFDF9;
+    padding: 28px;
+    display: flex; flex-direction: column;
+  }
+
+  .card-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .dash-card {
+    background: #FFFFFF;
+    border-radius: 20px;
+    border: 1.5px solid #EDE8DF;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dash-card:hover {
+    transform: translateY(-5px);
+    border-color: #F59E0B;
+    box-shadow: 0 16px 40px rgba(245,158,11,0.14);
+  }
+
+  .card-inner {
+    height: 100%;
+    padding: 24px 22px 20px;
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .card-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 30px;
+    border: none;
+    background: #F59E0B;
+    color: #0F0F0F; font-weight: 700; font-size: 13px;
+    cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: background 0.18s, transform 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .card-btn:hover { background: #FBBF24; transform: translateY(-1px); }
+
+  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:.35} }
+  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+
+  @media (max-width: 700px) {
+    .body { flex-direction: column; }
+    .left-panel {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #EDE8DF;
+      padding: 28px 20px 22px;
+    }
+    .right-panel { padding: 20px 16px 32px; }
+    .card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .card-inner { padding: 18px 16px; }
+    .topbar { padding: 0 20px; }
+  }
+
+  @media (max-width: 380px) {
+    .card-grid { grid-template-columns: 1fr; }
+  }
+`;
+
+export default function Dashboard9() {
+  const navigate = useNavigate();
   const [userName, setUserName] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [notices, setNotices] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const images = [image1, image2, image3]; // Default images
-
-  // Fetch notices from Firebase
-  useEffect(() => {
-    const fetchNotices = async () => {
-      const q = query(collection(db, "notices"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      const fetchedNotices = querySnapshot.docs.map(doc => doc.data());
-      setNotices(fetchedNotices);
-    };
-    fetchNotices();
-  }, []);
-
-  // Set up the automatic slide rotation for notices and default images
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % (notices.length + images.length));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [notices.length, images.length]);
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          setUserName(docSnap.data().username);
-        } else {
-          console.log("No such document!");
-        }
-      } else {
-        console.log("No user is signed in.");
+        const docSnap = await getDoc(doc(db, 'users', user.uid));
+        if (docSnap.exists()) setUserName(docSnap.data().username);
       }
-      setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
-  const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  const currentDate = `${day}/${month}/${year}`; 
-
-  const userInitials = userName ? userName.slice(0, 2).toUpperCase() : 'PA';
-
-  let currentImageSrc;
-  let currentNoticeContent;
-
-  if (currentIndex < notices.length) {
-    const currentNotice = notices[currentIndex];
-    currentImageSrc = currentNotice.image;
-    currentNoticeContent = currentNotice.content;
-  } else {
-    const defaultImageIndex = currentIndex - notices.length;
-    currentImageSrc = images[defaultImageIndex];
-    currentNoticeContent = null;
-  }
-
   return (
-    <div className="flex flex-col h-screen">
-      <header className="bg-white shadow">
-        <div className="max-w-8xl mx-0 px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+    <div className="dash-root">
+      <style>{STYLES}</style>
+
+      {/* Topbar */}
+      <div className="topbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: 'linear-gradient(135deg,#FDE047,#F59E0B)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
+          }}>🐝</div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back,  {userName}</h1>
-            <h2 className="text-lg font-md text-gray-800 mt-1">{currentDate}</h2>
-          </div>
-          <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-lg">
-            {userInitials}
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0F0F0F', fontFamily: "'Cormorant Garamond', serif", letterSpacing: '0.01em' }}>The Bee Academy</div>
+            <div style={{ fontSize: 10, color: '#F59E0B', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Grade 9 Portal</div>
           </div>
         </div>
-      </header>
-      <main className="flex-grow overflow-auto pb-20">
-        <div className="max-w-full mx-0 px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col lg:flex-row gap-10 h-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:w-2/3">
-              {[
-                { title: "Notes", image: notes, description: "Access important notes for your lessons", route: "/Grade9/Notes9" },
-                { title: "Homework", image: homework, description: "Review and submit your homework", route: "/Grade9/Homework9" },
-                { title: "Marks", image: marks, description: "View your latest marks and track progress", route: "/Grade9/Marks9" },
-                { title: "Other", image: other, description: "Explore additional resources and materials",route: "/Other"  },
-              ].map((item, index) => (
-                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border">
-                  <div className="p-5">
-                    <div className="flex items-center space-x-2">
-                      <img src={item.image} alt={item.title} className="h-7 w-7" />
-                      <h1 className="text-2xl font-semibold">{item.title}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#16A34A', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.2)', padding: '5px 13px', borderRadius: 999 }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#16A34A', display: 'inline-block', animation: 'blink 2.2s ease-in-out infinite' }} />
+          Active
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="body">
+
+        {/* Left */}
+        <div className="left-panel">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+          >
+            <p style={{ fontSize: 12.5, fontWeight: 500, color: '#B8A898', marginBottom: 16, letterSpacing: '0.01em' }}>
+              {dateStr}
+            </p>
+
+            <h1 style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 52,
+              fontWeight: 700,
+              color: '#1A1209',
+              lineHeight: 1.05,
+              letterSpacing: '-1px',
+              marginBottom: 18,
+            }}>
+              {userName ? `Hi,\n${userName}` : 'Welcome\nBack'}{' '}
+              <span style={{ display: 'inline-block', animation: 'floatY 2.8s ease-in-out infinite', fontSize: 42 }}>👋</span>
+            </h1>
+
+            <div style={{ height: 4, width: 52, borderRadius: 4, background: '#F59E0B', marginBottom: 20 }} />
+
+            <p style={{ fontSize: 15, color: '#8A7A68', lineHeight: 1.75, fontWeight: 400, maxWidth: 220 }}>
+              Everything you need for your studies — all in one place.
+            </p>
+          </motion.div>
+
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: '#0F0F0F', borderRadius: 12,
+            padding: '10px 16px', marginTop: 32, alignSelf: 'flex-start',
+          }}>
+            <span style={{ fontSize: 15 }}>🐝</span>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#F59E0B', letterSpacing: '0.02em' }}>Bee Academy 2026</span>
+          </div>
+        </div>
+
+        {/* Right (cards) */}
+        <div className="right-panel">
+          <div className="card-grid">
+            {CARDS.map((card, i) => (
+              <motion.div
+                key={card.id}
+                className="dash-card"
+                initial={{ opacity: 0, y: 22 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08 + 0.15, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                onClick={() => navigate(card.href)}
+              >
+                <div className="card-inner">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{
+                      width: 50, height: 50, borderRadius: 14,
+                      background: '#FEF9EE',
+                      border: '1.5px solid #FDE68A',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 24,
+                    }}>
+                      {card.emoji}
                     </div>
-                    <p className="text-lg text-gray-600 mb-12 mt-6">{item.description}</p>
-                    <button 
-                      className="w-full bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition duration-200"
-                      onClick={() => {
-                        console.log(`Navigating to ${item.route}`);
-                        window.location.href = item.route;
-                      }}
-                    >
-                      View {item.title}
+                    <div style={{ width: 9, height: 9, borderRadius: '50%', background: '#F59E0B', boxShadow: '0 0 8px rgba(245,158,11,0.5)' }} />
+                  </div>
+
+                  <div>
+                    <p style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: 24, fontWeight: 700,
+                      color: '#1A1209', margin: '0 0 5px',
+                      lineHeight: 1.15, letterSpacing: '-0.3px',
+                    }}>
+                      {card.title}
+                    </p>
+                    <p style={{ fontSize: 12.5, color: '#9A8A78', margin: '0 0 16px', lineHeight: 1.5 }}>
+                      {card.desc}
+                    </p>
+                    <button className="card-btn" onClick={e => { e.stopPropagation(); navigate(card.href); }}>
+                      {card.btn} <ArrowRight />
                     </button>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="lg:w-1/3 flex items-center">
-              <div className="w-full h-auto rounded-lg shadow-lg object-cover" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-                {currentNoticeContent ? (
-                  <>
-                    {currentImageSrc ? (
-                      <img src={currentImageSrc} alt="Notice Image" className="w-full h-auto rounded-lg" />
-                    ) : (
-                      <p className="text-lg text-gray-800">{currentNoticeContent}</p>
-                    )}
-                  </>
-                ) : (
-                  <img 
-                    src={currentImageSrc} 
-                    alt={`Default Image ${currentIndex + 1}`} 
-                    className="w-full h-auto rounded-lg shadow-lg object-cover" 
-                    style={{ maxHeight: 'calc(100vh - 250px)' }} 
-                  />
-                )}
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
         </div>
-      </main>
-      <Footer />
+
+      </div>
     </div>
   );
 }
-
-export default Dashboard9;
