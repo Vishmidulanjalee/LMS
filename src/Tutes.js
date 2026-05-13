@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { db } from './firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import Footer from './Footer';
 import SidebarNew from './SidebarNew';
 
@@ -58,15 +58,20 @@ const Tutes = () => {
   useEffect(() => {
     const fetchTutes = async () => {
       try {
-        const q = query(collection(db, 'documents'), where('category', '==', 'Tutes'));
-        const snapshot = await getDocs(q);
+        // General tutes (documents collection) + Grade 10 & 11 tutes (notes1011 collection)
+        const [snap1, snap2] = await Promise.all([
+          getDocs(query(collection(db, 'documents'), where('category', '==', 'Tutes'))),
+          getDocs(query(collection(db, 'notes1011'), orderBy('timestamp', 'desc'))),
+        ]);
+
         const grouped = {};
-        snapshot.docs.forEach(d => {
+        [...snap1.docs, ...snap2.docs].forEach(d => {
           const data = d.data();
           const m = data.month || 'General';
           if (!grouped[m]) grouped[m] = [];
           grouped[m].push({ id: d.id, ...data });
         });
+
         setTutesByMonth(grouped);
         const sorted = Object.keys(grouped).sort((a, b) => (MONTH_ORDER[a] ?? 99) - (MONTH_ORDER[b] ?? 99));
         if (sorted.length > 0) setActiveMonth(sorted[0]);
