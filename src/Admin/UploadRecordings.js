@@ -67,6 +67,25 @@ const SpinnerIcon = () => (
 );
 // ────────────────────────────────────────────────────────
 
+const extractYouTubeId = (url) => {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    // youtu.be/ID
+    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
+    // youtube.com/live/ID or /embed/ID or /shorts/ID
+    const pathMatch = u.pathname.match(/\/(live|embed|shorts)\/([^/?&]+)/);
+    if (pathMatch) return pathMatch[2];
+    // youtube.com/watch?v=ID
+    return u.searchParams.get('v');
+  } catch {
+    return null;
+  }
+};
+
+const getYouTubeThumbnail = (videoId) =>
+  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
 const UploadRecordings = () => {
   const [title, setTitle] = useState('');
   const [link, setLink] = useState('');
@@ -74,6 +93,7 @@ const UploadRecordings = () => {
   const [grade, setGrade] = useState('All Grades');
   const [recordType, setRecordType] = useState('');
   const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailAuto, setThumbnailAuto] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [recordingsByGroup, setRecordingsByGroup] = useState({});
   const [editingId, setEditingId] = useState(null);
@@ -103,18 +123,31 @@ const UploadRecordings = () => {
 
   useEffect(() => { fetchRecordings(); }, []);
 
+  const handleLinkChange = (e) => {
+    const url = e.target.value;
+    setLink(url);
+    const videoId = extractYouTubeId(url);
+    if (videoId) {
+      setThumbnail(getYouTubeThumbnail(videoId));
+      setThumbnailAuto(true);
+    } else if (thumbnailAuto) {
+      setThumbnail(null);
+      setThumbnailAuto(false);
+    }
+  };
+
   const handleThumbnailUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => setThumbnail(reader.result);
+    reader.onloadend = () => { setThumbnail(reader.result); setThumbnailAuto(false); };
     reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !link || !thumbnail || !month) {
-      alert('Title, link, month, and thumbnail are all required.');
+    if (!title || !link || !month) {
+      alert('Title, link, and month are required.');
       return;
     }
     try {
@@ -123,7 +156,7 @@ const UploadRecordings = () => {
       if (recordType && recordType.trim()) payload.type = recordType.trim();
       if (grade && grade !== 'All Grades') payload.grade = grade;
       await addDoc(collection(db, 'recordings'), payload);
-      setTitle(''); setLink(''); setMonth(''); setGrade('All Grades'); setRecordType(''); setThumbnail(null);
+      setTitle(''); setLink(''); setMonth(''); setGrade('All Grades'); setRecordType(''); setThumbnail(null); setThumbnailAuto(false);
       fetchRecordings();
     } catch (error) {
       console.error('Error uploading:', error);
@@ -239,7 +272,7 @@ const UploadRecordings = () => {
               <div>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>YouTube Link</label>
                 <div style={{ position: 'relative' }}>
-                  <input type="url" className="ur-input" value={link} onChange={e => setLink(e.target.value)} placeholder="https://youtube.com/..." required style={{ paddingLeft: 38 }} />
+                  <input type="url" className="ur-input" value={link} onChange={handleLinkChange} placeholder="https://youtube.com/..." required style={{ paddingLeft: 38 }} />
                   <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }}><LinkIcon /></span>
                 </div>
               </div>
@@ -269,11 +302,24 @@ const UploadRecordings = () => {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Thumbnail Image</label>
-                <div style={{ border: '1.5px dashed #E5E7EB', borderRadius: 10, padding: '14px', background: '#FAFAFA' }}>
-                  <input type="file" accept="image/*" onChange={handleThumbnailUpload} style={{ display: 'block', width: '100%', fontSize: 13, color: '#6B7280' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>Thumbnail</label>
+                  {thumbnailAuto && (
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#D1FAE5', color: '#065F46' }}>
+                      Auto-fetched from YouTube
+                    </span>
+                  )}
+                  {!thumbnailAuto && (
+                    <span style={{ fontSize: 11, color: '#9CA3AF' }}>optional override</span>
+                  )}
+                </div>
+                <div style={{ border: `1.5px dashed ${thumbnailAuto ? '#6EE7B7' : '#E5E7EB'}`, borderRadius: 10, padding: '14px', background: thumbnailAuto ? '#F0FDF4' : '#FAFAFA' }}>
                   {thumbnail && (
-                    <img src={thumbnail} alt="Preview" style={{ marginTop: 10, width: '100%', height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                    <img src={thumbnail} alt="Preview" style={{ display: 'block', width: '100%', height: 110, objectFit: 'cover', borderRadius: 8, marginBottom: 10 }} />
+                  )}
+                  <input type="file" accept="image/*" onChange={handleThumbnailUpload} style={{ display: 'block', width: '100%', fontSize: 12, color: '#6B7280' }} />
+                  {thumbnailAuto && (
+                    <p style={{ margin: '8px 0 0', fontSize: 11.5, color: '#059669' }}>Upload a file above to override the auto-fetched thumbnail.</p>
                   )}
                 </div>
               </div>
