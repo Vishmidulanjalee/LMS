@@ -11,6 +11,7 @@ const months = [
   { name: 'March',    route: '/Grade9/Recordings/March'    },
   { name: 'April',    route: '/Grade9/Recordings/April'    },
   { name: 'May',      route: '/Grade9/Recordings/May'      },
+  { name: 'June',     route: '/Grade9/Recordings/June'     },
 ];
 
 const CalendarIcon = () => (

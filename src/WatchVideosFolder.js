@@ -11,6 +11,7 @@ const months = [
   { name: 'March',    route: '/March' },
   { name: 'April',    route: '/April' },
   { name: 'May',      route: '/May' },
+  { name: 'June',     route: '/June' },
 ];
 
 const monthMeta = [
@@ -19,6 +20,7 @@ const monthMeta = [
   { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },
   { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(245,158,11,0.32)' },
   { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },
+  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },
 ];
 
 // ── Icons ─────────────────────────────────────────────

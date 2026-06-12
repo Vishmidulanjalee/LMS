@@ -13,8 +13,8 @@ const MONTHS = [
 const MONTH_ORDER = Object.fromEntries(MONTHS.map((m, i) => [m, i]));
 
 const RECORD_TYPES = [
-  'Write to Bright 1',
-  'Write to Bright 2',
+  'Write to Bright - Essays',
+  'Write to Bright - Notes, Notices & Graphs',
   'Grammar Hammer',
   'Paper Shaper',
 ];

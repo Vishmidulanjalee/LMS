@@ -52,6 +52,7 @@ import Grade9MonthPage from './ADDITIONAL/Grade 9/Grade9MonthPage';
 
 import April from './Recordings/April';
 import May from './Recordings/May';
+import June from './Recordings/June';
 
 function App() {
   return (
@@ -101,6 +102,7 @@ function App() {
 
         <Route path="/April" element={<PrivateRoute element={<April />} />} />
         <Route path="/May" element={<PrivateRoute element={<May />} />} />
+        <Route path="/June" element={<PrivateRoute element={<June />} />} />
 
         {/* Admin Routes */}
         <Route path="/AdminDashboard" element={<AdminRoute element={<AdminDasboard />} />} />
