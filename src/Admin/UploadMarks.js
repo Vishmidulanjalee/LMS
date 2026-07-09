@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, storage } from '../firebase';
 import {
-  collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, Timestamp,
+  collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, Timestamp, updateDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import Footer from '../Footer';
@@ -14,7 +14,6 @@ const MONTH_ORDER = Object.fromEntries(MONTHS.map((m, i) => [m, i]));
 
 const GRADES = ['General', 'Grade 9', 'Grade 10 & 11'];
 
-// Maps grade label → Firestore collection name
 const gradeCollection = (g) => {
   if (g === 'Grade 9') return 'marks9';
   if (g === 'Grade 10 & 11') return 'marks1011';
@@ -47,6 +46,21 @@ const SpinnerIcon = () => (
     <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
       <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
     </path>
+  </svg>
+);
+
+// --- NEW: Eye toggle icons ---
+const EyeIcon = ({ color = '#3B82F6' }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+const EyeOffIcon = ({ color = '#D97706' }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
+    <line x1="1" y1="1" x2="23" y2="23" />
   </svg>
 );
 
@@ -94,6 +108,7 @@ const UploadMarks = () => {
         filePath: fileRef.fullPath,
         month,
         grade,
+        hidden: false,           // <-- default visible
         timestamp: Timestamp.now(),
       });
       setPdfFile(null); setTitle(''); setMonth('');
@@ -119,6 +134,17 @@ const UploadMarks = () => {
     }
   };
 
+  // --- NEW: toggle hidden field in Firestore ---
+  const handleToggleHide = async (id, currentHidden) => {
+    try {
+      await updateDoc(doc(db, gradeCollection(activeGrade), id), { hidden: !currentHidden });
+      fetchMarks(activeGrade);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update visibility.');
+    }
+  };
+
   const sortedMonths = Object.keys(marksByMonth).sort((a, b) => (MONTH_ORDER[a] ?? 99) - (MONTH_ORDER[b] ?? 99));
   const total = Object.values(marksByMonth).reduce((s, arr) => s + arr.length, 0);
 
@@ -135,10 +161,17 @@ const UploadMarks = () => {
         .um-input:focus { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); background: white; }
         .um-card { background: white; border-radius: 14px; border: 1.5px solid #E9EBF0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
         .um-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); border-color: #F59E0B; }
+        .um-card-hidden { background: #F9FAFB; border-radius: 14px; border: 1.5px dashed #D1D5DB; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; opacity: 0.75; }
+        .um-card-hidden:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
         .grade-tab { padding: 7px 18px; border-radius: 9px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; white-space: nowrap; }
         .grade-tab-active { background: linear-gradient(135deg, #FBBF24, #D97706); color: white; border-color: transparent; }
         .grade-tab-inactive { background: white; color: #6B7280; border-color: #E5E7EB; }
         .grade-tab-inactive:hover { border-color: #F59E0B; color: #D97706; }
+        .eye-btn { display: flex; align-items: center; padding: 6px 8px; border-radius: 8px; border: 1.5px solid; cursor: pointer; transition: all 0.15s; }
+        .eye-btn-visible { background: #EFF6FF; border-color: #BFDBFE; }
+        .eye-btn-visible:hover { background: #DBEAFE; }
+        .eye-btn-hidden { background: #FEF3C7; border-color: #FDE68A; }
+        .eye-btn-hidden:hover { background: #FDE68A; }
       `}</style>
 
       {/* Header */}
@@ -224,7 +257,6 @@ const UploadMarks = () => {
 
           {/* Marks list with grade tabs */}
           <div>
-            {/* Grade tabs */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
               {GRADES.map(g => (
                 <button key={g} className={`grade-tab ${activeGrade === g ? 'grade-tab-active' : 'grade-tab-inactive'}`} onClick={() => setActiveGrade(g)}>
@@ -248,32 +280,53 @@ const UploadMarks = () => {
                   <span style={{ fontSize: 11.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, background: '#FEF3C7', color: '#D97706' }}>{marksByMonth[m].length}</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {marksByMonth[m].map(file => (
-                    <div key={file.id} className="um-card">
-                      <div style={{ height: 3, background: 'linear-gradient(90deg, #FBBF24, #D97706)' }} />
-                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 9, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <FileIcon size={16} />
+                  {marksByMonth[m].map(file => {
+                    const isHidden = !!file.hidden;
+                    return (
+                      <div key={file.id} className={isHidden ? 'um-card-hidden' : 'um-card'}>
+                        {/* Top accent bar — grey when hidden */}
+                        <div style={{ height: 3, background: isHidden ? '#D1D5DB' : 'linear-gradient(90deg, #FBBF24, #D97706)' }} />
+                        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 9, background: isHidden ? '#F3F4F6' : '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <FileIcon size={16} color={isHidden ? '#9CA3AF' : '#D97706'} />
+                            </div>
+                            <div style={{ minWidth: 0 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <p style={{ fontSize: 13.5, fontWeight: 700, color: isHidden ? '#9CA3AF' : '#111827', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.title}</p>
+                                {isHidden && (
+                                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 20, background: '#F3F4F6', color: '#9CA3AF', flexShrink: 0, letterSpacing: '0.03em' }}>
+                                    HIDDEN
+                                  </span>
+                                )}
+                              </div>
+                              <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.fileName}</p>
+                            </div>
                           </div>
-                          <div style={{ minWidth: 0 }}>
-                            <p style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.title}</p>
-                            <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.fileName}</p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                            <a href={file.fileUrl} target="_blank" rel="noopener noreferrer"
+                              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, background: isHidden ? '#F3F4F6' : '#FEF3C7', border: `1.5px solid ${isHidden ? '#E5E7EB' : '#FDE68A'}`, color: isHidden ? '#9CA3AF' : '#D97706', fontWeight: 600, fontSize: 12, textDecoration: 'none' }}>
+                              View PDF
+                            </a>
+
+                            {/* --- NEW: Hide/Show toggle button --- */}
+                            <button
+                              onClick={() => handleToggleHide(file.id, isHidden)}
+                              title={isHidden ? 'Show to students' : 'Hide from students'}
+                              className={`eye-btn ${isHidden ? 'eye-btn-hidden' : 'eye-btn-visible'}`}
+                            >
+                              {isHidden ? <EyeOffIcon /> : <EyeIcon />}
+                            </button>
+
+                            <button onClick={() => handleDelete(file.id, file.filePath)}
+                              style={{ display: 'flex', alignItems: 'center', padding: '6px 8px', borderRadius: 8, background: '#FEE2E2', border: 'none', color: '#DC2626', cursor: 'pointer' }}>
+                              <TrashIcon />
+                            </button>
                           </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                          <a href={file.fileUrl} target="_blank" rel="noopener noreferrer"
-                            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, background: '#FEF3C7', border: '1.5px solid #FDE68A', color: '#D97706', fontWeight: 600, fontSize: 12, textDecoration: 'none' }}>
-                            View PDF
-                          </a>
-                          <button onClick={() => handleDelete(file.id, file.filePath)}
-                            style={{ display: 'flex', alignItems: 'center', padding: '6px 8px', borderRadius: 8, background: '#FEE2E2', border: 'none', color: '#DC2626', cursor: 'pointer' }}>
-                            <TrashIcon />
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             ))}

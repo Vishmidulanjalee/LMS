@@ -6,9 +6,8 @@ import Footer from './Footer';
 import SidebarNew from './SidebarNew';
 
 const months = [
-  { name: 'July',      route: '/marks/july' },
-  { name: 'August',    route: '/marks/august' },
-  { name: 'September', route: '/marks/september' },
+  { name: 'June',      route: '/marks/june' },
+
 ];
 
 const monthMeta = [
@@ -16,6 +15,10 @@ const monthMeta = [
   { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },  // Bright Yellow
   { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },   // Deep Amber
 ];
+
+// The three collections your UploadMarks page writes to, depending on grade.
+// If you add more grade collections later in UploadMarks.js, add them here too.
+const GRADE_COLLECTIONS = ['marksheets', 'marks9', 'marks1011'];
 
 // ── Icons ─────────────────────────────────────────────
 const CalendarIcon = () => (
@@ -68,9 +71,16 @@ const Marks = () => {
         const results = {};
         await Promise.all(
           months.map(async ({ name }) => {
-            const q = query(collection(db, 'marksheets'), where('month', '==', name));
-            const snap = await getDocs(q);
-            results[name] = snap.size;
+            // Query every grade collection for this month and sum the sizes,
+            // instead of only checking the single 'marksheets' collection.
+            const collectionCounts = await Promise.all(
+              GRADE_COLLECTIONS.map(async (colName) => {
+                const q = query(collection(db, colName), where('month', '==', name));
+                const snap = await getDocs(q);
+                return snap.size;
+              })
+            );
+            results[name] = collectionCounts.reduce((a, b) => a + b, 0);
           })
         );
         setCounts(results);

@@ -36,6 +36,7 @@ import March from './Recordings/March';
 // Marks by Month
 import JulyMarks from './Marks/JulyMarks';
 import AugustMarks from './Marks/AugustMarks';
+import JuneMarks from './Marks/JuneMarks';
 
 import Tutes from './Tutes';
 import ForgotPassword from './ForgotPassword';
@@ -91,6 +92,8 @@ function App() {
         {/* Marks by Month */}
         <Route path="/marks/july" element={<PrivateRoute element={<JulyMarks />} />} />
         <Route path="/marks/august" element={<PrivateRoute element={<AugustMarks />} />} />
+        <Route path="/marks/june" element={<PrivateRoute element={<JuneMarks />} />} />
+
 
         {/* Grade 9 Routes */}
         <Route path="/Grade9/Dashboard" element={<PrivateRoute element={<Dashboard9 />} />} />
