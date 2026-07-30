@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
-import { db } from '../firebase';
 import {
   addDoc, collection, getDocs, orderBy, query, Timestamp,
   deleteDoc, doc, updateDoc,
 } from 'firebase/firestore';
-import Footer from '../Footer';
+import {
+  Video, Upload, Link2, Pencil, Trash2, Check, X, Search, CalendarDays, Film,
+} from 'lucide-react';
+import { db } from '../firebase';
+import AdminShell from './AdminShell';
+import {
+  Hero, StatCard, SectionBar, Panel, EmptyState, Toast, Spinner,
+  FilterPills, GroupHead, VideoThumb, Field,
+} from '../shared/DashboardUI';
+import { getYouTubeId, getYouTubeThumbnail } from '../shared/youtube';
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -18,73 +26,14 @@ const RECORD_TYPES = [
   'Grammar Hammer',
   'Paper Shaper',
 ];
+// July onwards the classes are organised into these folders instead.
+const JULY_RECORD_TYPES = [
+  'Revision Tute Class',
+  'Essay Class Recordings',
+];
+const typesForMonth = (m) => (m === 'July' ? JULY_RECORD_TYPES : RECORD_TYPES);
+
 const GRADES = ['All Grades', 'Grade 9', 'Grade 10 & 11'];
-
-// ── Icons ──────────────────────────────────────────────
-const UploadIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-const VideoIcon = ({ color = 'white', size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="6" width="14" height="12" rx="2" />
-    <path d="M16 10l6-4v12l-6-4V10z" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 12H5M12 19l-7-7 7-7" />
-  </svg>
-);
-const TrashIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-    <path d="M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-  </svg>
-);
-const EditIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </svg>
-);
-const LinkIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-  </svg>
-);
-const SpinnerIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
-    </path>
-  </svg>
-);
-// ────────────────────────────────────────────────────────
-
-const extractYouTubeId = (url) => {
-  if (!url) return null;
-  try {
-    const u = new URL(url);
-    // youtu.be/ID
-    if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0];
-    // youtube.com/live/ID or /embed/ID or /shorts/ID
-    const pathMatch = u.pathname.match(/\/(live|embed|shorts)\/([^/?&]+)/);
-    if (pathMatch) return pathMatch[2];
-    // youtube.com/watch?v=ID
-    return u.searchParams.get('v');
-  } catch {
-    return null;
-  }
-};
-
-const getYouTubeThumbnail = (videoId) =>
-  `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
 const UploadRecordings = () => {
   const [title, setTitle] = useState('');
@@ -99,6 +48,13 @@ const UploadRecordings = () => {
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [activeMonth, setActiveMonth] = useState('');
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   const fetchRecordings = async () => {
     const q = query(collection(db, 'recordings'), orderBy('timestamp', 'desc'));
@@ -123,12 +79,18 @@ const UploadRecordings = () => {
 
   useEffect(() => { fetchRecordings(); }, []);
 
+  // The category list differs per month, so drop a selection that no longer applies.
+  const handleMonthChange = (m) => {
+    setMonth(m);
+    if (recordType && !typesForMonth(m).includes(recordType)) setRecordType('');
+  };
+
   const handleLinkChange = (e) => {
     const url = e.target.value;
     setLink(url);
-    const videoId = extractYouTubeId(url);
-    if (videoId) {
-      setThumbnail(getYouTubeThumbnail(videoId));
+    const auto = getYouTubeThumbnail(url);
+    if (auto) {
+      setThumbnail(auto);
       setThumbnailAuto(true);
     } else if (thumbnailAuto) {
       setThumbnail(null);
@@ -147,7 +109,7 @@ const UploadRecordings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title || !link || !month) {
-      alert('Title, link, and month are required.');
+      showToast('Title, link, and month are required.', 'error');
       return;
     }
     try {
@@ -157,10 +119,11 @@ const UploadRecordings = () => {
       if (grade && grade !== 'All Grades') payload.grade = grade;
       await addDoc(collection(db, 'recordings'), payload);
       setTitle(''); setLink(''); setMonth(''); setGrade('All Grades'); setRecordType(''); setThumbnail(null); setThumbnailAuto(false);
+      showToast('Recording uploaded.');
       fetchRecordings();
     } catch (error) {
       console.error('Error uploading:', error);
-      alert('Upload failed.');
+      showToast('Upload failed.', 'error');
     } finally {
       setUploading(false);
     }
@@ -168,252 +131,239 @@ const UploadRecordings = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this recording?')) return;
-    try { await deleteDoc(doc(db, 'recordings', id)); fetchRecordings(); }
-    catch (e) { console.error(e); alert('Failed to delete.'); }
+    try {
+      await deleteDoc(doc(db, 'recordings', id));
+      showToast('Recording deleted.');
+      fetchRecordings();
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to delete.', 'error');
+    }
   };
 
   const saveEdit = async () => {
-    if (!editingTitle.trim()) return alert('Title cannot be empty.');
+    if (!editingTitle.trim()) return showToast('Title cannot be empty.', 'error');
     try {
       await updateDoc(doc(db, 'recordings', editingId), { title: editingTitle.trim() });
-      setEditingId(null); setEditingTitle(''); fetchRecordings();
-    } catch (err) { console.error(err); alert('Failed to update title.'); }
+      setEditingId(null); setEditingTitle('');
+      showToast('Title updated.');
+      fetchRecordings();
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to update title.', 'error');
+    }
   };
 
   const sortedMonths = Object.keys(recordingsByGroup).sort((a, b) => (MONTH_ORDER[a] ?? 99) - (MONTH_ORDER[b] ?? 99));
   const totalCount = Object.values(recordingsByGroup).reduce((sum, types) =>
     sum + Object.values(types).reduce((s, recs) => s + recs.length, 0), 0);
 
+  const monthOptions = sortedMonths.map(m => ({
+    value: m,
+    label: m,
+    count: Object.values(recordingsByGroup[m] || {}).reduce((s, r) => s + r.length, 0),
+  }));
+
+  // Topbar search filters the visible month's list.
+  const activeGroups = recordingsByGroup[activeMonth] || {};
+  const q = search.trim().toLowerCase();
+  const filteredGroups = Object.entries(activeGroups).reduce((acc, [type, recs]) => {
+    const matched = q ? recs.filter(r => (r.title || '').toLowerCase().includes(q)) : recs;
+    if (matched.length) acc[type] = matched;
+    return acc;
+  }, {});
+  const visibleCount = Object.values(filteredGroups).reduce((s, r) => s + r.length, 0);
+
+  const detectedId = getYouTubeId(link);
+
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Inter', sans-serif" }} className="flex flex-col min-h-screen bg-yellow-50">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@600;700&display=swap');
-        * { box-sizing: border-box; }
-        .ur-input {
-          width: 100%; padding: 10px 14px;
-          border: 1.5px solid #E5E7EB; border-radius: 10px;
-          font-size: 14px; font-family: 'DM Sans', sans-serif;
-          color: #111827; background: #FAFAFA; outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .ur-input:focus { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); background: white; }
-        .rec-card {
-          background: white; border-radius: 14px; overflow: hidden;
-          border: 1.5px solid #E9EBF0;
-          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
-        }
-        .rec-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); border-color: #F59E0B; }
-        .month-tab {
-          padding: 7px 16px; border-radius: 9px; font-weight: 600; font-size: 13px;
-          cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; white-space: nowrap;
-        }
-        .month-tab-active { background: linear-gradient(135deg, #FBBF24, #D97706); color: white; }
-        .month-tab-inactive { background: white; color: #6B7280; border-color: #E5E7EB; }
-        .month-tab-inactive:hover { border-color: #F59E0B; color: #D97706; }
-        .ur-layout { display: grid; grid-template-columns: 1fr 1.6fr; gap: 28px; align-items: start; }
-        .ur-form-sticky { position: sticky; top: 24px; }
-        .ur-month-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; overflow-x: auto; padding-bottom: 4px; }
-        .ur-rec-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        @media (max-width: 768px) {
-          .ur-layout { grid-template-columns: 1fr; gap: 24px; }
-          .ur-form-sticky { position: static; }
-          .ur-month-tabs { flex-wrap: nowrap; }
-        }
-        @media (max-width: 540px) {
-          .ur-rec-thumb { display: none; }
-          .ur-rec-actions { flex-direction: column; align-items: flex-end; gap: 6px; }
-        }
-      `}</style>
+    <AdminShell
+      active="/UploadRecordings"
+      search={search}
+      onSearch={setSearch}
+      searchPlaceholder="Search recordings by title…"
+      sidebarFooter={{
+        title: 'Thumbnails are automatic',
+        text: 'Paste a YouTube link and the thumbnail is pulled in for you.',
+      }}
+    >
+      <Toast toast={toast} />
 
-      {/* Header */}
-      <header style={{ background: 'linear-gradient(135deg, #FACC15 0%, #F59E0B 60%, #D97706 100%)', boxShadow: '0 4px 20px rgba(245,158,11,0.3)' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => window.location.href = '/AdminDashboard'}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: 'white', backdropFilter: 'blur(4px)' }}
-            >
-              <BackIcon /> Back
-            </button>
-            <div style={{ width: 42, height: 42, borderRadius: 11, background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <VideoIcon />
-            </div>
-            <div>
-              <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 800, color: 'white', margin: 0, textShadow: '0 1px 6px rgba(0,0,0,0.15)' }}>Upload Recordings</h1>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', margin: 0 }}>The BEE Academy — {totalCount} recordings total</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Hero
+        title="Class Recordings"
+        subtitle="Upload class session videos and organise them by month and type."
+        icon={Video}
+      />
 
-      <main className="flex-grow">
-        <div className="ur-layout" style={{ maxWidth: 1280, margin: '0 auto', padding: '24px 20px' }}>
+      <div className="spk-stats spk-stats-3">
+        <StatCard icon={Film} value={totalCount} label="Total recordings" />
+        <StatCard icon={CalendarDays} value={sortedMonths.length} label="Months covered" tone="blue" />
+        <StatCard icon={Video} value={visibleCount} label={activeMonth ? `In ${activeMonth}` : 'Showing'} tone="green" />
+      </div>
 
-          {/* Upload Form */}
-          <div className="ur-form-sticky" style={{ background: 'white', borderRadius: 20, border: '1.5px solid #E9EBF0', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #F3F4F6' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #FEF9C3, #FDE68A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <VideoIcon color="#D97706" />
-                </div>
-                <div>
-                  <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#111827', margin: 0 }}>New Recording</h2>
-                  <p style={{ fontSize: 12, color: '#9CA3AF', margin: 0 }}>Add a class recording</p>
-                </div>
+      <SectionBar
+        title="Recordings"
+        subtitle="Add a recording on the left; manage what's published on the right"
+      />
+
+      <div className="spk-split">
+        {/* ── Upload form ── */}
+        <Panel className="spk-sticky" title="New Recording" subtitle="Add a class recording">
+          <form onSubmit={handleSubmit} className="spk-field-stack">
+            <Field label="Title">
+              <input
+                type="text" className="spk-input" value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. Grammar Lesson — Week 1" required
+              />
+            </Field>
+
+            <Field label="YouTube Link">
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: '#A1A1AA', display: 'flex' }}>
+                  <Link2 size={15} strokeWidth={2} />
+                </span>
+                <input
+                  type="url" className="spk-input" value={link}
+                  onChange={handleLinkChange}
+                  placeholder="https://youtube.com/..." required
+                  style={{ paddingLeft: 34 }}
+                />
               </div>
-            </div>
+            </Field>
 
-            <form onSubmit={handleSubmit} style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Title</label>
-                <input type="text" className="ur-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Grammar Lesson — Week 1" required />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>YouTube Link</label>
-                <div style={{ position: 'relative' }}>
-                  <input type="url" className="ur-input" value={link} onChange={handleLinkChange} placeholder="https://youtube.com/..." required style={{ paddingLeft: 38 }} />
-                  <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF' }}><LinkIcon /></span>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Month</label>
-                  <select className="ur-input" value={month} onChange={e => setMonth(e.target.value)} required>
-                    <option value="">Select Month</option>
-                    {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Grade</label>
-                  <select className="ur-input" value={grade} onChange={e => setGrade(e.target.value)}>
-                    {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Type <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></label>
-                <select className="ur-input" value={recordType} onChange={e => setRecordType(e.target.value)}>
-                  <option value="">— None —</option>
-                  {RECORD_TYPES.map((t, i) => <option key={i} value={t}>{t}</option>)}
+            <div className="spk-field-row">
+              <Field label="Month">
+                <select className="spk-input" value={month} onChange={e => handleMonthChange(e.target.value)} required>
+                  <option value="">Select Month</option>
+                  {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
                 </select>
-              </div>
+              </Field>
+              <Field label="Grade">
+                <select className="spk-input" value={grade} onChange={e => setGrade(e.target.value)}>
+                  {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
+                </select>
+              </Field>
+            </div>
 
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>Thumbnail</label>
-                  {thumbnailAuto && (
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#D1FAE5', color: '#065F46' }}>
-                      Auto-fetched from YouTube
-                    </span>
-                  )}
-                  {!thumbnailAuto && (
-                    <span style={{ fontSize: 11, color: '#9CA3AF' }}>optional override</span>
-                  )}
-                </div>
-                <div style={{ border: `1.5px dashed ${thumbnailAuto ? '#6EE7B7' : '#E5E7EB'}`, borderRadius: 10, padding: '14px', background: thumbnailAuto ? '#F0FDF4' : '#FAFAFA' }}>
-                  {thumbnail && (
-                    <img src={thumbnail} alt="Preview" style={{ display: 'block', width: '100%', height: 110, objectFit: 'cover', borderRadius: 8, marginBottom: 10 }} />
-                  )}
-                  <input type="file" accept="image/*" onChange={handleThumbnailUpload} style={{ display: 'block', width: '100%', fontSize: 12, color: '#6B7280' }} />
-                  {thumbnailAuto && (
-                    <p style={{ margin: '8px 0 0', fontSize: 11.5, color: '#059669' }}>Upload a file above to override the auto-fetched thumbnail.</p>
-                  )}
-                </div>
-              </div>
+            <Field label="Type" hint="(optional)">
+              <select className="spk-input" value={recordType} onChange={e => setRecordType(e.target.value)}>
+                <option value="">— None —</option>
+                {typesForMonth(month).map((t, i) => <option key={i} value={t}>{t}</option>)}
+              </select>
+            </Field>
 
-              <button
-                type="submit" disabled={uploading}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  padding: '12px 20px', borderRadius: 11, border: 'none', cursor: uploading ? 'not-allowed' : 'pointer',
-                  background: uploading ? '#FDE68A' : 'linear-gradient(135deg, #FBBF24, #D97706)',
-                  color: uploading ? '#92400E' : 'white', fontWeight: 700, fontSize: 14,
-                  boxShadow: uploading ? 'none' : '0 4px 14px rgba(245,158,11,0.4)', transition: 'all 0.2s',
-                }}
-              >
-                {uploading ? <><SpinnerIcon /> Uploading…</> : <><UploadIcon /> Upload Recording</>}
-              </button>
-            </form>
-          </div>
-
-          {/* Recordings list */}
-          <div>
-            {/* Month tabs */}
-            {sortedMonths.length > 0 && (
-              <div className="ur-month-tabs">
-                {sortedMonths.map(m => (
-                  <button key={m} className={`month-tab ${activeMonth === m ? 'month-tab-active' : 'month-tab-inactive'}`} onClick={() => setActiveMonth(m)}>
-                    {m}
-                    <span style={{ marginLeft: 5, fontSize: 11, fontWeight: 700, background: activeMonth === m ? 'rgba(255,255,255,0.25)' : '#F3F4F6', color: activeMonth === m ? 'white' : '#6B7280', padding: '1px 6px', borderRadius: 20 }}>
-                      {Object.values(recordingsByGroup[m] || {}).reduce((s, r) => s + r.length, 0)}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {sortedMonths.length === 0 ? (
-              <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid #E9EBF0', padding: '60px 24px', textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: '#FEF3C7', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                  <VideoIcon color="#D97706" />
-                </div>
-                <p style={{ fontSize: 14, color: '#6B7280', margin: 0, fontWeight: 500 }}>No recordings uploaded yet.</p>
-              </div>
-            ) : activeMonth && recordingsByGroup[activeMonth] ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                {Object.entries(recordingsByGroup[activeMonth]).map(([type, recs], idx) => (
-                  <div key={idx}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                      <div style={{ height: 3, width: 20, borderRadius: 4, background: 'linear-gradient(135deg, #FBBF24, #D97706)' }} />
-                      <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 16, fontWeight: 700, color: '#111827', margin: 0 }}>{type}</h3>
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#FEF3C7', color: '#D97706' }}>{recs.length}</span>
+            <Field label="Thumbnail" hint={thumbnailAuto ? '' : '(optional override)'}>
+              {thumbnail && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                  <VideoThumb src={thumbnail} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 12.5, fontWeight: 700 }}>
+                      {thumbnailAuto ? 'Auto-fetched from YouTube' : 'Custom thumbnail'}
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {detectedId && thumbnailAuto && (
+                      <div style={{ fontSize: 11.5, color: '#A1A1AA', fontWeight: 500, marginTop: 3 }}>
+                        Video ID {detectedId}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              <div className={`spk-file ${thumbnailAuto ? 'spk-file-ok' : ''}`}>
+                <input type="file" accept="image/*" onChange={handleThumbnailUpload} />
+                {thumbnailAuto && (
+                  <p className="spk-file-note">Upload a file to override the auto-fetched thumbnail.</p>
+                )}
+              </div>
+            </Field>
+
+            <button type="submit" className="spk-btn spk-btn-solid spk-btn-lg spk-btn-block" disabled={uploading}>
+              {uploading ? <><Spinner size={16} /> Uploading…</> : <><Upload size={16} strokeWidth={2.1} /> Upload Recording</>}
+            </button>
+          </form>
+        </Panel>
+
+        {/* ── Published list ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+          {monthOptions.length > 0 && (
+            <FilterPills options={monthOptions} active={activeMonth} onChange={setActiveMonth} />
+          )}
+
+          <Panel>
+            {sortedMonths.length === 0 ? (
+              <EmptyState
+                icon={Video}
+                title="No recordings uploaded yet."
+                hint="Use the form to publish your first class recording."
+              />
+            ) : visibleCount === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No recordings match your search."
+                hint="Try a different title or clear the search box up top."
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+                {Object.entries(filteredGroups).map(([type, recs]) => (
+                  <div key={type}>
+                    <GroupHead title={type} count={recs.length} />
+                    <div className="spk-list">
                       {recs.map(rec => (
-                        <div key={rec.id} className="rec-card">
-                          <div style={{ height: 3, background: 'linear-gradient(90deg, #FBBF24, #D97706)' }} />
-                          <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
-                            {rec.thumbnail && (
-                              <img src={rec.thumbnail} alt={rec.title} className="ur-rec-thumb" style={{ width: 72, height: 48, objectFit: 'cover', borderRadius: 8, flexShrink: 0 }} />
+                        <div key={rec.id} className="spk-row">
+                          <VideoThumb url={rec.link} src={rec.thumbnail} small />
+                          <div className="spk-row-body">
+                            {editingId === rec.id ? (
+                              <input
+                                className="spk-input" value={editingTitle}
+                                onChange={e => setEditingTitle(e.target.value)} autoFocus
+                              />
+                            ) : (
+                              <>
+                                <div className="spk-row-title spk-truncate">{rec.title}</div>
+                                <div className="spk-row-meta">
+                                  <a
+                                    href={rec.link} target="_blank" rel="noopener noreferrer"
+                                    className="spk-truncate" style={{ color: '#A1A1AA' }}
+                                  >
+                                    <Link2 size={12} strokeWidth={2} />
+                                    <span className="spk-truncate">{rec.link}</span>
+                                  </a>
+                                  {rec.grade && <span className="spk-badge spk-badge-blue">{rec.grade}</span>}
+                                </div>
+                              </>
                             )}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              {editingId === rec.id ? (
-                                <input
-                                  className="ur-input" value={editingTitle}
-                                  onChange={e => setEditingTitle(e.target.value)} autoFocus
-                                  style={{ marginBottom: 6 }}
-                                />
-                              ) : (
-                                <p style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.title}</p>
-                              )}
-                              <a href={rec.link} target="_blank" rel="noopener noreferrer"
-                                style={{ fontSize: 11.5, color: '#6B7280', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' }}>
-                                <LinkIcon />
-                                <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{rec.link}</span>
-                              </a>
-                            </div>
-                            <div className="ur-rec-actions">
-                              {editingId === rec.id ? (
-                                <>
-                                  <button onClick={saveEdit} style={{ padding: '6px 12px', borderRadius: 8, background: '#10B981', color: 'white', border: 'none', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>Save</button>
-                                  <button onClick={() => { setEditingId(null); setEditingTitle(''); }} style={{ padding: '6px 12px', borderRadius: 8, background: '#F3F4F6', color: '#374151', border: 'none', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>Cancel</button>
-                                </>
-                              ) : (
-                                <>
-                                  <button onClick={() => { setEditingId(rec.id); setEditingTitle(rec.title || ''); }}
-                                    style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, background: '#FEF3C7', border: '1.5px solid #FDE68A', color: '#D97706', fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
-                                    <EditIcon /> Edit
-                                  </button>
-                                  <button onClick={() => handleDelete(rec.id)}
-                                    style={{ display: 'flex', alignItems: 'center', padding: '6px 8px', borderRadius: 8, background: '#FEE2E2', border: 'none', color: '#DC2626', cursor: 'pointer' }}>
-                                    <TrashIcon />
-                                  </button>
-                                </>
-                              )}
-                            </div>
+                          </div>
+
+                          <div className="spk-row-actions">
+                            {editingId === rec.id ? (
+                              <>
+                                <button className="spk-btn spk-btn-success spk-btn-sm" onClick={saveEdit}>
+                                  <Check size={14} strokeWidth={2.4} /> Save
+                                </button>
+                                <button
+                                  className="spk-btn spk-btn-ghost spk-btn-sm"
+                                  onClick={() => { setEditingId(null); setEditingTitle(''); }}
+                                >
+                                  <X size={14} strokeWidth={2.4} /> Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  className="spk-btn spk-btn-soft spk-btn-sm"
+                                  onClick={() => { setEditingId(rec.id); setEditingTitle(rec.title || ''); }}
+                                >
+                                  <Pencil size={14} strokeWidth={2} /> Edit
+                                </button>
+                                <button
+                                  className="spk-icon-btn spk-icon-btn-danger"
+                                  onClick={() => handleDelete(rec.id)}
+                                  title="Delete"
+                                >
+                                  <Trash2 size={14} strokeWidth={2} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -421,15 +371,11 @@ const UploadRecordings = () => {
                   </div>
                 ))}
               </div>
-            ) : null}
-          </div>
+            )}
+          </Panel>
         </div>
-      </main>
-
-      <footer className="w-full bg-white border-t mt-auto">
-        <Footer />
-      </footer>
-    </div>
+      </div>
+    </AdminShell>
   );
 };
 

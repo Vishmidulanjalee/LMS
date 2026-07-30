@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../firebase';
 import {
   collection, addDoc, getDocs, deleteDoc, doc, orderBy, query, Timestamp, updateDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import Footer from '../Footer';
+import {
+  BarChart3, Upload, Trash2, Eye, EyeOff, FileText, ExternalLink,
+  Search, CalendarDays,
+} from 'lucide-react';
+import { db, storage } from '../firebase';
+import AdminShell from './AdminShell';
+import {
+  Hero, StatCard, SectionBar, Panel, EmptyState, Toast, Spinner,
+  FilterPills, GroupHead, Field,
+} from '../shared/DashboardUI';
 
 const MONTHS = [
   'January','February','March','April','May','June',
@@ -20,50 +28,6 @@ const gradeCollection = (g) => {
   return 'marksheets';
 };
 
-const UploadIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-const TrashIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" /><path d="M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-  </svg>
-);
-const BackIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 12H5M12 19l-7-7 7-7" />
-  </svg>
-);
-const FileIcon = ({ color = '#D97706', size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
-    <line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="12" y2="17" />
-  </svg>
-);
-const SpinnerIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
-    </path>
-  </svg>
-);
-
-// --- NEW: Eye toggle icons ---
-const EyeIcon = ({ color = '#3B82F6' }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-const EyeOffIcon = ({ color = '#D97706' }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-    <line x1="1" y1="1" x2="23" y2="23" />
-  </svg>
-);
-
 const UploadMarks = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [title, setTitle] = useState('');
@@ -72,6 +36,13 @@ const UploadMarks = () => {
   const [marksByMonth, setMarksByMonth] = useState({});
   const [activeGrade, setActiveGrade] = useState('Grade 9');
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [toast, setToast] = useState(null);
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3500);
+  };
 
   const fetchMarks = async (g) => {
     const col = gradeCollection(g);
@@ -92,7 +63,7 @@ const UploadMarks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!pdfFile || !month || !title) {
-      alert('Please fill all fields: Title, Month, Grade, and PDF file.');
+      showToast('Please fill all fields: Title, Month, Grade, and PDF file.', 'error');
       return;
     }
     try {
@@ -113,10 +84,11 @@ const UploadMarks = () => {
       });
       setPdfFile(null); setTitle(''); setMonth('');
       setActiveGrade(grade);
+      showToast('Marks sheet uploaded.');
       fetchMarks(grade);
     } catch (err) {
       console.error(err);
-      alert('Upload failed.');
+      showToast('Upload failed.', 'error');
     } finally {
       setLoading(false);
     }
@@ -127,215 +99,191 @@ const UploadMarks = () => {
     try {
       await deleteDoc(doc(db, gradeCollection(activeGrade), id));
       await deleteObject(ref(storage, filePath));
+      showToast('Marks sheet deleted.');
       fetchMarks(activeGrade);
     } catch (err) {
       console.error(err);
-      alert('Failed to delete.');
+      showToast('Failed to delete.', 'error');
     }
   };
 
-  // --- NEW: toggle hidden field in Firestore ---
+  // Toggle the `hidden` field so students stop seeing a sheet without deleting it.
   const handleToggleHide = async (id, currentHidden) => {
     try {
       await updateDoc(doc(db, gradeCollection(activeGrade), id), { hidden: !currentHidden });
+      showToast(currentHidden ? 'Now visible to students.' : 'Hidden from students.');
       fetchMarks(activeGrade);
     } catch (err) {
       console.error(err);
-      alert('Failed to update visibility.');
+      showToast('Failed to update visibility.', 'error');
     }
   };
 
   const sortedMonths = Object.keys(marksByMonth).sort((a, b) => (MONTH_ORDER[a] ?? 99) - (MONTH_ORDER[b] ?? 99));
   const total = Object.values(marksByMonth).reduce((s, arr) => s + arr.length, 0);
+  const hiddenCount = Object.values(marksByMonth).reduce(
+    (s, arr) => s + arr.filter(f => f.hidden).length, 0,
+  );
+
+  // Topbar search filters across every month in the active grade.
+  const q = search.trim().toLowerCase();
+  const filteredByMonth = sortedMonths.reduce((acc, m) => {
+    const matched = q
+      ? marksByMonth[m].filter(f =>
+          (f.title || '').toLowerCase().includes(q) || (f.fileName || '').toLowerCase().includes(q))
+      : marksByMonth[m];
+    if (matched.length) acc[m] = matched;
+    return acc;
+  }, {});
+  const visibleMonths = Object.keys(filteredByMonth);
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif" }} className="flex flex-col min-h-screen bg-yellow-50">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:wght@600;700&display=swap');
-        * { box-sizing: border-box; }
-        .um-input {
-          width: 100%; padding: 10px 14px; border: 1.5px solid #E5E7EB; border-radius: 10px;
-          font-size: 14px; font-family: 'DM Sans', sans-serif; color: #111827; background: #FAFAFA; outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .um-input:focus { border-color: #F59E0B; box-shadow: 0 0 0 3px rgba(245,158,11,0.12); background: white; }
-        .um-card { background: white; border-radius: 14px; border: 1.5px solid #E9EBF0; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
-        .um-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,0,0,0.08); border-color: #F59E0B; }
-        .um-card-hidden { background: #F9FAFB; border-radius: 14px; border: 1.5px dashed #D1D5DB; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; opacity: 0.75; }
-        .um-card-hidden:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
-        .grade-tab { padding: 7px 18px; border-radius: 9px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1.5px solid transparent; transition: all 0.2s; white-space: nowrap; }
-        .grade-tab-active { background: linear-gradient(135deg, #FBBF24, #D97706); color: white; border-color: transparent; }
-        .grade-tab-inactive { background: white; color: #6B7280; border-color: #E5E7EB; }
-        .grade-tab-inactive:hover { border-color: #F59E0B; color: #D97706; }
-        .eye-btn { display: flex; align-items: center; padding: 6px 8px; border-radius: 8px; border: 1.5px solid; cursor: pointer; transition: all 0.15s; }
-        .eye-btn-visible { background: #EFF6FF; border-color: #BFDBFE; }
-        .eye-btn-visible:hover { background: #DBEAFE; }
-        .eye-btn-hidden { background: #FEF3C7; border-color: #FDE68A; }
-        .eye-btn-hidden:hover { background: #FDE68A; }
-      `}</style>
+    <AdminShell
+      active="/UploadMarks"
+      search={search}
+      onSearch={setSearch}
+      searchPlaceholder="Search marks sheets…"
+      sidebarFooter={{
+        title: 'Hide instead of delete',
+        text: 'The eye toggle pulls a sheet from students but keeps the file.',
+      }}
+    >
+      <Toast toast={toast} />
 
-      {/* Header */}
-      <header style={{ background: 'linear-gradient(135deg, #FACC15 0%, #F59E0B 60%, #D97706 100%)', boxShadow: '0 4px 20px rgba(245,158,11,0.3)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-3">
-          <button
-            onClick={() => window.location.href = '/AdminDashboard'}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 10, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: 'white' }}
-          >
-            <BackIcon /> Back
-          </button>
-          <div style={{ width: 42, height: 42, borderRadius: 11, background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <UploadIcon />
-          </div>
-          <div>
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: 22, fontWeight: 800, color: 'white', margin: 0 }}>Upload Marks</h1>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', margin: 0 }}>The BEE Academy — {total} sheet{total !== 1 ? 's' : ''} for {activeGrade}</p>
-          </div>
-        </div>
-      </header>
+      <Hero
+        title="Exam Results"
+        subtitle="Upload monthly result sheets and control which ones students can see."
+        icon={BarChart3}
+      />
 
-      <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-6 py-8" style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 28, alignItems: 'start' }}>
+      <div className="spk-stats spk-stats-3">
+        <StatCard icon={FileText} value={total} label={`Sheets in ${activeGrade}`} />
+        <StatCard icon={CalendarDays} value={sortedMonths.length} label="Months covered" tone="blue" />
+        <StatCard icon={EyeOff} value={hiddenCount} label="Hidden from students" tone={hiddenCount ? 'amber' : 'gray'} />
+      </div>
 
-          {/* Upload Form */}
-          <div style={{ background: 'white', borderRadius: 20, border: '1.5px solid #E9EBF0', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', position: 'sticky', top: 24 }}>
-            <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #F3F4F6' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'linear-gradient(135deg, #FEF9C3, #FDE68A)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <FileIcon size={20} />
-                </div>
-                <div>
-                  <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: '#111827', margin: 0 }}>New Marks Sheet</h2>
-                  <p style={{ fontSize: 12, color: '#9CA3AF', margin: 0 }}>Upload a PDF for a specific grade</p>
-                </div>
-              </div>
+      <SectionBar
+        title="Marks Sheets"
+        subtitle="Upload on the left; manage what's published on the right"
+      />
+
+      <div className="spk-split">
+        {/* ── Upload form ── */}
+        <Panel className="spk-sticky" title="New Marks Sheet" subtitle="Upload a PDF for a specific grade">
+          <form onSubmit={handleSubmit} className="spk-field-stack">
+            <Field label="Title">
+              <input
+                type="text" className="spk-input" value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. March Term Test Results" required
+              />
+            </Field>
+
+            <div className="spk-field-row">
+              <Field label="Grade">
+                <select className="spk-input" value={grade} onChange={e => setGrade(e.target.value)} required>
+                  {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
+                </select>
+              </Field>
+              <Field label="Month">
+                <select className="spk-input" value={month} onChange={e => setMonth(e.target.value)} required>
+                  <option value="">Select Month</option>
+                  {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
+                </select>
+              </Field>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Title</label>
-                <input type="text" className="um-input" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., March Term Test Results" required />
+            <Field label="PDF File">
+              <div className={`spk-file ${pdfFile ? 'spk-file-ok' : ''}`}>
+                <input
+                  type="file" accept="application/pdf"
+                  onChange={e => setPdfFile(e.target.files[0])}
+                  required
+                />
+                {pdfFile && <p className="spk-file-note">✓ {pdfFile.name}</p>}
               </div>
+            </Field>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Grade</label>
-                  <select className="um-input" value={grade} onChange={e => setGrade(e.target.value)} required>
-                    {GRADES.map((g, i) => <option key={i} value={g}>{g}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>Month</label>
-                  <select className="um-input" value={month} onChange={e => setMonth(e.target.value)} required>
-                    <option value="">Select Month</option>
-                    {MONTHS.map((m, i) => <option key={i} value={m}>{m}</option>)}
-                  </select>
-                </div>
-              </div>
+            <button type="submit" className="spk-btn spk-btn-solid spk-btn-lg spk-btn-block" disabled={loading}>
+              {loading ? <><Spinner size={16} /> Uploading…</> : <><Upload size={16} strokeWidth={2.1} /> Upload Marks</>}
+            </button>
+          </form>
+        </Panel>
 
-              <div>
-                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 6 }}>PDF File</label>
-                <div style={{ border: '1.5px dashed #E5E7EB', borderRadius: 10, padding: '14px', background: '#FAFAFA' }}>
-                  <input type="file" accept="application/pdf" onChange={e => setPdfFile(e.target.files[0])} style={{ display: 'block', width: '100%', fontSize: 13, color: '#6B7280' }} required />
-                  {pdfFile && <p style={{ fontSize: 12, color: '#10B981', marginTop: 8, fontWeight: 500 }}>✓ {pdfFile.name}</p>}
-                </div>
-              </div>
+        {/* ── Published list ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 0 }}>
+          <FilterPills options={GRADES} active={activeGrade} onChange={setActiveGrade} />
 
-              <button
-                type="submit" disabled={loading}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  padding: '12px 20px', borderRadius: 11, border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-                  background: loading ? '#FDE68A' : 'linear-gradient(135deg, #FBBF24, #D97706)',
-                  color: loading ? '#92400E' : 'white', fontWeight: 700, fontSize: 14,
-                  boxShadow: loading ? 'none' : '0 4px 14px rgba(245,158,11,0.4)', transition: 'all 0.2s',
-                }}
-              >
-                {loading ? <><SpinnerIcon /> Uploading…</> : <><UploadIcon /> Upload Marks</>}
-              </button>
-            </form>
-          </div>
-
-          {/* Marks list with grade tabs */}
-          <div>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-              {GRADES.map(g => (
-                <button key={g} className={`grade-tab ${activeGrade === g ? 'grade-tab-active' : 'grade-tab-inactive'}`} onClick={() => setActiveGrade(g)}>
-                  {g}
-                </button>
-              ))}
-            </div>
-
+          <Panel>
             {sortedMonths.length === 0 ? (
-              <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid #E9EBF0', padding: '60px 24px', textAlign: 'center' }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: '#FEF3C7', border: '1.5px solid #FDE68A', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                  <FileIcon />
-                </div>
-                <p style={{ fontSize: 14, color: '#6B7280', margin: 0, fontWeight: 500 }}>No marks uploaded for {activeGrade}.</p>
-              </div>
-            ) : sortedMonths.map(m => (
-              <div key={m} style={{ marginBottom: 28 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-                  <div style={{ height: 3, width: 20, borderRadius: 4, background: 'linear-gradient(135deg, #FBBF24, #D97706)' }} />
-                  <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: '#111827', margin: 0 }}>{m}</h3>
-                  <span style={{ fontSize: 11.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, background: '#FEF3C7', color: '#D97706' }}>{marksByMonth[m].length}</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {marksByMonth[m].map(file => {
-                    const isHidden = !!file.hidden;
-                    return (
-                      <div key={file.id} className={isHidden ? 'um-card-hidden' : 'um-card'}>
-                        {/* Top accent bar — grey when hidden */}
-                        <div style={{ height: 3, background: isHidden ? '#D1D5DB' : 'linear-gradient(90deg, #FBBF24, #D97706)' }} />
-                        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: 9, background: isHidden ? '#F3F4F6' : '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <FileIcon size={16} color={isHidden ? '#9CA3AF' : '#D97706'} />
+              <EmptyState
+                icon={FileText}
+                title={`No marks uploaded for ${activeGrade}.`}
+                hint="Use the form to upload the first result sheet for this grade."
+              />
+            ) : visibleMonths.length === 0 ? (
+              <EmptyState
+                icon={Search}
+                title="No sheets match your search."
+                hint="Try a different title or clear the search box up top."
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+                {visibleMonths.map(m => (
+                  <div key={m}>
+                    <GroupHead title={m} count={filteredByMonth[m].length} />
+                    <div className="spk-list">
+                      {filteredByMonth[m].map(file => {
+                        const isHidden = !!file.hidden;
+                        return (
+                          <div key={file.id} className={`spk-row ${isHidden ? 'spk-row-dim' : ''}`}>
+                            <div className="spk-row-icon">
+                              <FileText size={19} strokeWidth={1.9} />
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <p style={{ fontSize: 13.5, fontWeight: 700, color: isHidden ? '#9CA3AF' : '#111827', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.title}</p>
-                                {isHidden && (
-                                  <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 7px', borderRadius: 20, background: '#F3F4F6', color: '#9CA3AF', flexShrink: 0, letterSpacing: '0.03em' }}>
-                                    HIDDEN
-                                  </span>
-                                )}
+                            <div className="spk-row-body">
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <span className="spk-row-title spk-truncate">{file.title}</span>
+                                {isHidden && <span className="spk-badge spk-badge-gray">Hidden</span>}
                               </div>
-                              <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '2px 0 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{file.fileName}</p>
+                              <div className="spk-row-meta">
+                                <span className="spk-truncate">{file.fileName}</span>
+                              </div>
+                            </div>
+
+                            <div className="spk-row-actions">
+                              <a
+                                href={file.fileUrl} target="_blank" rel="noopener noreferrer"
+                                className="spk-btn spk-btn-soft spk-btn-sm"
+                              >
+                                <ExternalLink size={13} strokeWidth={2.2} /> View PDF
+                              </a>
+                              <button
+                                className={`spk-icon-btn ${isHidden ? '' : 'spk-icon-btn-blue'}`}
+                                onClick={() => handleToggleHide(file.id, isHidden)}
+                                title={isHidden ? 'Show to students' : 'Hide from students'}
+                              >
+                                {isHidden ? <EyeOff size={14} strokeWidth={2} /> : <Eye size={14} strokeWidth={2} />}
+                              </button>
+                              <button
+                                className="spk-icon-btn spk-icon-btn-danger"
+                                onClick={() => handleDelete(file.id, file.filePath)}
+                                title="Delete"
+                              >
+                                <Trash2 size={14} strokeWidth={2} />
+                              </button>
                             </div>
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                            <a href={file.fileUrl} target="_blank" rel="noopener noreferrer"
-                              style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8, background: isHidden ? '#F3F4F6' : '#FEF3C7', border: `1.5px solid ${isHidden ? '#E5E7EB' : '#FDE68A'}`, color: isHidden ? '#9CA3AF' : '#D97706', fontWeight: 600, fontSize: 12, textDecoration: 'none' }}>
-                              View PDF
-                            </a>
-
-                            {/* --- NEW: Hide/Show toggle button --- */}
-                            <button
-                              onClick={() => handleToggleHide(file.id, isHidden)}
-                              title={isHidden ? 'Show to students' : 'Hide from students'}
-                              className={`eye-btn ${isHidden ? 'eye-btn-hidden' : 'eye-btn-visible'}`}
-                            >
-                              {isHidden ? <EyeOffIcon /> : <EyeIcon />}
-                            </button>
-
-                            <button onClick={() => handleDelete(file.id, file.filePath)}
-                              style={{ display: 'flex', alignItems: 'center', padding: '6px 8px', borderRadius: 8, background: '#FEE2E2', border: 'none', color: '#DC2626', cursor: 'pointer' }}>
-                              <TrashIcon />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )}
+          </Panel>
         </div>
-      </main>
-
-      <footer className="w-full bg-white border-t mt-auto"><Footer /></footer>
-    </div>
+      </div>
+    </AdminShell>
   );
 };
 

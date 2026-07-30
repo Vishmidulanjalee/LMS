@@ -9,6 +9,7 @@ import {
   Eye, EyeOff, BookOpen, Video, BarChart2,
   Clock, CreditCard, AlertCircle, Loader2, ArrowRight
 } from 'lucide-react';
+import { getDashboardRoute, getProgramType } from './utils/studentProgram';
 
 const ADMIN_EMAIL = process.env.REACT_APP_ADMIN_EMAIL;
 
@@ -87,24 +88,25 @@ const Signin = () => {
 
       const data = docSnap.data();
 
-      if (data.status !== 'approved') {
-        setStatus({ type: 'pending', message: 'Your account is pending admin approval. You will be notified once approved.' });
-        setLoading(false);
-        return;
+      // Spoken-programme students sit outside the approval/payment workflow —
+      // they get straight in. Every other programme keeps the existing gates.
+      if (getProgramType(data) !== 'spoken') {
+        if (data.status !== 'approved') {
+          setStatus({ type: 'pending', message: 'Your account is pending admin approval. You will be notified once approved.' });
+          setLoading(false);
+          return;
+        }
+
+        if (!data.paid) {
+          setStatus({ type: 'unpaid', message: 'Your account is approved but payment has not been confirmed. Please contact admin.' });
+          setLoading(false);
+          return;
+        }
       }
 
-      if (!data.paid) {
-        setStatus({ type: 'unpaid', message: 'Your account is approved but payment has not been confirmed. Please contact admin.' });
-        setLoading(false);
-        return;
-      }
-
-      const grade = data.grade || '';
-      if (grade === 'Grade 9') {
-        navigate('/Grade9/Dashboard');
-      } else {
-        navigate('/Dashboard2');
-      }
+      // Spoken-programme students (Student ID like SP2601001) go to their own
+      // dashboard; everyone else falls through to the existing grade logic.
+      navigate(getDashboardRoute(data));
 
     } catch (error) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {

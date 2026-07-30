@@ -10,6 +10,7 @@ import {
   User, Mail, BadgeCheck, GraduationCap, Lock,
   AlertCircle, Info, Loader2, ArrowRight, ChevronDown
 } from 'lucide-react';
+import { isSpokenStudentId, getProgramType, getDashboardRoute } from './utils/studentProgram';
 
 const GRADES = ['Grade 9', 'Grade 10', 'Grade 11'];
 
@@ -77,12 +78,16 @@ const Signup = () => {
 
   const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
 
+  // Spoken-programme students are identified by their Student ID (e.g. SP2601001)
+  // and are not organised by school grade.
+  const isSpoken = isSpokenStudentId(form.studentId);
+
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Full name is required.';
     if (!form.email.trim()) errs.email = 'Email is required.';
     if (!form.studentId.trim()) errs.studentId = 'Student ID is required.';
-    if (!form.grade) errs.grade = 'Please select your grade.';
+    if (!isSpoken && !form.grade) errs.grade = 'Please select your grade.';
     if (form.password.length < 6) errs.password = 'Password must be at least 6 characters.';
     return errs;
   };
@@ -97,14 +102,25 @@ const Signup = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
       const user = userCredential.user;
       const isAdmin = process.env.REACT_APP_ADMIN_EMAIL && form.email.trim() === process.env.REACT_APP_ADMIN_EMAIL;
-      await setDoc(doc(db, "users", user.uid), {
+      const studentId = form.studentId.trim();
+      const userData = {
         name: form.name.trim(), username: form.name.trim(), email: form.email.trim(),
-        studentId: form.studentId.trim(), grade: form.grade,
+        studentId, grade: isSpoken ? '' : form.grade,
+        // Persisted so route guards and queries can gate on programme without
+        // re-parsing the ID, and so admin can override it later if needed.
+        program: getProgramType({ studentId }),
         role: isAdmin ? 'admin' : 'student',
-        status: isAdmin ? 'approved' : 'pending', paid: isAdmin, createdAt: serverTimestamp(),
-      });
+        // Spoken-programme students are outside the approval/payment workflow,
+        // so their accounts are active immediately.
+        status: (isAdmin || isSpoken) ? 'approved' : 'pending',
+        paid: isAdmin || isSpoken,
+        createdAt: serverTimestamp(),
+      };
+      await setDoc(doc(db, "users", user.uid), userData);
       if (isAdmin) {
         navigate('/AdminDashboard');
+      } else if (isSpoken) {
+        navigate(getDashboardRoute(userData));
       } else {
         navigate('/pending-approval');
       }
@@ -205,7 +221,7 @@ const Signup = () => {
 
             <div className="grid grid-cols-2 gap-3">
               <InputField
-                label="Student ID" id="studentId" placeholder="S-2024-001"
+                label="Student ID" id="studentId" placeholder="S-2024-001 / SP2601001"
                 value={form.studentId} onChange={set('studentId')} error={errors.studentId} icon={BadgeCheck}
               />
 
@@ -216,10 +232,11 @@ const Signup = () => {
                     <GraduationCap className="w-4 h-4 text-yellow-400" />
                   </span>
                   <select
-                    id="grade" value={form.grade} onChange={set('grade')} required
-                    className={`${inputBase(errors.grade)} pl-10 pr-8 appearance-none cursor-pointer`}
+                    id="grade" value={form.grade} onChange={set('grade')}
+                    required={!isSpoken} disabled={isSpoken}
+                    className={`${inputBase(errors.grade)} pl-10 pr-8 appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    <option value="">Grade</option>
+                    <option value="">{isSpoken ? 'N/A' : 'Grade'}</option>
                     {GRADES.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                   <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
@@ -252,13 +269,23 @@ const Signup = () => {
               {errors.password && <FieldError msg={errors.password} />}
             </div>
 
-            {/* Info notice */}
-            <div className="flex items-start gap-2.5 px-3.5 py-3 bg-yellow-100 border border-yellow-300 rounded-xl">
-              <Info className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-yellow-800 leading-relaxed font-medium">
-                Your account will be reviewed by an admin. You can log in once approved and payment is confirmed.
-              </p>
-            </div>
+            {/* Info notice — Spoken students skip the approval/payment workflow */}
+            {isSpoken ? (
+              <div className="flex items-start gap-2.5 px-3.5 py-3 bg-yellow-100 border border-yellow-300 rounded-xl">
+                <BadgeCheck className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-yellow-800 leading-relaxed font-medium">
+                  Spoken English programme detected from your Student ID — no grade or admin approval needed.
+                  You'll go straight to your dashboard.
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2.5 px-3.5 py-3 bg-yellow-100 border border-yellow-300 rounded-xl">
+                <Info className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-yellow-800 leading-relaxed font-medium">
+                  Your account will be reviewed by an admin. You can log in once approved and payment is confirmed.
+                </p>
+              </div>
+            )}
 
             <button
               type="submit" disabled={loading}

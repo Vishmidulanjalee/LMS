@@ -1,247 +1,104 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs, query, where, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
-import Footer from './Footer';
-import SidebarNew from './SidebarNew';
+import { Video } from 'lucide-react';
+import StudentShell from './shared/StudentShell';
+import { Hero, SectionBar, Panel, FilterPills, GroupHead, EmptyState } from './shared/DashboardUI';
+import { RecordingList } from './Recordings/MonthRecordingsUI';
 
-const months = [
-  { name: 'January',  route: '/January' },
-  { name: 'February', route: '/February' },
-  { name: 'March',    route: '/March' },
-  { name: 'April',    route: '/April' },
-  { name: 'May',      route: '/May' },
-  { name: 'June',     route: '/June' },
+// April onward is scoped to Grade 10 & 11; January–March recordings aren't
+// grade-tagged in Firestore, so no extra filter is applied for those months.
+const MONTHS = [
+  { name: 'January' },
+  { name: 'February' },
+  { name: 'March' },
+  { name: 'April', gradeFilter: 'Grade 10 & 11' },
+  { name: 'May', gradeFilter: 'Grade 10 & 11' },
+  { name: 'June', gradeFilter: 'Grade 10 & 11' },
+  { name: 'July', gradeFilter: 'Grade 10 & 11' },
 ];
 
-const monthMeta = [
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(245,158,11,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(245,158,11,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(251,191,36,0.32)' },
-  { color: '#fcba03', dark: '#fcba03', shadow: 'rgba(217,119,6,0.32)' },
-];
-
-// ── Icons ─────────────────────────────────────────────
-const CalendarIcon = () => (
-  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
-const VideoIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="6" width="14" height="12" rx="2" />
-    <path d="M16 10l6-4v12l-6-4V10z" />
-  </svg>
-);
-const PlayIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>
-);
-const FilmIcon = ({ size = 15 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="2" />
-    <line x1="7" y1="2" x2="7" y2="22" /><line x1="17" y1="2" x2="17" y2="22" />
-    <line x1="2" y1="12" x2="22" y2="12" /><line x1="2" y1="7" x2="7" y2="7" />
-    <line x1="2" y1="17" x2="7" y2="17" /><line x1="17" y1="17" x2="22" y2="17" /><line x1="17" y1="7" x2="22" y2="7" />
-  </svg>
-);
-const SpinnerIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
-    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
-    </path>
-  </svg>
-);
-// ─────────────────────────────────────────────────────
-
-const WatchRecordings = () => {
-  const navigate = useNavigate();
-  const [counts, setCounts] = useState({});
+const WatchVideosFolder = () => {
+  const [byMonth, setByMonth] = useState({});
   const [loading, setLoading] = useState(true);
-  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [activeMonth, setActiveMonth] = useState('January');
 
   useEffect(() => {
-    const fetchCounts = async () => {
+    const fetchAll = async () => {
       try {
-        const results = {};
-        await Promise.all(
-          months.map(async ({ name }) => {
-            const q = query(collection(db, 'recordings'), where('month', '==', name));
+        const results = await Promise.all(
+          MONTHS.map(async ({ name, gradeFilter }) => {
+            const clauses = [where('month', '==', name)];
+            if (gradeFilter) clauses.push(where('grade', '==', gradeFilter));
+            const q = query(collection(db, 'recordings'), ...clauses, orderBy('timestamp', 'asc'));
             const snap = await getDocs(q);
-            results[name] = snap.size;
-          })
+            return [name, snap.docs.map((d) => ({ id: d.id, ...d.data() }))];
+          }),
         );
-        setCounts(results);
+        setByMonth(Object.fromEntries(results));
       } catch (err) {
-        console.error('Error fetching recording counts:', err);
+        console.error('Error fetching recordings:', err);
       } finally {
         setLoading(false);
       }
     };
-    fetchCounts();
+    fetchAll();
   }, []);
 
-  const totalRecordings = Object.values(counts).reduce((a, b) => a + b, 0);
+  const totalRecordings = Object.values(byMonth).reduce((a, arr) => a + arr.length, 0);
+  const activeRecordings = byMonth[activeMonth] || [];
+
+  // Group the active month's recordings by topic/type, same field the old
+  // per-month pages grouped by.
+  const grouped = {};
+  activeRecordings.forEach((rec) => {
+    const type = rec.type || 'General';
+    if (!grouped[type]) grouped[type] = [];
+    grouped[type].push(rec);
+  });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap');
-        * { box-sizing: border-box; font-family: 'DM Sans', sans-serif; }
+    <StudentShell
+      active="/WatchVideosFolder"
+      sidebarFooter={{
+        title: 'Need help?',
+        text: 'Reach out to your teacher if a recording link is missing.',
+      }}
+    >
+      <Hero
+        eyebrow={!loading && totalRecordings > 0 ? `${totalRecordings} total recordings` : undefined}
+        title="Watch Recordings"
+        subtitle="All class recordings organized by month."
+        icon={Video}
+      />
 
-        .wr-card {
-          background: #fff;
-          border-radius: 18px;
-          overflow: hidden;
-          border: 1.5px solid #E5E7EB;
-          transition: transform 0.26s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.26s ease, border-color 0.26s ease;
-          cursor: pointer;
-        }
-        .wr-card:hover { transform: translateY(-8px); }
+      <SectionBar
+        title={activeMonth}
+        subtitle={loading ? 'Loading…' : `${activeRecordings.length} ${activeRecordings.length === 1 ? 'recording' : 'recordings'}`}
+      />
 
-        .wr-btn {
-          display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-          width: 100%; padding: 11px 18px; border-radius: 10px;
-          font-weight: 600; font-size: 13.5px; border: none; cursor: pointer;
-          transition: filter 0.2s, transform 0.15s; letter-spacing: 0.01em; color: white;
-        }
-        .wr-btn:hover { filter: brightness(1.12); transform: translateY(-2px); }
-        .wr-btn:active { transform: translateY(0); filter: brightness(0.96); }
+      <FilterPills
+        options={MONTHS.map((m) => ({ value: m.name, label: m.name, count: (byMonth[m.name] || []).length }))}
+        active={activeMonth}
+        onChange={setActiveMonth}
+      />
 
-        .wr-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-          gap: 22px;
-        }
-        @media (max-width: 580px) { .wr-grid { grid-template-columns: 1fr; } }
-        @media (min-width: 1024px) { .wr-content { margin-left: 228px; } }
-        @media (max-width: 1023px) { .wr-header { padding-left: 60px !important; } }
-      `}</style>
-
-      <div style={{ display: 'flex', flexGrow: 1 }}>
-        <SidebarNew activeItem="Videos" />
-
-        <div className="wr-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-
-          {/* ── Header ── */}
-          <header className="wr-header" style={{ background: 'white', borderBottom: '1px solid #E5E7EB', padding: '0 32px' }}>
-            <div style={{ padding: '20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-                <div style={{
-                  width: 46, height: 46, borderRadius: 13,
-                  background: 'linear-gradient(135deg, #FBBF24, #D97706)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 4px 16px rgba(245,158,11,0.42)',
-                }}>
-                  <VideoIcon />
-                </div>
-                <div>
-                  <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 23, fontWeight: 700, color: '#111827', margin: 0, lineHeight: 1.2 }}>
-                    Watch Recordings
-                  </h1>
-                  <p style={{ fontSize: 13, color: '#9CA3AF', margin: '3px 0 0', fontWeight: 400 }}>
-                    All class recordings organized by month
-                  </p>
-                </div>
-              </div>
-
-              {!loading && totalRecordings > 0 && (
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 7,
-                  background: '#111827', borderRadius: 10, padding: '9px 16px',
-                }}>
-                  <FilmIcon size={16} />
-                  <span style={{ fontSize: 13.5, color: 'white', fontWeight: 600 }}>
-                    {totalRecordings} total recordings
-                  </span>
-                </div>
-              )}
+      <Panel>
+        {loading ? (
+          <EmptyState icon={Video} title="Loading recordings…" hint="This only takes a moment." />
+        ) : activeRecordings.length === 0 ? (
+          <EmptyState icon={Video} title={`No recordings found for ${activeMonth}.`} hint="Check back after your next class." />
+        ) : (
+          Object.entries(grouped).map(([type, items], i) => (
+            <div key={type} style={{ marginTop: i === 0 ? 0 : 28 }}>
+              <GroupHead title={type} count={items.length} />
+              <RecordingList items={items} />
             </div>
-          </header>
-
-          {/* ── Cards Grid ── */}
-          <main style={{ flexGrow: 1, padding: '30px 32px' }}>
-            <div className="wr-grid">
-              {months.map((month, index) => {
-                const meta = monthMeta[index];
-                const count = counts[month.name] ?? 0;
-                const isHovered = hoveredIndex === index;
-
-                return (
-                  <div
-                    key={index}
-                    className="wr-card"
-                    style={{
-                      borderColor: isHovered ? meta.color : '#E5E7EB',
-                      boxShadow: isHovered
-                        ? `0 20px 52px ${meta.shadow}`
-                        : '0 2px 8px rgba(0,0,0,0.06)',
-                    }}
-                    onMouseEnter={() => setHoveredIndex(index)}
-                    onMouseLeave={() => setHoveredIndex(null)}
-                  >
-                    {/* Colored gradient header */}
-                    <div style={{
-                      background: `linear-gradient(135deg, ${meta.color}, ${meta.dark})`,
-                      padding: '20px 20px 18px',
-                      display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-                    }}>
-                      <div style={{
-                        width: 46, height: 46, borderRadius: 13,
-                        background: 'rgba(255,255,255,0.2)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'transform 0.22s',
-                        transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                      }}>
-                        <CalendarIcon />
-                      </div>
-
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 5,
-                        fontSize: 12, fontWeight: 600, padding: '4px 11px', borderRadius: 20,
-                        background: 'rgba(255,255,255,0.22)', color: 'white',
-                      }}>
-                        {loading ? <SpinnerIcon /> : <><FilmIcon size={12} />{count} {count === 1 ? 'rec' : 'recs'}</>}
-                      </span>
-                    </div>
-
-                    {/* White body */}
-                    <div style={{ padding: '18px 20px 20px' }}>
-                      <h2 style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 20, fontWeight: 700, color: '#111827',
-                        margin: '0 0 6px', letterSpacing: '-0.01em',
-                      }}>
-                        {month.name}
-                      </h2>
-                      <p style={{ fontSize: 13, color: '#9CA3AF', margin: '0 0 18px', lineHeight: 1.5 }}>
-                        {loading ? 'Loading recordings…' : `${count} class ${count === 1 ? 'recording' : 'recordings'} available`}
-                      </p>
-
-                      <button
-                        className="wr-btn"
-                        onClick={() => navigate(month.route)}
-                        style={{ background: `linear-gradient(135deg, ${meta.color}, ${meta.dark})` }}
-                      >
-                        <PlayIcon />
-                        View Recordings
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </main>
-
-          <Footer />
-        </div>
-      </div>
-    </div>
+          ))
+        )}
+      </Panel>
+    </StudentShell>
   );
 };
 
-export default WatchRecordings;
+export default WatchVideosFolder;

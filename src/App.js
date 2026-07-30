@@ -51,9 +51,14 @@ import Grade9March from './ADDITIONAL/Grade 9/Grade9March';
 import Grade9Recordings from './ADDITIONAL/Grade 9/Grade9Recordings';
 import Grade9MonthPage from './ADDITIONAL/Grade 9/Grade9MonthPage';
 
-import April from './Recordings/April';
+// Spoken English programme
+import SpokenDashboard from './Spoken/SpokenDashboard';
+import AdminSpokenDashboard from './Spoken/AdminSpokenDashboard';
+
+
 import May from './Recordings/May';
 import June from './Recordings/June';
+import July from './Recordings/July';
 
 function App() {
   return (
@@ -103,11 +108,15 @@ function App() {
         <Route path="/Grade9/Recordings" element={<PrivateRoute element={<Grade9Recordings />} />} />
         <Route path="/Grade9/Recordings/:month" element={<PrivateRoute element={<Grade9MonthPage />} />} />
 
-        <Route path="/April" element={<PrivateRoute element={<April />} />} />
         <Route path="/May" element={<PrivateRoute element={<May />} />} />
         <Route path="/June" element={<PrivateRoute element={<June />} />} />
+        <Route path="/July" element={<PrivateRoute element={<July />} />} />
+
+        {/* Spoken English Routes (Student IDs like SP2601001) */}
+        <Route path="/Spoken/Dashboard" element={<PrivateRoute program="spoken" element={<SpokenDashboard />} />} />
 
         {/* Admin Routes */}
+        <Route path="/AdminSpokenDashboard" element={<AdminRoute element={<AdminSpokenDashboard />} />} />
         <Route path="/AdminDashboard" element={<AdminRoute element={<AdminDasboard />} />} />
         <Route path="/AdminDashboardGuest" element={<AdminRoute element={<AdminDashboardGuest />} />} />
         <Route path="/StudentApprovals" element={<AdminRoute element={<StudentApprovals />} />} />
