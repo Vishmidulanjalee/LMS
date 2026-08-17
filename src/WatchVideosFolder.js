@@ -16,6 +16,7 @@ const MONTHS = [
   { name: 'May', gradeFilter: 'Grade 10 & 11' },
   { name: 'June', gradeFilter: 'Grade 10 & 11' },
   { name: 'July', gradeFilter: 'Grade 10 & 11' },
+  { name: 'August', gradeFilter: 'Grade 10 & 11' },
 ];
 
 const WatchVideosFolder = () => {

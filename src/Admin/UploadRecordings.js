@@ -26,12 +26,13 @@ const RECORD_TYPES = [
   'Grammar Hammer',
   'Paper Shaper',
 ];
-// July onwards the classes are organised into these folders instead.
-const JULY_RECORD_TYPES = [
-  'Revision Tute Class',
-  'Essay Class Recordings',
-];
-const typesForMonth = (m) => (m === 'July' ? JULY_RECORD_TYPES : RECORD_TYPES);
+// From July on, each month has its own set of folders — these must match the
+// FOLDERS list in the matching src/Recordings/<Month>.js page.
+const MONTH_RECORD_TYPES = {
+  July: ['Revision Tute Class', 'Essay Class Recordings'],
+  August: ['Past Paper Class', 'QQ Class', 'Write to Bright Class'],
+};
+const typesForMonth = (m) => MONTH_RECORD_TYPES[m] || RECORD_TYPES;
 
 const GRADES = ['All Grades', 'Grade 9', 'Grade 10 & 11'];
 

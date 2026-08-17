@@ -59,6 +59,7 @@ import AdminSpokenDashboard from './Spoken/AdminSpokenDashboard';
 import May from './Recordings/May';
 import June from './Recordings/June';
 import July from './Recordings/July';
+import August from './Recordings/August';
 
 function App() {
   return (
@@ -111,6 +112,7 @@ function App() {
         <Route path="/May" element={<PrivateRoute element={<May />} />} />
         <Route path="/June" element={<PrivateRoute element={<June />} />} />
         <Route path="/July" element={<PrivateRoute element={<July />} />} />
+        <Route path="/August" element={<PrivateRoute element={<August />} />} />
 
         {/* Spoken English Routes (Student IDs like SP2601001) */}
         <Route path="/Spoken/Dashboard" element={<PrivateRoute program="spoken" element={<SpokenDashboard />} />} />
