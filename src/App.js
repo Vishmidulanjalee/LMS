@@ -54,6 +54,7 @@ import Grade9MonthPage from './ADDITIONAL/Grade 9/Grade9MonthPage';
 // Spoken English programme
 import SpokenDashboard from './Spoken/SpokenDashboard';
 import AdminSpokenDashboard from './Spoken/AdminSpokenDashboard';
+import VerifyCertificate from './VerifyCertificate';
 
 
 import May from './Recordings/May';
@@ -75,6 +76,7 @@ function App() {
         <Route path="/GuestDashboard" element={<GuestDashboard />} />
         <Route path="/Home" element={<Home />} />
         <Route path="/StudentTypeSelection" element={<StudentTypeSelection />} />
+        <Route path="/verify/:certId" element={<VerifyCertificate />} />
 
         {/* Protected Student Routes */}
         <Route path="/Dashboard2" element={<PrivateRoute element={<Dashboard2 />} />} />

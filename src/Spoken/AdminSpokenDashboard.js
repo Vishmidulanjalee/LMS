@@ -4,7 +4,7 @@ import {
   Video, PlayCircle, Folder, ClipboardList, PenLine, FileText,
   ChevronLeft, ChevronRight, CalendarDays, Clock, ExternalLink, Inbox,
   Plus, Pencil, Trash2, X, Check, AlarmClock, Search,
-  ShieldCheck, Eye, EyeOff,
+  ShieldCheck, Eye, EyeOff, QrCode,
 } from 'lucide-react';
 import { UI as SPK } from '../shared/dashboardStyles';
 import {
@@ -21,8 +21,11 @@ import {
   SPOKEN, watchSpoken, createSpoken, updateSpoken, deleteSpoken,
   uploadSpokenFile, deleteSpokenFile, sortByDate,
 } from './spokenApi';
+import AdminCertificatesTab from './AdminCertificatesTab';
 
-const TAB = { RECORDINGS: 'recordings', ASSESSMENTS: 'assessments', DOCUMENTS: 'documents' };
+const TAB = {
+  RECORDINGS: 'recordings', ASSESSMENTS: 'assessments', DOCUMENTS: 'documents', CERTIFICATES: 'certificates',
+};
 
 const SECTIONS = {
   [TAB.RECORDINGS]: {
@@ -39,6 +42,11 @@ const SECTIONS = {
     label: 'Tutes & Documents',
     icon: FileText,
     subtitle: 'Worksheets, reference sheets, and handouts',
+  },
+  [TAB.CERTIFICATES]: {
+    label: 'Certificates',
+    icon: QrCode,
+    subtitle: 'Issue completion certificates with a scannable verification QR code',
   },
 };
 
@@ -663,7 +671,7 @@ const AdminSpokenDashboard = () => {
   const activeCount = assessments.filter((a) => isAssessmentVisible(a)).length;
   const expiredCount = assessments.length - activeCount;
 
-  // The sidebar belongs to the admin section, so the three Spoken sections
+  // The sidebar belongs to the admin section, so the four Spoken sections
   // switch via pills that stay visible at every width.
   const sectionPills = Object.entries(SECTIONS).map(([id, s]) => ({
     value: id,
@@ -671,7 +679,8 @@ const AdminSpokenDashboard = () => {
     count:
       id === TAB.RECORDINGS ? recordings.length
         : id === TAB.ASSESSMENTS ? assessments.length
-          : documents.length,
+          : id === TAB.DOCUMENTS ? documents.length
+            : undefined,
   }));
 
   const expiringSoon = useMemo(
@@ -767,6 +776,9 @@ const AdminSpokenDashboard = () => {
               onDelete={(item) => deleteItem(SPOKEN.documents, item, 'Document')}
               onToggleVisible={(item) => toggleVisible(SPOKEN.documents, item)}
             />
+          )}
+          {activeTab === TAB.CERTIFICATES && (
+            <AdminCertificatesTab search={search} showToast={showToast} />
           )}
         </div>
 

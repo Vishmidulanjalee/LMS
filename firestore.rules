@@ -1,0 +1,120 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isTeacher() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/teachers/$(request.auth.uid));
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Owner-updates to their own profile may not touch approval/role/payment fields.
+    function keepsAccountFieldsUnchanged() {
+      return request.resource.data.role == resource.data.role &&
+        request.resource.data.status == resource.data.status &&
+        request.resource.data.paid == resource.data.paid;
+    }
+
+    // ---------- accounts ----------
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isAdmin() || (isOwner(userId) && keepsAccountFieldsUnchanged());
+      allow delete: if isAdmin();
+    }
+
+    match /teachers/{teacherId} {
+      allow get: if isOwner(teacherId) || isAdmin();
+      allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // ---------- certificates (public QR verification) ----------
+    match /certificates/{certId} {
+      allow get: if true;        // /verify/:certId is a public, unauthenticated page
+      allow list: if isAdmin();  // only the admin certificates tab lists the whole collection
+      allow write: if isAdmin();
+    }
+
+    // ---------- Spoken programme public marketing content ----------
+    match /spokenContent/{docId} {
+      allow read: if true;       // shown on the public /GuestDashboard page
+      allow write: if isAdmin();
+    }
+
+    // ---------- Spoken programme student-facing content ----------
+    match /spokenRecordings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /spokenAssessments/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+    match /spokenDocuments/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- shared LMS content ----------
+    match /notices/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /recordings/{docId} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /documents/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /uploads/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin(); }
+
+    // Generic + per-grade notes / homework / marks (grades 6-11)
+    match /notes/{docId}     { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes1011/{docId} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes6/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes7/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes8/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes9/{docId}    { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes10/{docId}   { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /notes11/{docId}   { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+
+    match /homework/{docId}   { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework6/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework7/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework8/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework9/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework10/{docId} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /homework11/{docId} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+
+    // Student submissions: any signed-in user may submit; only staff read/manage them.
+    match /studenthomework6/{docId}  { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+    match /studenthomework7/{docId}  { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+    match /studenthomework8/{docId}  { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+    match /studenthomework9/{docId}  { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+    match /studenthomework10/{docId} { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+    match /studenthomework11/{docId} { allow create: if isSignedIn(); allow read, update, delete: if isAdmin() || isTeacher(); }
+
+    match /marks/{docId}   { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks6/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks7/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks8/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks9/{docId}  { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks10/{docId} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+    match /marks11/{docId} { allow read: if isSignedIn(); allow write: if isAdmin() || isTeacher(); }
+
+    // Everything not explicitly matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
